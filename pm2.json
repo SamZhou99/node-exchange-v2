@@ -1,0 +1,38 @@
+{
+  "apps": [
+    {
+      "name": "exchange-v2",
+      "cwd": "",
+      "script": "./main.js",
+      "max_memory_restart": "500M",
+      "restart_delay": 2000,
+      "exec_mode": "fork",
+      "error_file": "./public/log/www-err.log",
+      "out_file": "./public/log/www-out.log",
+      "pid_file": "./public/log/www.pid",
+      "log_date_format": "YYYY-MM-DD HH:mm:ss",
+      "watch": false,
+      "ignore_watch": [
+        "node_modules",
+        "config"
+      ]
+    },
+    {
+      "name": "exchange-v2-ws",
+      "cwd": "",
+      "script": "./main.ws.js",
+      "max_memory_restart": "500M",
+      "restart_delay": 2000,
+      "exec_mode": "fork",
+      "error_file": "./public/log/ws-err.log",
+      "out_file": "./public/log/ws-out.log",
+      "pid_file": "./public/log/ws.pid",
+      "log_date_format": "YYYY-MM-DD HH:mm:ss",
+      "watch": false,
+      "ignore_watch": [
+        "node_modules",
+        "config"
+      ]
+    }
+  ]
+}
