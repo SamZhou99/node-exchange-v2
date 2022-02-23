@@ -3,6 +3,7 @@ backups/
 config/
 public/uploads/
 public/log/
+public/kline/
 .DS_Store
 #自定义
 
