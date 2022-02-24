@@ -15,7 +15,12 @@ const http = require('http')
 const huobi = require('./app/services/ws.huobi.js')
 huobi.callback = async function (data) {
     // await service.set(data.key, JSON.stringify(data.value))
-    console.log(data)
+    // console.log(data)
+    if (data.key == 'HuoBi API') {
+        if (data.value.ch == 'market.btcusdt.ticker') {
+            broadcastPathSendText('/market.btcusdt.ticker')
+        }
+    }
 }
 huobi.init()
 
@@ -87,6 +92,7 @@ wsServer.on('request', async function (request) {
     })
 
     conn.on('message', function (message) {
+        console.log('客户端消息')
         console.log(message)
         // 	if (message.type === 'utf8') {
         // 		console.log('Received Message: ' + message.utf8Data);
