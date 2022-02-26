@@ -18,7 +18,7 @@ huobi.callback = async function (data) {
     // console.log(data)
     if (data.key == 'HuoBi API') {
         if (data.value.ch == 'market.btcusdt.ticker') {
-            broadcastPathSendText('/market.btcusdt.ticker')
+            broadcastPathSendText('/market.btcusdt.ticker', JSON.stringify(data.value))
         }
     }
 }
