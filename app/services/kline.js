@@ -1,6 +1,6 @@
 const fs = require('fs');
 const utils99 = require('node-utils99')
-// const { db } = require('../../lib/db.setup.js')
+const ktFormat = require('../../lib/kline.time.format.js')
 
 async function huobiApiKline(symbol, period, size) {
     // 火币API https://huobiapi.github.io/docs/spot/v1/en/#get-klines-candles
@@ -18,11 +18,19 @@ async function huobiApiKline(symbol, period, size) {
     return null
 }
 
-module.exports = {
+function getJsonFilePath(symbol, period) {
+    // 1min, 5min, 15min, 30min, 60min, 4hour, 1day, 1mon, 1week, 1year
+    const date = ktFormat.getDateTimeFormat(period)
+    const path = __dirname + `/../../public/kline/${symbol}-${date}-${period}.json`
+    console.log('K线图文件路径：', path)
+    return path
+}
+
+let _t = {
     async get(symbol = 'btcusdt', period = '1day', size = '500') {
-        const DATE = utils99.moment().utcOffset(480).format('YYYYMMDD')
-        let filePath = __dirname + `/../../public/kline/${symbol}-${DATE}-${period}.json`
-        console.log('K线图文件路径：', filePath);
+
+        let filePath = getJsonFilePath(symbol, period)
+
         if (fs.existsSync(filePath)) {
             let res = fs.readFileSync(filePath)
             return JSON.parse(res.toString())
@@ -33,3 +41,6 @@ module.exports = {
         return klineRes
     },
 }
+
+
+module.exports = _t
