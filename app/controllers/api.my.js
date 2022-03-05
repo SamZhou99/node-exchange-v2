@@ -2,6 +2,7 @@ const S = require('fluent-schema')
 const utils99 = require('node-utils99')
 const service_login_log = require('../services/login_log.js');
 const service_auth = require('../services/auth.js');
+const service_withdraw = require('../services/withdraw_log.js');
 
 let _t = {
     login_log: {
@@ -106,7 +107,45 @@ let _t = {
         }
     },
 
+    withdraw: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('user_id', S.integer().required())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const page = parseInt(query.page) || 1
+            const size = parseInt(query.size) || 10
+            const start = (page - 1) * size
+            const user_id = query.user_id
 
+            const auth_res = await service_auth.oneById(user_id)
+            const withdraw_res = await service_withdraw.list(user_id, start, size)
+            const list = withdraw_res.list
+            const total = withdraw_res.total
+            return reply.send({
+                flag: 'ok', data: {
+                    authInfo: auth_res,
+                    list,
+                    page: { total, page, size }
+                }
+            })
+        },
+        post_opts: {
+            schema: {
+                body: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('country', S.string().required())
+                    .prop('full_name', S.string().required())
+                    .prop('id_number', S.string().required())
+            }
+        },
+        async post(request, reply) {
+            // 
+        },
+    }
 }
 module.exports = _t
 

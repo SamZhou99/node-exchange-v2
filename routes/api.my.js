@@ -10,7 +10,10 @@ async function routes(fastify, options) {
     fastify.get('/authentication', controlless.authentication.get_opts, controlless.authentication.get)
     // 提交身份信息
     fastify.post('/authentication', controlless.authentication.opts, controlless.authentication.post)
-
+    // 提现页所需信息
+    fastify.get('/withdraw', controlless.withdraw.get_opts, controlless.withdraw.get)
+    // 申请提现
+    fastify.post('/withdraw', controlless.withdraw.post_opts, controlless.withdraw.post)
 
 
 
