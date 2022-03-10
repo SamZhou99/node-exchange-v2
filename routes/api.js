@@ -14,6 +14,9 @@ async function routes(fastify, options) {
     fastify.get('/caches', controlless.api.caches.opts, controlless.api.caches.get)
     // K线数据
     fastify.get('/kline', controlless.api.kline.opts, controlless.api.kline.get)
+    // 平台币
+    fastify.get('/platform-currency', controlless.api.platform_currency.opts, controlless.api.platform_currency.get)
+    fastify.get('/:coin_name/platform-currency', controlless.api.platform_currency.opts, controlless.api.platform_currency.getItem)
 
 
     // 中间件

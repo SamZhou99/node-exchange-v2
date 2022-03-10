@@ -3,10 +3,54 @@ const utils99 = require('node-utils99')
 const service_login_log = require('../services/login_log.js');
 const service_auth = require('../services/auth.js');
 const service_withdraw = require('../services/withdraw_log.js');
+const service_withdrawCharges = require('../services/withdraw_charges.js');
+const service_wallet = require('../services/wallet.js');
+const service_wallet_log = require('../services/wallet_log.js');
 
 let _t = {
+    assets: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('user_id', S.integer().required())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const user_id = query.user_id
+            const walletList = await service_wallet.list(user_id)
+            reply.send({
+                flag: 'ok', data: { walletList }
+            })
+        }
+    },
+    assets_list: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+            const user_id = query.user_id
+            const walletLogRes = await service_wallet_log.list(user_id, start, size)
+            const total = walletLogRes.total
+            reply.send({
+                flag: 'ok', data: {
+                    list: walletLogRes.list,
+                    page: { total, page, size }
+                }
+            })
+        }
+    },
     login_log: {
-        opts: {
+        get_opts: {
             schema: {
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
@@ -29,7 +73,7 @@ let _t = {
     },
 
     upload_photo: {
-        opts: {
+        post_opts: {
             schema: {
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
@@ -65,7 +109,7 @@ let _t = {
     },
 
     authentication: {
-        opts: {
+        post_opts: {
             schema: {
                 body: S.object()
                     .prop('user_id', S.integer().required())
@@ -121,13 +165,15 @@ let _t = {
             const start = (page - 1) * size
             const user_id = query.user_id
 
-            const auth_res = await service_auth.oneById(user_id)
-            const withdraw_res = await service_withdraw.list(user_id, start, size)
-            const list = withdraw_res.list
-            const total = withdraw_res.total
+            const authInfo = await service_auth.oneById(user_id)
+            const withdrawRes = await service_withdraw.list(user_id, start, size)
+            const withdrawCharges = await service_withdrawCharges.list()
+            const list = withdrawRes.list
+            const total = withdrawRes.total
             return reply.send({
                 flag: 'ok', data: {
-                    authInfo: auth_res,
+                    authInfo,
+                    withdrawCharges,
                     list,
                     page: { total, page, size }
                 }

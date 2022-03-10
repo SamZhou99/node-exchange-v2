@@ -83,17 +83,16 @@ wsServer.on('request', async function (request) {
     // request.reject();
     conn.id = `uuid_${new Date().getTime()}_` + String(Math.random()).replace('.', '')
     conn.path = request.resourceURL.path
-    console.log('联机成功', request.resourceURL.path, conn.id)
+    console.log('联机成功', conn.path, conn.id)
     connectionObj.add(conn)
 
     conn.on('close', function (reasonCode, description) {
-        console.log('断开联机')
+        console.log('断开联机', conn.path, conn.id)
         connectionObj.remove(conn.id)
     })
 
     conn.on('message', function (message) {
-        console.log('客户端消息')
-        console.log(message)
+        // console.log('客户端消息', message)
         // 	if (message.type === 'utf8') {
         // 		console.log('Received Message: ' + message.utf8Data);
         // 		connection.sendUTF(message.utf8Data);
