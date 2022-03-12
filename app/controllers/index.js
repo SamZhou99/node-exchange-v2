@@ -67,5 +67,13 @@ let main = {
             return reply.download('hi.html')
         }
     },
+
+    test_ip: {
+        async page(request, reply) {
+            return {
+                data: request.headers
+            }
+        }
+    }
 }
 module.exports = { main, api }

@@ -12,5 +12,14 @@ let _t = {
         const res = await db.Query("SELECT * FROM member_withdraw_log WHERE user_id=? LIMIT 1", [user_id])
         return res.length > 0 ? res[0] : null
     },
+    async ApplyFor(user_id, status, apply_amount, real_amount, charges, type, address) {
+        const failed_reason = ""
+        const create_datetime = utils99.Time()
+        const update_datetime = utils99.Time()
+        const res = await db.Query(
+            "INSERT INTO member_withdraw_log(user_id, status, apply_amount, real_amount, charges, `type`, address, failed_reason, create_datetime, update_datetime) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [user_id, status, apply_amount, real_amount, charges, type, address, failed_reason, create_datetime, update_datetime])
+        return res
+    },
 }
 module.exports = _t

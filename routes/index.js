@@ -9,6 +9,7 @@ async function routes(fastify, options) {
     fastify.get('/upload', controlless.main.upload.page)
     fastify.post('/upload', controlless.main.upload.post)
     fastify.get('/download', controlless.main.download.page)
+    fastify.get('/test-ip', controlless.main.test_ip.page)
 }
 
 module.exports = routes

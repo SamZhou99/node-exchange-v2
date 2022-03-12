@@ -7,6 +7,8 @@ const service_caches = require('../services/caches.js');
 const service_kline = require('../services/kline.js');
 const service_login_log = require('../services/login_log.js');
 const service_platform_currency = require('../services/platform_currency.js');
+const service_wallet = require('../services/wallet.js');
+
 
 let _t = {
     config: {
@@ -170,13 +172,24 @@ let _t = {
             })
         },
         async getItem(request, reply) {
+            const query = request.query
             const params = request.params
+            const user_id = query.user_id
             const coin_name = params.coin_name
             const item = await service_platform_currency.oneBySymbol(coin_name)
             if (!item) {
                 return { flag: 'no data' }
             }
-            return { flag: 'ok', data: item }
+
+            let data = { platformCurrency: item }
+
+            if (user_id) {
+                data.walletList = await service_wallet.list(user_id)
+            }
+
+            return {
+                flag: 'ok', data: data
+            }
         }
     },
 }

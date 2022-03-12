@@ -160,20 +160,33 @@ let _t = {
         },
         async get(request, reply) {
             const query = request.query
+            const user_id = query.user_id
+
+            const authInfo = await service_auth.oneById(user_id)
+            const walletList = await service_wallet.list(user_id)
+            const withdrawCharges = await service_withdrawCharges.list()
+
+            return reply.send({
+                flag: 'ok', data: {
+                    authInfo,
+                    walletList,
+                    withdrawCharges,
+                }
+            })
+        },
+        async list(request, reply) {
+            const query = request.query
             const page = parseInt(query.page) || 1
             const size = parseInt(query.size) || 10
             const start = (page - 1) * size
             const user_id = query.user_id
 
-            const authInfo = await service_auth.oneById(user_id)
             const withdrawRes = await service_withdraw.list(user_id, start, size)
-            const withdrawCharges = await service_withdrawCharges.list()
             const list = withdrawRes.list
             const total = withdrawRes.total
+
             return reply.send({
                 flag: 'ok', data: {
-                    authInfo,
-                    withdrawCharges,
                     list,
                     page: { total, page, size }
                 }
@@ -183,13 +196,45 @@ let _t = {
             schema: {
                 body: S.object()
                     .prop('user_id', S.integer().required())
-                    .prop('country', S.string().required())
-                    .prop('full_name', S.string().required())
-                    .prop('id_number', S.string().required())
+                    .prop('withdrawAmount', S.integer().required())
+                    .prop('withdrawCoinType', S.string().required())
+                    .prop('withdrawAddress', S.string().required())
             }
         },
         async post(request, reply) {
-            // 
+            const body = request.body
+            const user_id = body.user_id
+            const withdrawAmount = body.withdrawAmount
+            const withdrawCoinType = body.withdrawCoinType
+            const withdrawAddress = body.withdrawAddress
+
+            const walletRes = await service_wallet.oneByCoinName(user_id, withdrawCoinType)
+            // wallet异常
+            if (!walletRes) {
+                return { flag: 'data anomaly : ' + [user_id, withdrawCoinType] }
+            }
+            // 余额不够
+            if (walletRes.amount < withdrawAmount) {
+                return { flag: 'Insufficient Balance' }
+            }
+
+            // 添加提现申请
+            const withdrawChargesRes = await service_withdrawCharges.oneByCoinName(withdrawCoinType)
+            const charges = withdrawChargesRes.value
+            const real_amount = withdrawAmount - charges
+            // 写入申请记录
+            const withdrawRes = await service_withdraw.ApplyFor(user_id, 1, withdrawAmount, charges, real_amount, withdrawCoinType, withdrawAddress)
+
+            // 更新资产钱包余额
+            const balance = walletRes.amount - withdrawAmount
+            await service_wallet.updateAssetsAmount(user_id, withdrawCoinType, balance)
+
+            reply.send({
+                flag: 'ok', data: {
+                    body,
+                    withdrawRes,
+                }
+            })
         },
     }
 }
