@@ -1,0 +1,12 @@
+{
+    "title": "標題",
+    "menu_home": "Page d'accueil",
+    "menu_market": "cours du marché",
+    "menu_futures": "Transactions de contrats",
+    "menu_startup": "Les projets initiaux",
+    "menu_login": "Login pour utilisateurs",
+    "menu_reg": "Enregistrement des utilisateurs",
+    "menu_lang": "langue",
+    "foot_about": "À propos de nous",
+    "foot_contact": "Nous contacter contact"
+}

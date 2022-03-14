@@ -6,6 +6,7 @@ const service_withdraw = require('../services/withdraw_log.js');
 const service_withdrawCharges = require('../services/withdraw_charges.js');
 const service_wallet = require('../services/wallet.js');
 const service_wallet_log = require('../services/wallet_log.js');
+const service_transfer_log = require('../services/transfer_log.js')
 
 let _t = {
     assets: {
@@ -24,6 +25,7 @@ let _t = {
             })
         }
     },
+
     assets_list: {
         get_opts: {
             schema: {
@@ -49,6 +51,7 @@ let _t = {
             })
         }
     },
+
     login_log: {
         get_opts: {
             schema: {
@@ -156,6 +159,8 @@ let _t = {
             schema: {
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
             }
         },
         async get(request, reply) {
@@ -176,8 +181,8 @@ let _t = {
         },
         async list(request, reply) {
             const query = request.query
-            const page = parseInt(query.page) || 1
-            const size = parseInt(query.size) || 10
+            const page = query.page || 1
+            const size = query.size || 10
             const start = (page - 1) * size
             const user_id = query.user_id
 
@@ -214,7 +219,7 @@ let _t = {
                 return { flag: 'data anomaly : ' + [user_id, withdrawCoinType] }
             }
             // 余额不够
-            if (walletRes.amount < withdrawAmount) {
+            if (walletRes.assets_amount < withdrawAmount) {
                 return { flag: 'Insufficient Balance' }
             }
 
@@ -226,7 +231,7 @@ let _t = {
             const withdrawRes = await service_withdraw.ApplyFor(user_id, 1, withdrawAmount, charges, real_amount, withdrawCoinType, withdrawAddress)
 
             // 更新资产钱包余额
-            const balance = walletRes.amount - withdrawAmount
+            const balance = walletRes.assets_amount - withdrawAmount
             await service_wallet.updateAssetsAmount(user_id, withdrawCoinType, balance)
 
             reply.send({
@@ -236,6 +241,68 @@ let _t = {
                 }
             })
         },
+    },
+
+    transfer: {
+        post_opts: {
+            schema: {
+                body: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('coin_type', S.string().required())
+                    .prop('assets_amount', S.integer().required())
+                    .prop('contract_amount', S.integer().required())
+            }
+        },
+        async post(request, reply) {
+            const body = request.body
+            const user_id = body.user_id
+            const coin_type = body.coin_type
+            const assets_amount = Math.abs(body.assets_amount)
+            const contract_amount = Math.abs(body.contract_amount)
+            const total = assets_amount + contract_amount
+
+            const walletRes = await service_wallet.oneByCoinName(user_id, coin_type)
+            const real_assets_amount = walletRes.assets_amount
+            const real_contract_amount = walletRes.contract_amount
+            const real_total = real_assets_amount + real_contract_amount
+
+            if (total != real_total) {
+                return { flag: 'data exception', data: { t1: total, t2: real_total } }
+            }
+
+            let action = "sub"
+            let amount = Math.abs(real_contract_amount - contract_amount)
+            let balance = real_contract_amount - amount
+            if (assets_amount < real_assets_amount && contract_amount > real_contract_amount) {
+                action = "add"
+                balance = real_contract_amount + amount
+            }
+
+            const transferRes = await service_transfer_log.addLog(user_id, coin_type, amount, balance, action)
+
+            const walletUpdateRes = await service_wallet.updateAssetsAndContract(user_id, coin_type, assets_amount, contract_amount)
+
+            return reply.send({ flag: 'ok', data: { body, walletRes, transferRes, walletUpdateRes } })
+        },
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+            const user_id = query.user_id
+            const resObject = await service_transfer_log.list(user_id, start, size)
+            const list = resObject.list
+            const total = resObject.total
+            return { flag: 'ok', data: { list, page: { total, page, size } } }
+        }
     }
 }
 module.exports = _t

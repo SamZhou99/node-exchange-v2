@@ -1,0 +1,12 @@
+{
+    "title": "title",
+    "menu_home": "첫 페이지",
+    "menu_market": "시장 시세",
+    "menu_futures": "계약 거래",
+    "menu_startup": "첫 번째 종목",
+    "menu_login": "로그인",
+    "menu_reg": "등록",
+    "menu_lang": "언어",
+    "foot_about": "우리",
+    "foot_contact": "연락처"
+}

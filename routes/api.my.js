@@ -18,6 +18,11 @@ async function routes(fastify, options) {
     fastify.get('/withdraw/history', controlless.withdraw.get_opts, controlless.withdraw.list)
     // 申请提现
     fastify.post('/withdraw/applyfor', controlless.withdraw.post_opts, controlless.withdraw.post)
+    // 划转
+    fastify.post('/transfer', controlless.transfer.post_opts, controlless.transfer.post)
+    // 划转历史记录
+    fastify.get('/transfer/history', controlless.transfer.get_opts, controlless.transfer.get)
+
 
 
 

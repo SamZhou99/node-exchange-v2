@@ -71,7 +71,9 @@ let main = {
     test_ip: {
         async page(request, reply) {
             return {
-                data: request.headers
+                data: request.headers,
+                ip: request.ip,
+                ips: request.ips,
             }
         }
     }

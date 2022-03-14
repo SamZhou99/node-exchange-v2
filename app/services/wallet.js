@@ -21,6 +21,12 @@ let _t = {
     async updateContractAmount(user_id, coinName, amount) {
         const res = await db.Query("UPDATE member_wallet SET contract_amount=? WHERE user_id=? AND name=?", [amount, user_id, coinName])
         return res
+    },
+    // 同时更新资产和合约账户
+    async updateAssetsAndContract(user_id, coinName, assetsAmount, contractAmount) {
+        const res = await db.Query("UPDATE member_wallet SET assets_amount=?, contract_amount=? WHERE user_id=? AND name=?", [assetsAmount, contractAmount, user_id, coinName])
+        return res
     }
+
 }
 module.exports = _t
