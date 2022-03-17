@@ -27,7 +27,7 @@ function getJsonFilePath(symbol, period) {
 }
 
 let _t = {
-    async get(symbol = 'btcusdt', period = '1day', size = '500') {
+    async get(symbol = 'btcusdt', period = '1day', size = 500) {
 
         let filePath = getJsonFilePath(symbol, period)
 
@@ -37,7 +37,9 @@ let _t = {
         }
 
         const klineRes = await huobiApiKline(symbol, period, size)
-        fs.writeFileSync(filePath, JSON.stringify(klineRes))
+        if (size > 5) {
+            fs.writeFileSync(filePath, JSON.stringify(klineRes))
+        }
         return klineRes
     },
 }

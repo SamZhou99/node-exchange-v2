@@ -1,7 +1,8 @@
-// const utils99 = require('node-utils99')
+const utils99 = require('node-utils99')
 const pako = require('pako');
 const WebSocketClient = require('websocket').client;
-
+const config = require('../../config/all.js')
+const service_caches = require('./caches.js')
 
 const symbol = 'btcusdt'
 let _t = {

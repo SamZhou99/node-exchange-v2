@@ -112,7 +112,7 @@ let _t = {
         async get(request, reply) {
             const query = request.query
             const key = query.key
-            let res = await service_caches.oneByKey(key)
+            let res = await service_caches.get(key)
             if (res) {
                 res.value = JSON.parse(res.value)
             }
@@ -181,7 +181,12 @@ let _t = {
                 return { flag: 'no data' }
             }
 
-            let data = { platformCurrency: item }
+            // const cachesRes = await service_caches.get('coincap-coin-list')
+            const cachesRes = await service_caches.get('huobi-market-tickers')
+            let data = {
+                platformCurrency: item,
+                caches: JSON.parse(cachesRes.value)
+            }
 
             if (user_id) {
                 data.walletList = await service_wallet.list(user_id)

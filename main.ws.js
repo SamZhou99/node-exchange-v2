@@ -1,3 +1,4 @@
+const utils99 = require('node-utils99')
 const config = require('./config/all.js')
 const WebSocketServer = require('websocket').server
 const http = require('http')
@@ -12,10 +13,21 @@ const http = require('http')
 
 
 // 火币
+let huobiData = {
+    'huobi-market-tickers': ""
+}
+const huobiMarketTickers = require('./app/services/ws.huobi.market.tickers')
+huobiMarketTickers.callback = async function (data) {
+    if (data.key == "huobi-market-tickers") {
+        huobiData['huobi-market-tickers'] = data.value
+        broadcastPathSendText('/market.tickers', data.value)
+    }
+}
+huobiMarketTickers.init()
+
+
 const huobi = require('./app/services/ws.huobi.js')
 huobi.callback = async function (data) {
-    // await service.set(data.key, JSON.stringify(data.value))
-    // console.log(data)
     if (data.key == 'HuoBi API') {
         if (data.value.ch == 'market.btcusdt.ticker') {
             broadcastPathSendText('/market.btcusdt.ticker', JSON.stringify(data.value))
@@ -23,6 +35,8 @@ huobi.callback = async function (data) {
     }
 }
 huobi.init()
+
+
 
 
 
@@ -64,8 +78,10 @@ const server = http.createServer(function (request, response) {
 });
 // 监听端口
 server.listen(config.web.websocket_port, function () {
-    console.log('WebSocket端口', new Date(), config.web.websocket_port)
+    console.log('WebSocket端口', config.web.websocket_port, utils99.Time())
 });
+
+
 // WebSocketServer
 const wsServer = new WebSocketServer({
     httpServer: server,
@@ -76,23 +92,25 @@ const wsServer = new WebSocketServer({
     // to accept it.
     autoAcceptConnections: false
 });
+
+let connIndex = 0;
 // WebSocketServer 请求事件
 wsServer.on('request', async function (request) {
     let conn = request.accept();
-    // 拒绝
+    // @todu 拒绝 需要加强安全链接
     // request.reject();
-    conn.id = `uuid_${new Date().getTime()}_` + String(Math.random()).replace('.', '')
+    conn.id = `uuid_${new Date().getTime()}_` + (connIndex++)
     conn.path = request.resourceURL.path
-    console.log('联机成功', conn.path, conn.id)
+    console.log('客户端联机', conn.path, conn.id)
     connectionObj.add(conn)
 
     conn.on('close', function (reasonCode, description) {
-        console.log('断开联机', conn.path, conn.id)
+        // console.log('客户端断开联机', conn.path, conn.id)
         connectionObj.remove(conn.id)
     })
 
     conn.on('message', function (message) {
-        // console.log('客户端消息', message)
+        // console.log('收到客户端消息', message)
         // 	if (message.type === 'utf8') {
         // 		console.log('Received Message: ' + message.utf8Data);
         // 		connection.sendUTF(message.utf8Data);
@@ -115,6 +133,10 @@ wsServer.on('request', async function (request) {
     // if (conn.path === '/coin/price/platform' && platform_currency_data) {
     //     conn.sendUTF(platform_currency_data)
     // }
+
+    if (conn.path === '/market.tickers' && huobiData['huobi-market-tickers']) {
+        conn.sendUTF(huobiData['huobi-market-tickers'])
+    }
 
 });
 
