@@ -3,6 +3,8 @@ const config = require('./config/all.js')
 const WebSocketServer = require('websocket').server
 const http = require('http')
 
+const service_currency_platform = require('./app/services/currency_platform.js')
+const service_currency_contract = require('./app/services/currency_contract.js')
 
 
 
@@ -12,20 +14,29 @@ const http = require('http')
 
 
 
-// 火币
+
+// 火币市场货币价格 缓存
 let huobiData = {
     'huobi-market-tickers': ""
 }
+// 市场货币价格
 const huobiMarketTickers = require('./app/services/ws.huobi.market.tickers')
 huobiMarketTickers.callback = async function (data) {
     if (data.key == "huobi-market-tickers") {
-        huobiData['huobi-market-tickers'] = data.value
-        broadcastPathSendText('/market.tickers', data.value)
+        const currency_platform_res = await service_currency_platform.list(0, 999)
+        const currency_contract_res = await service_currency_contract.list(0, 999)
+        const objectData = {
+            list: data.value,
+            currency_platform: currency_platform_res.list,
+            currency_contract: currency_contract_res.list,
+        }
+        huobiData['huobi-market-tickers'] = JSON.stringify(objectData)
+        broadcastPathSendText('/market.tickers', huobiData['huobi-market-tickers'])
     }
 }
 huobiMarketTickers.init()
 
-
+// 火币API提供的 btc实时价格
 const huobi = require('./app/services/ws.huobi.js')
 huobi.callback = async function (data) {
     if (data.key == 'HuoBi API') {

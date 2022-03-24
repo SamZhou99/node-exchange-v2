@@ -33,6 +33,23 @@
         "node_modules",
         "config"
       ]
+    },
+    {
+      "name": "exchange-v2-task",
+      "cwd": "",
+      "script": "./main.task.js",
+      "max_memory_restart": "500M",
+      "restart_delay": 2000,
+      "exec_mode": "fork",
+      "error_file": "./public/log/task-err.log",
+      "out_file": "./public/log/task-out.log",
+      "pid_file": "./public/log/task.pid",
+      "log_date_format": "YYYY-MM-DD HH:mm:ss",
+      "watch": false,
+      "ignore_watch": [
+        "node_modules",
+        "config"
+      ]
     }
   ]
 }

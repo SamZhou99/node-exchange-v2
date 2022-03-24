@@ -25,7 +25,7 @@ let _t = {
 
         let arrayData = []
         const key = "huobi-market-tickers"
-        let value = null
+        let jsonData = null
         const a = config.common.coin.need
         for (let i = 0; i < a.length; i++) {
             let item
@@ -34,11 +34,11 @@ let _t = {
                 arrayData.push(item)
             }
         }
-        value = JSON.stringify(arrayData)
-        await service_caches.set(key, value)
-        console.log(key, value.length)
+        jsonData = JSON.stringify(arrayData)
+        await service_caches.set(key, jsonData)
+        console.log(key, jsonData.length)
         if (_t.callback) {
-            _t.callback({ key, value })
+            _t.callback({ key, value: arrayData })
         }
 
         setTimeout(async () => {

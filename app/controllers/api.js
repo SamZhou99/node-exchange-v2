@@ -6,7 +6,10 @@ const service_agent = require('../services/agent.js');
 const service_caches = require('../services/caches.js');
 const service_kline = require('../services/kline.js');
 const service_login_log = require('../services/login_log.js');
-const service_platform_currency = require('../services/platform_currency.js');
+const service_currency_platform = require('../services/currency_platform.js');
+const service_currency_platform_buy = require('../services/currency_platform_buy_log.js');
+// const service_currency_contract = require('../services/currency_contract.js');
+const service_currency_contract_trade_log = require('../services/currency_contract_trade_log.js');
 const service_wallet = require('../services/wallet.js');
 
 
@@ -125,6 +128,8 @@ let _t = {
                 querystring: S.object()
                     .prop('symbol', S.string().required())
                     .prop('period', S.string().required())
+                    .prop('size', S.integer())
+                    .prop('symbol_type', S.string())
             }
         },
         async get(request, reply) {
@@ -132,13 +137,21 @@ let _t = {
             let symbol = query.symbol || 'btcusdt'
             let period = query.period || '1day'
             let size = query.size || '500'
+            let symbol_type = query.symbol_type || ''
 
-            let klineRes = await service_kline.get(symbol, period, size)
+            let klineRes
+            if (symbol_type == "currency_contract") {
+                klineRes = await service_kline.contract.get(symbol, period, size)
+            } else if (symbol_type == "currency_platform") {
+                klineRes = await service_kline.platform.get(symbol, period, size)
+            } else {
+                klineRes = await service_kline.get(symbol, period, size)
+            }
             reply.send({ flag: 'ok', data: klineRes })
         }
     },
 
-    platform_currency: {
+    currency_platform: {
         opts: {
             schema: {
                 querystring: S.object()
@@ -154,18 +167,18 @@ let _t = {
             const start = (page - 1) * size
             const all = query.all || 0
 
-            let platformCurrencyRes = await service_platform_currency.list(start, size)
+            let currencyPlatformRes = await service_currency_platform.list(start, size)
             if (all <= 0) {
-                platformCurrencyRes.list.forEach(function (item) {
+                currencyPlatformRes.list.forEach(function (item) {
                     delete item.abstract
                     delete item.desc
                 })
             }
             reply.send({
                 flag: 'ok', data: {
-                    list: platformCurrencyRes.list,
+                    list: currencyPlatformRes.list,
                     page: {
-                        total: platformCurrencyRes.total,
+                        total: currencyPlatformRes.total,
                         page, size
                     }
                 }
@@ -176,7 +189,7 @@ let _t = {
             const params = request.params
             const user_id = query.user_id
             const coin_name = params.coin_name
-            const item = await service_platform_currency.oneBySymbol(coin_name)
+            const item = await service_currency_platform.oneBySymbol(coin_name)
             if (!item) {
                 return { flag: 'no data' }
             }
@@ -184,7 +197,7 @@ let _t = {
             // const cachesRes = await service_caches.get('coincap-coin-list')
             const cachesRes = await service_caches.get('huobi-market-tickers')
             let data = {
-                platformCurrency: item,
+                currencyPlatform: item,
                 caches: JSON.parse(cachesRes.value)
             }
 
@@ -195,8 +208,124 @@ let _t = {
             return {
                 flag: 'ok', data: data
             }
-        }
+        },
+
+        post_opts: {
+            schema: {
+                body: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('CoinAmount', S.number().required())
+                    .prop('CoinType', S.string().required())
+                    .prop('PlatformCoinAmount', S.number().required())
+                    .prop('PlatformCoinType', S.string().required())
+            }
+        },
+        async post(request, reply) {
+            // @todo 这里提交的数据应该 加密/解密
+            const body = request.body
+            const user_id = body.user_id
+            const CoinAmount = body.CoinAmount
+            const CoinType = body.CoinType
+            const PlatformCoinAmount = body.PlatformCoinAmount
+            const PlatformCoinType = body.PlatformCoinType
+
+            // 检查余额数量
+            const res = await service_wallet.oneByCoinName(user_id, CoinType)
+            if (res.assets_amount < CoinAmount) {
+                return { flag: 'not sufficient funds!' }
+            }
+            // 扣除用户资产相应数量
+            const balance = res.assets_amount - CoinAmount
+            const balanceRes = await service_wallet.updateAssetsAmount(user_id, CoinType, balance)
+            // 添加用户 平台币相应数量
+            const pfRes = await service_wallet.updateAssetsAmount(user_id, PlatformCoinType, PlatformCoinAmount)
+            // 添加用户 平台币参与记录
+            const operator_id = 0
+            const notes = "用户参与平台币"
+            const action = "add"
+            const addLogRes = await service_currency_platform_buy.addLog(user_id, operator_id, CoinAmount, CoinType, PlatformCoinAmount, PlatformCoinType, notes, action)
+            return {
+                flag: 'ok', data: {
+                    balanceRes,
+                    pfRes,
+                    addLogRes,
+                }
+            }
+        },
     },
+
+    currency_contract: {
+        opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const user_id = query.user_id
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+            const res = await service_currency_contract_trade_log.listByUserId(user_id, start, size)
+            reply.send({
+                flag: 'ok', data: {
+                    list: res.list,
+                    page: {
+                        total: res.total,
+                        page, size
+                    }
+                }
+            })
+        },
+
+
+        post_opts: {
+            schema: {
+                body: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('symbol', S.string().required()) //交易对
+                    .prop('lots', S.number().required()) //手数
+                    .prop('multiple', S.number().required()) //倍数
+                    .prop('handling_fee', S.number().required()) //手续费
+                    .prop('margin', S.number().required()) //保证金
+                    .prop('price', S.number()) //价格
+            }
+        },
+        async post(request, reply) {
+            const action = request.params.action
+            const body = request.body
+            const user_id = body.user_id
+            const symbol = body.symbol.toLocaleLowerCase()
+            const lots = body.lots
+            const multiple = body.multiple
+            const handling_fee = body.handling_fee
+            const margin = body.margin
+            const price = body.price
+            const status = 1
+
+            if (action == 'buy') {
+                const tradeRes = await service_currency_contract_trade_log.addLog(user_id, multiple, status, handling_fee, price, lots, margin, 'add', symbol)
+                console.log(tradeRes)
+                // 只消费 usdt
+                const walletRes = await service_wallet.oneByCoinName(user_id, "usdt")
+                const balance = walletRes.contract_amount - margin
+                const walletUpdateRes = await service_wallet.updateContractAmount(user_id, "usdt", balance)
+                return {
+                    flag: 'ok', data: {
+                        action,
+                        body,
+                        walletRes,
+                        walletUpdateRes,
+                    }
+                }
+            }
+
+            return { flag: 'action error' }
+        }
+    }
 }
 module.exports = _t
 
