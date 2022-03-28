@@ -1,5 +1,4 @@
 {
-    "title": "區塊鏈加密貨幣交易中心",
     "menu_home": "首頁",
     "menu_market": "行情",
     "menu_futures": "合約交易",
@@ -7,6 +6,69 @@
     "menu_login": "登錄",
     "menu_reg": "註冊",
     "menu_lang": "語言",
+
+    "menu_my_assets": "我的資產",
+    "menu_contract_account": "合約帳戶",
+    "menu_transfer": "劃轉",
+    "menu_withdraw": "提現",
+    "menu_authentication": "身份認證",
+    "menu_login_log": "登錄日誌",
+    "menu_logout": "登出",
+
     "foot_about": "關於我們",
-    "foot_contact": "聯繫我們"
+    "foot_contact": "聯繫我們",
+    "table_name": "名稱",
+    "table_price": "最新價格",
+    "table_increase": "漲幅",
+    "table_high": "最高",
+    "table_low": "最低",
+    "table_trade": "交易",
+    "table_buy": "購買",
+    "table_24Hvolume": "24時量",
+
+    "futures_but_buy": "買",
+    "futures_but_buy_long": "買漲",
+    "futures_but_sell": "賣",
+    "futures_but_buy_short": "買跌",
+    "futures_available": "可用",
+    "futures_please_select_leverage_multiple": "請選擇杠杆倍數",
+    "futures_handicap": "盤口",
+    "futures_full_station_transaction": "全站交易",
+    "futures_market_price": "市價",
+    "futures_limit_price": "限價",
+    "futures_buy_price": "買入價格",
+    "futures_buy_amount": "買入金額",
+    "futures_sell_price": "賣出價格",
+    "futures_sell_amount": "賣出金額",
+
+    "futures_modal_title": "請確認訂單",
+    "futures_modal_symbol": "交易對",
+    "futures_modal_direction": "方向",
+    "futures_modal_lots": "手數",
+    "futures_modal_multiple": "杠杆倍數",
+    "futures_modal_price": "價格",
+    "futures_modal_handling_fee": "手續費",
+    "futures_modal_margin": "保證金",
+    "futures_modal_total": "總計",
+    "futures_modal_submit": "提交",
+
+    "futures_message_not_sufficient_funds": "帳戶餘額不足！",
+    "futures_message_please_fill_in_the_amount": "請填寫合適的數量！",
+    "futures_message_succeed": "操作成功！",
+
+    "futures_entrust_time": "時間",
+    "futures_entrust_direction": "方向",
+    "futures_entrust_amount": "委托量",
+    "futures_entrust_traded": "已成交",
+    "futures_entrust_traded_BuyStopSellStop": "買入止盈/賣出止損",
+    "futures_entrust_traded_amount": "成交额",
+    "futures_entrust_status": "状态",
+    "futures_entrust_operation": "操作",
+    "futures_entrust_status_1": "委託中",
+    "futures_entrust_status_2": "交易成功",
+    "futures_entrust_status_3": "已撤回",
+    "futures_entrust_cancelled": "取消交易"
+
+
+    
 }

@@ -1,3 +1,4 @@
+const utils99 = require('node-utils99')
 const S = require('fluent-schema')
 
 const service_config = require('../services/config.js');
@@ -295,9 +296,10 @@ let _t = {
             }
         },
         async post(request, reply) {
-            const action = request.params.action
+            // const action = request.params.action
             const body = request.body
             const user_id = body.user_id
+            const action = body.action
             const symbol = body.symbol.toLocaleLowerCase()
             const lots = body.lots
             const multiple = body.multiple
@@ -306,12 +308,15 @@ let _t = {
             const price = body.price
             const status = 1
 
-            if (action == 'buy') {
-                const tradeRes = await service_currency_contract_trade_log.addLog(user_id, multiple, status, handling_fee, price, lots, margin, 'add', symbol)
+            if (action == 'buy' || action == 'sell') {
+                const act = action == "buy" ? 'add' : 'sub'
+                const tradeRes = await service_currency_contract_trade_log.addLog(user_id, multiple, status, handling_fee, price, lots, margin, act, symbol)
                 console.log(tradeRes)
-                // 只消费 usdt
+                // 获取用户usdt余额
                 const walletRes = await service_wallet.oneByCoinName(user_id, "usdt")
+                // 扣除合约余额
                 const balance = walletRes.contract_amount - margin
+                // 更新合约余额
                 const walletUpdateRes = await service_wallet.updateContractAmount(user_id, "usdt", balance)
                 return {
                     flag: 'ok', data: {

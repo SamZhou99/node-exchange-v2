@@ -21,7 +21,7 @@ async function routes(fastify, options) {
     fastify.post('/participation-currency-platform', controlless.api.currency_platform.post_opts, controlless.api.currency_platform.post)
     // 合约 买卖
     fastify.get('/currency-contract/history', controlless.api.currency_contract.opts, controlless.api.currency_contract.get)
-    fastify.post('/currency-contract/:action/trade', controlless.api.currency_contract.post_opts, controlless.api.currency_contract.post)
+    fastify.post('/currency-contract/trade', controlless.api.currency_contract.post_opts, controlless.api.currency_contract.post)
 
 
 

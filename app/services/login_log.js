@@ -17,7 +17,7 @@ let _t = {
     },
     // 登录日志列表
     async list(user_id, user_type, start, length) {
-        let total = await db.Query("SELECT COUNT(0) AS total FROM login_log")
+        let total = await db.Query("SELECT COUNT(0) AS total FROM login_log WHERE user_id=? AND user_type=?", [user_id, user_type])
         total = total[0]['total']
         let list = await db.Query("SELECT * FROM login_log WHERE user_id=? AND user_type=? ORDER BY id DESC LIMIT ?,?", [user_id, user_type, start, length])
         return { total, list }

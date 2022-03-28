@@ -5,7 +5,7 @@ async function routes(fastify, options) {
     // 我的资产
     fastify.get('/assets', controlless.assets.get_opts, controlless.assets.get)
     fastify.get('/assets/list', controlless.assets_list.get_opts, controlless.assets_list.get)
-    // 登录
+    // 登录日誌
     fastify.get('/login-log', controlless.login_log.get_opts, controlless.login_log.get)
     // 上传照片
     fastify.post('/upload-photo', controlless.upload_photo.post_opts, controlless.upload_photo.post)
