@@ -249,8 +249,8 @@ let _t = {
                 body: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('coin_type', S.string().required())
-                    .prop('assets_amount', S.integer().required())
-                    .prop('contract_amount', S.integer().required())
+                    .prop('assets_amount', S.number().required())
+                    .prop('contract_amount', S.number().required())
             }
         },
         async post(request, reply) {
