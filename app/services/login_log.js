@@ -8,7 +8,14 @@ let _t = {
         AGENT: 'agent',
         MEMBER: 'member',
     },
-    // 添加 登录日志
+    /**
+     * 添加 登录日志
+     * @param {*} user_id 
+     * @param {*} user_type admin,agent,member
+     * @param {*} user_agent 
+     * @param {*} ip 
+     * @returns 
+     */
     async addLoginLog(user_id, user_type, user_agent, ip) {
         const create_datetime = utils99.Time()
         const update_datetime = utils99.Time()

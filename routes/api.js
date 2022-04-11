@@ -4,6 +4,8 @@ const middleware = require('../app/middleware/index.js')
 async function routes(fastify, options) {
     // 配置
     fastify.get('/config.json', controlless.api.config.get)
+    // 发送邮箱验证码
+    fastify.post('/send-email-verify', controlless.api.send_email_verify.opts, controlless.api.send_email_verify.post)
     // 注册
     fastify.post('/register', controlless.api.register.opts, controlless.api.register.post)
     // 登录
@@ -19,7 +21,8 @@ async function routes(fastify, options) {
     fastify.get('/:coin_name/currency-platform', controlless.api.currency_platform.opts, controlless.api.currency_platform.getItem)
     // 用户 参与平台币
     fastify.post('/participation-currency-platform', controlless.api.currency_platform.post_opts, controlless.api.currency_platform.post)
-    // 合约 买卖
+    // 合约币列表 合约兑换历史 买卖
+    fastify.get('/currency-contract', controlless.api.currency_contract.list)
     fastify.get('/currency-contract/history', controlless.api.currency_contract.opts, controlless.api.currency_contract.get)
     fastify.post('/currency-contract/trade', controlless.api.currency_contract.post_opts, controlless.api.currency_contract.post)
 

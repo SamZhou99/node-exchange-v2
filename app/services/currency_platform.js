@@ -6,7 +6,7 @@ let _t = {
         let res = await db.Query("SELECT * FROM currency_platform WHERE symbol=? LIMIT 1", [symbol])
         return res.length > 0 ? res[0] : null
     },
-    // 登录日志列表
+    // 平台币列表
     async list(start, length) {
         let total = await db.Query("SELECT COUNT(0) AS total FROM currency_platform")
         total = total[0]['total']

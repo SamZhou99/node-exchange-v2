@@ -15,6 +15,30 @@
     "menu_login_log": "Login Log",
     "menu_logout": "Logout",
 
+    "login_remember_me": "Remember Me",
+    "login_forgot_password": "Forgot Password",
+    "login_register_now": "Register Now",
+    "login_email": "Email",
+    "login_password": "Password",
+
+    "registe_account": "Register Account",
+    "registe_more_characters": "Must contain 6 or more characters.",
+    "registe_confirm_password": "Confirm Password",
+    "registe_invitation_code": "Invitation Code（Optional）",
+    "registe_invitation_code_error": "Invitation code error!",
+    "registe_read_carefully": "I've read it carefully.",
+    "registe_user_agreement": "《User Agreement》",
+    "registe_email_verification_code": "Email verification code",
+    "registe_email_send_code": "Send the email verification code",
+    "registe_email_input_error": "Please enter the correct email address",
+    "registe_successfully": "Register successfully, go to login now!",
+    "registe_account_exists": "The account already exists, please change another account to register!",
+    "registe_email_not_verify": "Email is not verified！",
+
+
+    "forgot_password_title": "Password Recovery By E-mail",
+    "forgot_password_send_email": "The system has sent an email to your mailbox, please note to check!",
+
     "foot_about": "About Us",
     "foot_contact": "Contact Us",
     "table_name": "Name",
@@ -67,7 +91,9 @@
     "futures_entrust_status_1": "Entrusting",
     "futures_entrust_status_2": "Trade Successfully ",
     "futures_entrust_status_3": "Has been withdrawn",
-    "futures_entrust_cancelled": "CANCELLED"
+    "futures_entrust_cancelled": "cancelled",
+
+    "futures_entrust_quick_transfer": "Quick Transfer"
 
 
 }

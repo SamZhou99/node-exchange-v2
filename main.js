@@ -13,8 +13,8 @@ fastify.register(require('point-of-view'), server.Template())
 // cookie
 fastify.register(require('fastify-cookie'), { secret: "8hF0qH8vLLHzVgmATE9oVpfkiZI2X5no" })
 
-// // session
-// fastify.register(require('fastify-session'), { secret: 'Z1rdwh8BsFDqXzK3OHFjUO4kKsrnci6j' })
+// session
+fastify.register(require('@fastify/session'), { secret: 'Z1rdwh8BsFDqXzK3OHFjUO4kKsrnci6j', cookie: { secure: false, } })
 
 // form body
 fastify.register(require('fastify-formbody'))
@@ -48,10 +48,10 @@ fastify.addHook('onResponse', (request, reply, next) => {
 })
 
 // 路由
-fastify.register(require('./routes/index.js'))
-fastify.register(require('./routes/admin.js'), { prefix: '/admin' })
-fastify.register(require('./routes/api.js'), { prefix: '/api' })
+fastify.register(require('./routes/admin.js'), { prefix: '/api/admin' })
 fastify.register(require('./routes/api.my.js'), { prefix: '/api/my' })
+fastify.register(require('./routes/api.js'), { prefix: '/api' })
+fastify.register(require('./routes/index.js'))
 
 
 // 启动服务
@@ -64,3 +64,5 @@ const start = async () => {
     }
 }
 start()
+
+console.log(`http://localhost:${config.web.port}`)

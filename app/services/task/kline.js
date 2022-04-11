@@ -20,6 +20,10 @@ async function huobiApiKline(symbol, period, size) {
     return null
 }
 
+function getSize(symbol, period) {
+    return 365
+}
+
 function getList(res, symbol, period, size) {
     if (!res) {
         console.log('res', res)
@@ -152,9 +156,9 @@ let _t = {
         ]
         for (let index = 0; index < periods.length; index++) {
             const period = periods[index]
-            const size = 365
+            const size = getSize(symbol, period)
             const res = await huobiApiKline(symbol, period, size)
-            // console.log(res)
+            console.log(period, size, res)
             if (res && res.data != undefined) {
                 let a = getList(res, symbol, period, size)
                 for (let i = 0; i < a.length; i++) {

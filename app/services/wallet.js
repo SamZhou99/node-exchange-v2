@@ -26,7 +26,25 @@ let _t = {
     async updateAssetsAndContract(user_id, coinName, assetsAmount, contractAmount) {
         const res = await db.Query("UPDATE member_wallet SET assets_amount=?, contract_amount=? WHERE user_id=? AND name=?", [assetsAmount, contractAmount, user_id, coinName])
         return res
-    }
+    },
 
+    // 为一个账户添加钱包
+    async addWallet(user_id, type, assets_amount, contract_amount, name, address) {
+        const time = utils99.Time()
+        const res = await db.Query("INSERT INTO member_wallet (`user_id`,`type`,`assets_amount`,`contract_amount`,`name`,`address`,`create_datetime`,`update_datetime`) VALUES (?,?,?,?,?,?,?,?)", [user_id, type, assets_amount, contract_amount, name, address, time, time])
+        return res
+    },
+
+
+
+    // 我的资产 上下分
+    async updateAddSubAssetsAmount(user_id, coinName, amount, action = "+") {
+        const res = await db.Query(`UPDATE member_wallet SET assets_amount=assets_amount${action}? WHERE user_id=? AND name=?`, [amount, user_id, coinName])
+        return res
+    },
+    // async updateSubAssetsAmount(user_id, coinName, amount) {
+    //     const res = await db.Query("UPDATE member_wallet SET assets_amount=assets_amount-? WHERE user_id=? AND name=?", [amount, user_id, coinName])
+    //     return res
+    // },
 }
 module.exports = _t

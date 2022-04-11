@@ -1,6 +1,8 @@
 const utils99 = require('node-utils99')
 const S = require('fluent-schema')
 
+const config = require('../../config/all.js');
+
 const service_config = require('../services/config.js');
 const service_member = require('../services/member.js');
 const service_agent = require('../services/agent.js');
@@ -8,10 +10,12 @@ const service_caches = require('../services/caches.js');
 const service_kline = require('../services/kline.js');
 const service_login_log = require('../services/login_log.js');
 const service_currency_platform = require('../services/currency_platform.js');
-const service_currency_platform_buy = require('../services/currency_platform_buy_log.js');
-// const service_currency_contract = require('../services/currency_contract.js');
+const service_currency_platform_buy = require('../services/currency_platform_trade_log.js');
+const service_currency_contract = require('../services/currency_contract.js');
 const service_currency_contract_trade_log = require('../services/currency_contract_trade_log.js');
 const service_wallet = require('../services/wallet.js');
+const service_email_verify_code = require('../services/mail/email_verify_code.js');
+const service_gmail = require('../services/mail/gmail.js');
 
 
 let _t = {
@@ -33,20 +37,29 @@ let _t = {
         },
         async post(request, reply) {
             const body = request.body
-            const account = body.Email
+            const Email = body.Email
+            const EmailVerify = body.EmailVerify
             const password = body.Password
             const notes = ''
-            const type = 1 // 1 普通会员 2 营销人员
-            const status = 1
-            const ip = request.ip
+            const type = 0 // 0普通会员，1营销人员
+            const status = 1 // 0禁用，1啟用
+            const ip = request.headers['x-real-ip'] || request.ip // 客戶端IP
+            let email_verify = 0 // 0未驗證郵箱，1已驗證郵箱
             let agent_id = 0
 
             // 检查帐户 是否存在
-            const isExist = await service_member.oneByAccount(account)
+            const isExist = await service_member.oneByAccount(Email)
             if (isExist) {
-                reply.send({ flag: 'The account already exists, please change another account to register!' })
+                reply.send({ flag: config.common.message[10030], code: 10030 })
                 return
             }
+
+            // 检查邮箱验证
+            const emailVerifyRes = await service_email_verify_code.oneByEmailCode(Email, EmailVerify)
+            if (!emailVerifyRes) {
+                return { flag: config.common.message[10010], code: 10010 }
+            }
+            email_verify = 1
 
             // 检查邀请码 是否正确
             if (body.ReferralCode) {
@@ -54,14 +67,67 @@ let _t = {
                 if (agent) {
                     agent_id = agent.id
                 } else {
-                    reply.send({ flag: 'Invitation code error!' })
+                    reply.send({ flag: config.common.message[10020], code: 10020 })
                     return
                 }
             }
 
             // 创建帐户
-            const res = await service_member.createMember(agent_id, account, password, notes, type, status, ip)
+            const createMemberRes = await service_member.createMember(agent_id, Email, utils99.MD5(password), notes, type, status, email_verify, ip)
+            console.log(createMemberRes)
+
+            // 账户关联的钱包和地址
+            const newUserId = createMemberRes.insertId
+            await service_wallet.addWallet(newUserId, 0, 0, 0, 'btc', 'btc_address')
+            await service_wallet.addWallet(newUserId, 0, 0, 0, 'eth', 'eth_address')
+            await service_wallet.addWallet(newUserId, 0, 0, 0, 'usdt', 'usdt_address')
+            const platformRes = await service_currency_platform.list(0, 999)
+            const platformList = platformRes.list
+            for (let i = 0; i < platformList.length; i++) {
+                let item = platformList[i]
+                await service_wallet.addWallet(newUserId, 1, 0, 0, item.symbol.toLocaleLowerCase(), '')
+            }
             reply.send({ flag: 'ok' })
+        }
+    },
+    send_email_verify: {
+        opts: {
+            schema: {
+                body: S.object()
+                    .prop('Email', S.string().format(S.FORMATS.EMAIL).required())
+            }
+        },
+        async post(request, reply) {
+            const body = request.body
+            const email = body.Email
+
+            // 检查帐户 是否存在
+            const isExist = await service_member.oneByAccount(email)
+            if (isExist) {
+                return { flag: config.common.message[10030], code: 10030 }
+            }
+
+            // 生成验证码
+            let code = service_email_verify_code.getVerifyCode()
+            const emailRes = await service_email_verify_code.oneByEmail(email)
+            if (emailRes) {
+                code = emailRes.code
+            } else {
+                // 验证入库
+                const addRes = await service_email_verify_code.add(email, code)
+                console.log(addRes)
+            }
+
+            // 发送邮箱验证码
+            const time = utils99.Time()
+            const sendRes = await service_gmail.sendMail(email, 'Mailbox Verify Code', `Code : ${code}<hr>Time : ${time}`)
+            console.log(code, sendRes)
+
+            return {
+                flag: 'ok', data: {
+                    email
+                }
+            }
         }
     },
     login: {
@@ -75,13 +141,17 @@ let _t = {
         async post(request, reply) {
             const body = request.body
             const account = body.Email
-            const password = body.Password
-            const member = await service_member.oneByAccountPassword(account, password)
+            const password = utils99.MD5(body.Password)
+            const status = 1
+            const member = await service_member.oneByAccountPassword(account, password, status)
 
             if (!member) {
                 // TODO:应该有个机制或黑名单记录，防黑客暴力破解。
-                reply.send({ flag: 'Wrong Email or Password!' })
-                return
+                return { flag: 'Wrong Email or Password!' }
+            }
+
+            if (member.email_verify == 0) {
+                return { flag: config.common.message[10010], code: 10010 }
             }
 
             // 添加 登录日志
@@ -256,6 +326,13 @@ let _t = {
     },
 
     currency_contract: {
+        async list(request, reply) {
+            const start = 0
+            const size = 999
+            const res = await service_currency_contract.list(start, size)
+            return { flag: 'ok', data: { list: res.list } }
+        },
+
         opts: {
             schema: {
                 querystring: S.object()
@@ -281,7 +358,6 @@ let _t = {
                 }
             })
         },
-
 
         post_opts: {
             schema: {

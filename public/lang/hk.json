@@ -13,7 +13,30 @@
     "menu_withdraw": "提現",
     "menu_authentication": "身份認證",
     "menu_login_log": "登錄日誌",
-    "menu_logout": "登出",
+    "menu_logout": "退出",
+
+    "login_remember_me": "記住我",
+    "login_forgot_password": "找回密碼",
+    "login_register_now": "現在註冊",
+    "login_email": "郵箱",
+    "login_password": "密碼",
+
+    "registe_account": "註冊帳戶",
+    "registe_more_characters": "必須包含6個或更多字符",
+    "registe_confirm_password": "確認密碼",
+    "registe_invitation_code": "邀請碼（可選填）",
+    "registe_invitation_code_error": "邀請碼錯誤！",
+    "registe_read_carefully": "我已仔細閱讀了",
+    "registe_user_agreement": "《用戶協議》",
+    "registe_email_verification_code": "郵箱驗證碼",
+    "registe_email_send_code": "發送郵箱驗證碼",
+    "registe_email_input_error": "請輸入正確的郵箱地址",
+    "registe_successfully": "註冊成功，現在去登錄！",
+    "registe_account_exists": "該郵箱已經存在，請更換其他郵箱註冊！",
+    "registe_email_not_verify": "帳號郵箱未驗證！",
+
+    "forgot_password_title": "通過郵件找回密碼",
+    "forgot_password_send_email": "系統已發送郵件到您的郵箱，請注意查收！",
 
     "foot_about": "關於我們",
     "foot_contact": "聯繫我們",
@@ -67,7 +90,9 @@
     "futures_entrust_status_1": "委託中",
     "futures_entrust_status_2": "交易成功",
     "futures_entrust_status_3": "已撤回",
-    "futures_entrust_cancelled": "取消交易"
+    "futures_entrust_cancelled": "取消交易",
+
+    "futures_entrust_quick_transfer": "快速劃轉"
 
 
     
