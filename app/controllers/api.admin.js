@@ -66,7 +66,7 @@ let _t = {
             const userAgent = request.headers['user-agent']
             const IP = request.headers['x-real-ip'] || request.ip
             await service_login_log.addLoginLog(user.id, service_login_log.UserType.ADMIN, userAgent, IP)
-            return { flag: 'ok', data: utils99.MD5(user.id) }
+            return { flag: 'ok', data: Math.random() }
         },
     },
     member: {
