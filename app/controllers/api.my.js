@@ -7,6 +7,7 @@ const service_withdrawCharges = require('../services/withdraw_charges.js');
 const service_wallet = require('../services/wallet.js');
 const service_wallet_log = require('../services/wallet_log.js');
 const service_transfer_log = require('../services/transfer_log.js')
+const service_currency_platform_trade_log = require('../services/currency_platform_trade_log.js')
 
 let _t = {
     assets: {
@@ -20,9 +21,15 @@ let _t = {
             const query = request.query
             const user_id = query.user_id
             const walletList = await service_wallet.list(user_id)
-            reply.send({
-                flag: 'ok', data: { walletList }
-            })
+            for (let i = 0; i < walletList.length; i++) {
+                let item = walletList[i]
+                if (item.type == 1) {
+                    // type 1 平台币
+                    let res = await service_currency_platform_trade_log.listByUserIdCoinType(user_id, item.name, 0, 999)
+                    item['trade'] = res.list
+                }
+            }
+            return { flag: 'ok', data: { walletList } }
         }
     },
 
@@ -41,7 +48,7 @@ let _t = {
             const size = query.size || 10
             const start = (page - 1) * size
             const user_id = query.user_id
-            const walletLogRes = await service_wallet_log.list(user_id, start, size)
+            const walletLogRes = await service_wallet_log.listByUserId(user_id, start, size)
             const total = walletLogRes.total
             reply.send({
                 flag: 'ok', data: {

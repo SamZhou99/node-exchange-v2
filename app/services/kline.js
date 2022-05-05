@@ -7,8 +7,9 @@ async function getHuobiApiKline(symbol, period, size) {
     // 火币API https://huobiapi.github.io/docs/spot/v1/en/#get-klines-candles
     // period: 1min, 5min, 15min, 30min, 60min, 4hour, 1day, 1mon, 1week, 1year
     // https://api.hadax.com/market/history/kline?period=1day&size=10&symbol=btcusdt
-    const URL = `https://api.hadax.com/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
-
+    // const URL = `https://api.hadax.com/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
+    const URL = `http://api.hadax.com/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
+    console.log(URL)
     let httpRes = await utils99.request.axios.get({ url: URL, headers: utils99.request.HEADERS.mobile }).catch(err => {
         console.log('请求异常', URL, err)
     })
@@ -31,7 +32,7 @@ function getJsonFilePath(symbol, period) {
 let _t = {
     async get(symbol = 'btcusdt', period = '1day', size = 365) {
         if (symbol == 'btcusdt') {
-            let res = await service_kline_history.listBySymbol(symbol, period, size)
+            let res = await service_kline_history.listBySymbol(symbol, period, size, true)
             // console.log(res, symbol, period, size)
             return {
                 "ch": `market.${symbol} .kline.${period} `,
@@ -49,51 +50,47 @@ let _t = {
         }
 
         const klineRes = await getHuobiApiKline(symbol, period, size)
-        if (size > 5) {
+        if (size > 5 && klineRes != null) {
             fs.writeFileSync(filePath, JSON.stringify(klineRes))
         }
         return klineRes
     },
     contract: {
-        async get(symbol, period, size) {
-            `{
-                "ch": "market.btcusdt.kline.1day",
+        async get(symbol, period, size, isCurrTime) {
+            let res = await service_kline_history.listBySymbol(symbol, period, size, isCurrTime)
+            if (period != '1min') {
+                let list_1min = await service_kline_history.listBySymbol(symbol, '1min', 1, isCurrTime)
+                if (list_1min.length > 0) {
+                    res[0].close = list_1min[0].close
+                    res[0].high = list_1min[0].close
+                }
+            }
+            let ts = new Date().getTime()
+            return {
+                "type": "contract",
+                "ch": `market.${symbol}.kline.${period}`,
                 "status": "ok",
-                "ts": 1647880874997,
-                "data": [
-                  {
-                    "id": 1647878400,
-                    "open": 41220.79,
-                    "close": 40863.54,
-                    "low": 40820.43,
-                    "high": 41238.04,
-                    "amount": 608.4297404903463,
-                    "vol": 24982904.72071681,
-                    "count": 47117
-                  },
-                ]
-              }`
+                "ts": ts,
+                "data": res
+            }
         }
     },
     platform: {
-        async get(symbol, period, size) {
-            `{
-                "ch": "market.btcusdt.kline.1day",
+        async get(symbol, period, size, isCurrTime) {
+            let res = await service_kline_history.listBySymbol(symbol, period, size, isCurrTime)
+            if (period != '1min') {
+                let list_1min = await service_kline_history.listBySymbol(symbol, '1min', 1, isCurrTime)
+                res[0].close = list_1min[0].close
+                res[0].high = list_1min[0].close
+            }
+            let ts = new Date().getTime()
+            return {
+                "type": "platform",
+                "ch": `market.${symbol}.kline.${period}`,
                 "status": "ok",
-                "ts": 1647880874997,
-                "data": [
-                  {
-                    "id": 1647878400,
-                    "open": 41220.79,
-                    "close": 40863.54,
-                    "low": 40820.43,
-                    "high": 41238.04,
-                    "amount": 608.4297404903463,
-                    "vol": 24982904.72071681,
-                    "count": 47117
-                  },
-                ]
-              }`
+                "ts": ts,
+                "data": res
+            }
         }
     }
 }

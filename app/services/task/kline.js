@@ -2,6 +2,7 @@ const CronJob = require('cron').CronJob;
 const utils99 = require('node-utils99');
 // const { connection } = require('websocket');
 const { db } = require('../../../lib/db.setup.js')
+const service_kline_history = require('../../services/kline_history.js')
 
 async function huobiApiKline(symbol, period, size) {
     // 火币API https://huobiapi.github.io/docs/spot/v1/en/#get-klines-candles
@@ -51,29 +52,6 @@ function getList(res, symbol, period, size) {
         resultArr.push(item)
     }
     return resultArr
-}
-
-async function selectData(symbol, period, ts) {
-    const res = await db.Query("SELECT * FROM kline_history WHERE symbol=? AND period=? AND ts=? LIMIT 1", [symbol, period, ts])
-    return res.length > 0 ? res : null
-}
-
-async function insertData(symbol, period, open, close, high, low, vol, ts) {
-    const create_datetime = utils99.Time()
-    const update_datetime = utils99.Time()
-    const res = await db.Query("INSERT INTO kline_history(`symbol`,`period`,`open`,`close`,`high`,`low`,`vol`,`ts`,`create_datetime`,`update_datetime`) VALUES(?,?,?,?,?,?,?,?,?,?)", [symbol, period, open, close, high, low, vol, ts, create_datetime, update_datetime])
-    return res
-}
-
-async function updateData(symbol, period, open, close, high, low, vol, ts) {
-    let checkRes = await selectData(symbol, period, ts)
-    if (checkRes == null) {
-        let insertRes = await insertData(symbol, period, open, close, high, low, vol, ts)
-        return insertRes
-    }
-    const update_datetime = utils99.Time()
-    const updateRes = await db.Query("UPDATE kline_history SET `symbol`=?,`period`=?,`open`=?,`close`=?,`high`=?,`low`=?,`vol`=?,`ts`=?,`update_datetime`=? WHERE `symbol`=? AND `period`=? AND `ts`=?", [symbol, period, open, close, high, low, vol, ts, update_datetime, symbol, period, ts])
-    return updateRes
 }
 
 async function delay(time) {
@@ -165,7 +143,7 @@ let _t = {
                 let a = getList(res, symbol, period, size)
                 for (let i = 0; i < a.length; i++) {
                     let it = a[i]
-                    await updateData(it.symbol, it.period, it.open, it.close, it.high, it.low, it.vol, it.ts)
+                    await service_kline_history.update(it.symbol, it.period, it.open, it.close, it.high, it.low, it.vol, it.ts)
                 }
                 console.log("insert", symbol, period, size, a.length)
             }
@@ -179,7 +157,7 @@ let _t = {
                 let a = getList(res, symbol, period, size)
                 for (let i = 0; i < a.length; i++) {
                     let it = a[i]
-                    await updateData(it.symbol, it.period, it.open, it.close, it.high, it.low, it.vol, it.ts)
+                    await service_kline_history.update(it.symbol, it.period, it.open, it.close, it.high, it.low, it.vol, it.ts)
                     console.log("update", symbol, period, size, a.length)
                 }
             }

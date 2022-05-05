@@ -46,5 +46,23 @@ let _t = {
     //     const res = await db.Query("UPDATE member_wallet SET assets_amount=assets_amount-? WHERE user_id=? AND name=?", [amount, user_id, coinName])
     //     return res
     // },
+
+
+    // 添加平台币
+    async addPlatformCoin(user_id, name) {
+        const type = 1
+        const assets_amount = 0
+        const contract_amount = 0
+        const address = ""
+        const create_datetime = utils99.Time()
+        const update_datetime = utils99.Time()
+        await db.Query("INSERT INTO member_wallet(`user_id`,`type`,`assets_amount`,`contract_amount`,`name`,`address`,`create_datetime`,`update_datetime`) VALUES (?,?,?,?,?,?,?,?)", [user_id, type, assets_amount, contract_amount, name, address, create_datetime, update_datetime])
+    },
+
+    // 更新平台币名称
+    async updateNameByName(old_name, new_name) {
+        const res = await db.Query("UPDATE member_wallet SET `name`=? WHERE `name`=?", [new_name, old_name])
+        return res
+    }
 }
 module.exports = _t

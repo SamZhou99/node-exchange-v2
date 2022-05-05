@@ -5,6 +5,7 @@ const http = require('http')
 
 const service_currency_platform = require('./app/services/currency_platform.js')
 const service_currency_contract = require('./app/services/currency_contract.js')
+const service_kline_history = require('./app/services/kline_history.js')
 
 
 
@@ -20,17 +21,45 @@ let huobiData = {
     'huobi-market-tickers': ""
 }
 // 市场货币价格
+let market_tickers_index = 0
 const huobiMarketTickers = require('./app/services/ws.huobi.market.tickers')
 huobiMarketTickers.callback = async function (data) {
     if (data.key == "huobi-market-tickers") {
-        const currency_platform_res = await service_currency_platform.list(0, 999)
-        const currency_contract_res = await service_currency_contract.list(0, 999)
+        let currency_platform_res = await service_currency_platform.list(0, 999)
+        for (let i = 0; i < currency_platform_res.list.length; i++) {
+            let item = currency_platform_res.list[i]
+            delete item['abstract']
+            delete item['desc']
+            const list_1min = await service_kline_history.listBySymbol(String(item.symbol).toLowerCase() + "usdt", "1min", 1)
+            const list_1day = await service_kline_history.listBySymbol(String(item.symbol).toLowerCase() + "usdt", "1day", 1)
+            if (list_1day.length > 0 && list_1min.length > 0) {
+                item['history'] = {
+                    list_1min, list_1day
+                }
+            }
+        }
+
+        let currency_contract_res = await service_currency_contract.list(0, 999)
+        for (let i = 0; i < currency_contract_res.list.length; i++) {
+            let item = currency_contract_res.list[i]
+            const list_1min = await service_kline_history.listBySymbol(String(item.symbol).toLowerCase() + "usdt", "1min", 1)
+            const list_1day = await service_kline_history.listBySymbol(String(item.symbol).toLowerCase() + "usdt", "1day", 1)
+            if (list_1day.length > 0 && list_1min.length > 0) {
+                item['history'] = {
+                    list_1min, list_1day
+                }
+            }
+
+        }
+
         const objectData = {
             list: data.value,
             currency_platform: currency_platform_res.list,
             currency_contract: currency_contract_res.list,
         }
         huobiData['huobi-market-tickers'] = JSON.stringify(objectData)
+        market_tickers_index++
+        console.log("广播行情数据...", market_tickers_index)
         broadcastPathSendText('/market.tickers', huobiData['huobi-market-tickers'])
     }
 }

@@ -48,7 +48,7 @@ fastify.addHook('onResponse', (request, reply, next) => {
 })
 
 // 路由
-fastify.register(require('./routes/admin.js'), { prefix: '/api/admin' })
+fastify.register(require('./routes/api.admin.js'), { prefix: '/api/admin' })
 fastify.register(require('./routes/api.my.js'), { prefix: '/api/my' })
 fastify.register(require('./routes/api.js'), { prefix: '/api' })
 fastify.register(require('./routes/index.js'))

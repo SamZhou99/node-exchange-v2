@@ -20,6 +20,7 @@
     "login_register_now": "現在註冊",
     "login_email": "郵箱",
     "login_password": "密碼",
+    "login_error_fail": "帳戶名或密碼錯誤",
 
     "registe_account": "註冊帳戶",
     "registe_more_characters": "必須包含6個或更多字符",
@@ -92,8 +93,9 @@
     "futures_entrust_status_3": "已撤回",
     "futures_entrust_cancelled": "取消交易",
 
-    "futures_entrust_quick_transfer": "快速劃轉"
+    "futures_entrust_quick_transfer": "快速劃轉",
 
-
-    
+    "foot_white_paper": "白皮書",
+    "foot_email": "公司郵箱",
+    "foot_company_address": "公司地址"
 }

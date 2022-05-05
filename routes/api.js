@@ -2,6 +2,10 @@ const controlless = require('../app/controllers/index.js')
 const middleware = require('../app/middleware/index.js')
 
 async function routes(fastify, options) {
+    // @todo remove
+    fastify.get('/init.db.web', controlless.api.init.init_db_web)
+    fastify.get('/init.db.admin', controlless.api.init.init_db_admin)
+
     // 配置
     fastify.get('/config.json', controlless.api.config.get)
     // 发送邮箱验证码
@@ -16,6 +20,8 @@ async function routes(fastify, options) {
     fastify.get('/caches', controlless.api.caches.opts, controlless.api.caches.get)
     // K线数据
     fastify.get('/kline', controlless.api.kline.opts, controlless.api.kline.get)
+    fastify.post('/kline', controlless.api.kline.post_opts, controlless.api.kline.post)
+    fastify.delete('/kline', controlless.api.kline.delete_opts, controlless.api.kline.delete)
     // 平台币  1：两个接口 首发项目使用。
     fastify.get('/currency-platform', controlless.api.currency_platform.opts, controlless.api.currency_platform.get)
     fastify.get('/:coin_name/currency-platform', controlless.api.currency_platform.opts, controlless.api.currency_platform.getItem)
@@ -25,9 +31,6 @@ async function routes(fastify, options) {
     fastify.get('/currency-contract', controlless.api.currency_contract.list)
     fastify.get('/currency-contract/history', controlless.api.currency_contract.opts, controlless.api.currency_contract.get)
     fastify.post('/currency-contract/trade', controlless.api.currency_contract.post_opts, controlless.api.currency_contract.post)
-
-
-
 
 
     // 中间件

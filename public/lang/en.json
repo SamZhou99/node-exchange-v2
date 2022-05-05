@@ -20,6 +20,7 @@
     "login_register_now": "Register Now",
     "login_email": "Email",
     "login_password": "Password",
+    "login_error_fail": "Wrong Email or Password!",
 
     "registe_account": "Register Account",
     "registe_more_characters": "Must contain 6 or more characters.",
@@ -93,7 +94,9 @@
     "futures_entrust_status_3": "Has been withdrawn",
     "futures_entrust_cancelled": "cancelled",
 
-    "futures_entrust_quick_transfer": "Quick Transfer"
+    "futures_entrust_quick_transfer": "Quick Transfer",
 
-
+    "foot_white_paper": "White Paper",
+    "foot_email": "Email",
+    "foot_company_address": "Company Address"
 }

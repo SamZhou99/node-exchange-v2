@@ -1,6 +1,7 @@
 const utils99 = require('node-utils99')
 const S = require('fluent-schema')
 
+const service_db = require('../services/db.init.js')
 const config = require('../../config/all.js');
 
 const service_config = require('../services/config.js');
@@ -8,17 +9,30 @@ const service_member = require('../services/member.js');
 const service_agent = require('../services/agent.js');
 const service_caches = require('../services/caches.js');
 const service_kline = require('../services/kline.js');
+const service_kline_history = require('../services/kline_history.js');
 const service_login_log = require('../services/login_log.js');
 const service_currency_platform = require('../services/currency_platform.js');
 const service_currency_platform_buy = require('../services/currency_platform_trade_log.js');
 const service_currency_contract = require('../services/currency_contract.js');
 const service_currency_contract_trade_log = require('../services/currency_contract_trade_log.js');
 const service_wallet = require('../services/wallet.js');
+const service_syste_wallet_address = require('../services/system_wallet_address.js');
 const service_email_verify_code = require('../services/mail/email_verify_code.js');
 const service_gmail = require('../services/mail/gmail.js');
 
 
+
 let _t = {
+    init: {
+        async init_db_web(request, reply) {
+            await service_db.init_web()
+            return { flag: 'ok' }
+        },
+        async init_db_admin(request, reply) {
+            await service_db.init_admin()
+            return { flag: 'ok' }
+        },
+    },
     config: {
         async get(request, reply) {
             const res = await service_config.list()
@@ -63,7 +77,7 @@ let _t = {
 
             // 检查邀请码 是否正确
             if (body.ReferralCode) {
-                const agent = await service_agent.agentByCode(body.ReferralCode)
+                const agent = await service_agent.oneByCode(body.ReferralCode)
                 if (agent) {
                     agent_id = agent.id
                 } else {
@@ -72,21 +86,29 @@ let _t = {
                 }
             }
 
+            /*****************************************************
+            @todo 可以跟后台 创建营销账号 使用同一段代码
+            *****************************************************/
             // 创建帐户
             const createMemberRes = await service_member.createMember(agent_id, Email, utils99.MD5(password), notes, type, status, email_verify, ip)
             console.log(createMemberRes)
-
             // 账户关联的钱包和地址
             const newUserId = createMemberRes.insertId
-            await service_wallet.addWallet(newUserId, 0, 0, 0, 'btc', 'btc_address')
-            await service_wallet.addWallet(newUserId, 0, 0, 0, 'eth', 'eth_address')
-            await service_wallet.addWallet(newUserId, 0, 0, 0, 'usdt', 'usdt_address')
+            // 给用户绑定一个钱包地址
+            const btc = await service_syste_wallet_address.oneByUnused(newUserId, 'btc')
+            const eth = await service_syste_wallet_address.oneByUnused(newUserId, 'eth')
+            const usdt = await service_syste_wallet_address.oneByUnused(newUserId, 'usdt')
+            // 给我的资产中添加钱包地址
+            await service_wallet.addWallet(newUserId, 0, 0, 0, 'btc', btc.address)
+            await service_wallet.addWallet(newUserId, 0, 0, 0, 'eth', eth.address)
+            await service_wallet.addWallet(newUserId, 0, 0, 0, 'usdt', usdt.address)
             const platformRes = await service_currency_platform.list(0, 999)
             const platformList = platformRes.list
             for (let i = 0; i < platformList.length; i++) {
                 let item = platformList[i]
                 await service_wallet.addWallet(newUserId, 1, 0, 0, item.symbol.toLocaleLowerCase(), '')
             }
+
             reply.send({ flag: 'ok' })
         }
     },
@@ -147,7 +169,7 @@ let _t = {
 
             if (!member) {
                 // TODO:应该有个机制或黑名单记录，防黑客暴力破解。
-                return { flag: 'Wrong Email or Password!' }
+                return { flag: config.common.message[10050], code: 10050 }
             }
 
             if (member.email_verify == 0) {
@@ -200,26 +222,69 @@ let _t = {
                     .prop('symbol', S.string().required())
                     .prop('period', S.string().required())
                     .prop('size', S.integer())
-                    .prop('symbol_type', S.string())
+                    .prop('isCurrTime', S.string())
             }
         },
         async get(request, reply) {
             const query = request.query
             let symbol = query.symbol || 'btcusdt'
             let period = query.period || '1day'
-            let size = query.size || '500'
-            let symbol_type = query.symbol_type || ''
+            let size = query.size || '365'
+            // 限时和不限时 都要显示
+            let isCurrTime = query.isCurrTime
+            if (isCurrTime) {
+                isCurrTime = isCurrTime == 'true' ? true : false
+            }
+            let symbol_type = await service_kline_history.getSymbolType(symbol)
 
             let klineRes
-            if (symbol_type == "currency_contract") {
-                klineRes = await service_kline.contract.get(symbol, period, size)
-            } else if (symbol_type == "currency_platform") {
-                klineRes = await service_kline.platform.get(symbol, period, size)
-            } else {
+            if (symbol_type == "contract") {
+                klineRes = await service_kline.contract.get(symbol, period, size, isCurrTime)
+            }
+            else if (symbol_type == "platform") {
+                klineRes = await service_kline.platform.get(symbol, period, size, isCurrTime)
+            }
+            else {
                 klineRes = await service_kline.get(symbol, period, size)
             }
-            reply.send({ flag: 'ok', data: klineRes })
-        }
+            return { flag: 'ok', data: klineRes }
+        },
+
+        post_opts: {
+            schema: {
+                body: S.object()
+                    .prop('symbol', S.string().minLength(5).required())
+                    .prop('period', S.string().minLength(3).required())
+                    .prop('kline', S.string().minLength(3).required())
+            }
+        },
+        async post(request, reply) {
+            const body = request.body
+            const symbol = body.symbol
+            const period = body.period
+            const kline = JSON.parse(body.kline)
+            const res = await service_kline_history.updateAllData(symbol, period, kline)
+            return {
+                flag: 'ok', data: {
+                    symbol, period, kline: kline.length, res
+                }
+            }
+        },
+
+
+        delete_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('type', S.string().minLength(1).required())
+            }
+        },
+        async delete(request, reply) {
+            const body = request.body
+            const id = body.id
+            const type = body.type
+            return { flag: 'ok', data: body }
+        },
     },
 
     currency_platform: {
@@ -309,7 +374,8 @@ let _t = {
             const balance = res.assets_amount - CoinAmount
             const balanceRes = await service_wallet.updateAssetsAmount(user_id, CoinType, balance)
             // 添加用户 平台币相应数量
-            const pfRes = await service_wallet.updateAssetsAmount(user_id, PlatformCoinType, PlatformCoinAmount)
+            const platformBalanceRes = await service_wallet.oneByCoinName(user_id, PlatformCoinType)
+            const pfRes = await service_wallet.updateAssetsAmount(user_id, PlatformCoinType, platformBalanceRes.assets_amount + PlatformCoinAmount)
             // 添加用户 平台币参与记录
             const operator_id = 0
             const notes = "用户参与平台币"

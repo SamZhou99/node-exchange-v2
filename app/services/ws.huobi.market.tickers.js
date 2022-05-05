@@ -20,6 +20,9 @@ let _t = {
             console.error(err)
         })
         if (!res) {
+            setTimeout(async () => {
+                await _t.initMarketTickers()
+            }, 5000)
             return
         }
 
