@@ -14,6 +14,7 @@ function getHashValue(data, address) {
                 address: address,
                 hash: item.hash,
                 value: Number(item.value / 1000000000000000000),
+                ts: item.timeStamp,
             })
         }
     }
@@ -23,7 +24,7 @@ function getHashValue(data, address) {
 let _t = {
     async get(address) {
         const URL = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10&sort=asc&apikey=${key}`
-
+        console.log(URL)
         let httpRes = await utils99.request.axios
             .get({ url: URL, headers: utils99.request.HEADERS.mobile })
             .catch(err => {

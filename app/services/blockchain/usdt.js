@@ -2,17 +2,19 @@ const utils99 = require('node-utils99')
 const { db } = require('../../../lib/db.setup.js')
 const config = require('../../../config/all.js')
 
-
 function getHashValue(data, address) {
     let resArr = []
     const a = data.token_transfers
     for (let i = 0; i < a.length; i++) {
         const item = a[i]
-        if (item.to_address == address) {
+        if (item.to_address == address
+            // BUG 过滤掉 不符合的数据
+            && !(item.tokenInfo.tokenAbbr.toLowerCase() != 'usdt')) {
             resArr.push({
                 address: item.to_address,
                 hash: item.transaction_id,
                 value: Number(item.quant) / 1000000,
+                ts: item.block_ts / 1000,
             })
         }
     }
@@ -22,7 +24,7 @@ function getHashValue(data, address) {
 let _t = {
     async get(address) {
         const URL = `https://apilist.tronscan.org/api/token_trc20/transfers?limit=20&start=0&sort=-timestamp&count=true&relatedAddress=${address}`
-
+        console.log(URL)
         let httpRes = await utils99.request.axios
             .get({ url: URL, headers: utils99.request.HEADERS.mobile })
             .catch(err => {
@@ -36,4 +38,6 @@ let _t = {
         return getHashValue(httpRes.data, address)
     },
 }
+
+
 module.exports = _t

@@ -21,6 +21,11 @@ let _t = {
         const update_datetime = utils99.Time()
         const res = await db.Query("INSERT INTO member_wallet_log(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time, create_datetime, update_datetime) VALUES(?,?,?,?,?,?,?,?,?,?,?)", [user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time, create_datetime, update_datetime])
         return res
-    }
+    },
+
+    async listDashboard() {
+        const res = await db.Query("SELECT * FROM member_wallet_log WHERE `hash`<>'' ORDER BY time DESC LIMIT 5", [])
+        return res
+    },
 }
 module.exports = _t

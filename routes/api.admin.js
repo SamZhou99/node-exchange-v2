@@ -6,6 +6,10 @@ async function routes(fastify, options) {
     fastify.get('/VerifyCode', controlless.verifyCode.get)
     // 查询-用户登录
     fastify.post('/login', controlless.login.post_opts, controlless.login.post)
+
+    // 仪表盘
+    fastify.get('/dashboard', controlless.dashboard.get_opts, controlless.dashboard.get)
+
     // 查询-用户列表
     fastify.get('/user-list', controlless.member.get_opts, controlless.member.get)
 

@@ -2,9 +2,11 @@ const controlless = require('../app/controllers/api.my.js')
 // const middleware = require('../app/middleware/index.js')
 
 async function routes(fastify, options) {
-    // 我的资产
+    // 我的资产 // 更新钱包金额
     fastify.get('/assets', controlless.assets.get_opts, controlless.assets.get)
-    fastify.get('/assets/list', controlless.assets_list.get_opts, controlless.assets_list.get)
+    fastify.get('/assets/list', controlless.assets.getList_opts, controlless.assets.getList)
+    fastify.get('/assets/wallet/amount', controlless.assets.getWalletAmount_opts, controlless.assets.getWalletAmount)
+
     // 登录日誌
     fastify.get('/login-log', controlless.login_log.get_opts, controlless.login_log.get)
     // 上传照片
@@ -22,9 +24,6 @@ async function routes(fastify, options) {
     fastify.post('/transfer', controlless.transfer.post_opts, controlless.transfer.post)
     // 划转历史记录
     fastify.get('/transfer/history', controlless.transfer.get_opts, controlless.transfer.get)
-
-
-
 
     // 中间件
     // fastify.use(['/json', '/download'], middleware.test)

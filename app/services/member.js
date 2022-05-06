@@ -106,7 +106,11 @@ let _t = {
         return res
     },
 
-
+    // 最近注册的用户(非营销号)
+    async lastMember(limit = 5) {
+        const res = await db.Query("SELECT * FROM member_list WHERE type=0 ORDER BY id DESC LIMIT ?", [limit])
+        return res
+    }
 }
 
 module.exports = _t

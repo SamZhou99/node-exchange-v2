@@ -1,5 +1,6 @@
 const S = require('fluent-schema')
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js')
 const service_login_log = require('../services/login_log.js');
 const service_auth = require('../services/auth.js');
 const service_withdraw = require('../services/withdraw_log.js');
@@ -8,6 +9,34 @@ const service_wallet = require('../services/wallet.js');
 const service_wallet_log = require('../services/wallet_log.js');
 const service_transfer_log = require('../services/transfer_log.js')
 const service_currency_platform_trade_log = require('../services/currency_platform_trade_log.js')
+const service_blockchain = require('../services/blockchain/main.js');
+
+// 获取一类钱包数据
+function getWalletByType(arr, type) {
+    for (let i = 0; i < arr.length; i++) {
+        let item = arr[i]
+        if (item.name == type) {
+            return item
+        }
+    }
+    return null
+}
+// 添加记录 并 更新余额
+async function addWalletLogAndUpdateBalance(user_id, wallet_type, tradeArr) {
+    for (let i = 0; i < tradeArr.length; i++) {
+        const item = tradeArr[i]
+        const operator_id = 0
+        const action = 'add'
+        const amount = item.value
+        const hash = item.hash
+        const to_address = item.address
+        const notes = '自动上分'
+        const time = utils99.moment(Number(item.ts) * 1000).format('YYYY/MM/DD HH:mm:ss')
+        await service_wallet_log.addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
+        await service_wallet.updateAddSubAssetsAmount(user_id, wallet_type, amount, '+')
+    }
+    return true
+}
 
 let _t = {
     assets: {
@@ -30,11 +59,10 @@ let _t = {
                 }
             }
             return { flag: 'ok', data: { walletList } }
-        }
-    },
+        },
 
-    assets_list: {
-        get_opts: {
+
+        getList_opts: {
             schema: {
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
@@ -42,7 +70,7 @@ let _t = {
                     .prop('size', S.integer())
             }
         },
-        async get(request, reply) {
+        async getList(request, reply) {
             const query = request.query
             const page = query.page || 1
             const size = query.size || 10
@@ -56,6 +84,41 @@ let _t = {
                     page: { total, page, size }
                 }
             })
+        },
+
+
+        getWalletAmount_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('user_id', S.integer().required())
+            }
+        },
+        async getWalletAmount(request, reply) {
+            const query = request.query
+            const user_id = query.user_id
+            const coin_type = 0
+            // 法币列表
+            const coinRes = await service_wallet.listByType(user_id, coin_type)
+            // 1 获取btc,eth,usdt钱包地址
+            const btcWallet = getWalletByType(coinRes, config.common.coin.type.BTC)
+            const ethWallet = getWalletByType(coinRes, config.common.coin.type.ETH)
+            const usdtWallet = getWalletByType(coinRes, config.common.coin.type.USDT)
+            // 2 请求链上钱包交易数据
+            const btcTradeArr = await service_blockchain.btc(btcWallet.address)
+            const ethTradeArr = await service_blockchain.eth(ethWallet.address)
+            const usdtTradeArr = await service_blockchain.usdt(usdtWallet.address)
+            // 3 添加交易记录金额 和 更新钱包金额
+            const btcAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.BTC, btcTradeArr)
+            const ethAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.ETH, ethTradeArr)
+            const usdtAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.USDT, usdtTradeArr)
+            return {
+                flag: 'ok', data: {
+                    user_id,
+                    btcAddLogUpdateBanlanceRes,
+                    ethAddLogUpdateBanlanceRes,
+                    usdtAddLogUpdateBanlanceRes,
+                }
+            }
         }
     },
 

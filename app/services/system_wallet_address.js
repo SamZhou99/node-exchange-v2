@@ -115,6 +115,15 @@ let _t = {
         await db.Query("UPDATE system_wallet_address SET bind_user_id=? WHERE id=?", [user_id, id])
 
         return res[0]
+    },
+
+    // 币 总数 和 使用数
+    async walletUseTotal(type) {
+        const total_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=?", [type])
+        const total = total_res[0]['total']
+        const use_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=? AND bind_user_id>0 ", [type])
+        const use = use_res[0]['total']
+        return { total, use }
     }
 }
 

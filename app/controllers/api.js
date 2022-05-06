@@ -374,8 +374,11 @@ let _t = {
             const balance = res.assets_amount - CoinAmount
             const balanceRes = await service_wallet.updateAssetsAmount(user_id, CoinType, balance)
             // 添加用户 平台币相应数量
-            const platformBalanceRes = await service_wallet.oneByCoinName(user_id, PlatformCoinType)
-            const pfRes = await service_wallet.updateAssetsAmount(user_id, PlatformCoinType, platformBalanceRes.assets_amount + PlatformCoinAmount)
+            // const platformBalanceRes = await service_wallet.oneByCoinName(user_id, PlatformCoinType)
+            // const pfRes = await service_wallet.updateAssetsAmount(user_id, PlatformCoinType, platformBalanceRes.assets_amount + PlatformCoinAmount)
+            // @todo 上面，两个合成一个
+            const pfRes = await service_wallet.updateAddSubAssetsAmount(user_id, PlatformCoinType, PlatformCoinAmount, '+')
+
             // 添加用户 平台币参与记录
             const operator_id = 0
             const notes = "用户参与平台币"

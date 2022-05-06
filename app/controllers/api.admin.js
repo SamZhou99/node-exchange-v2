@@ -92,6 +92,37 @@ let _t = {
         },
     },
 
+    dashboard: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                // .prop('size', S.integer())
+                // .prop('type', S.string().minLength(1).required())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+
+            const Users = await service_member.lastMember(5)
+            const Agents = await service_agent.list(0, 5)
+            const Earning = await service_wallet_log.listDashboard(0, 5)
+            const btc = await service_system_wallet_address.walletUseTotal('btc')
+            const eth = await service_system_wallet_address.walletUseTotal('eth')
+            const usdt = await service_system_wallet_address.walletUseTotal('usdt')
+
+            return {
+                flag: 'ok', data: {
+                    Users: Users,
+                    Agents: Agents.list,
+                    Earning: Earning,
+                    Wallet: {
+                        btc, eth, usdt
+                    },
+                }
+            }
+        }
+    },
+
     member: {
         // 添加认证信息
         post_opts: {
@@ -610,7 +641,13 @@ let _t = {
             // 给所有用户的，钱包，添加平台币
             const memberListRes = await service_member.list(0, 9999)
             for (let i = 0; i < memberListRes.list.length; i++) {
-                await service_wallet.addPlatformCoin(memberListRes.list[i].id, symbol.toLowerCase())
+                let user_id = memberListRes.list[i].id
+                let type = 1
+                let assets_amount = 0
+                let contract_amount = 0
+                let name = symbol.toLowerCase()
+                let address = ''
+                await service_wallet.addWallet(user_id, type, assets_amount, contract_amount, name, address)
             }
 
             // 添加平台币
