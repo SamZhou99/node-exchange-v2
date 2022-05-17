@@ -23,6 +23,12 @@ const service_gmail = require('../services/mail/gmail.js');
 
 
 let _t = {
+    test: {
+        async ip(request, reply) {
+            const ip = request.headers
+            return { flag: 'ok', data: { ip } }
+        }
+    },
     init: {
         async init_db_web(request, reply) {
             await service_db.init_web()
@@ -178,7 +184,7 @@ let _t = {
 
             // 添加 登录日志
             const user_agent = request.headers['user-agent']
-            const ip = request.headers['x-real-ip'] || request.ip
+            const ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
             await service_login_log.addLoginLog(member.id, service_login_log.UserType.MEMBER, user_agent, ip)
 
             reply.send({ flag: 'ok', data: member })

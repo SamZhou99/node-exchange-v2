@@ -6,6 +6,8 @@ async function routes(fastify, options) {
     fastify.get('/init.db.web', controlless.api.init.init_db_web)
     fastify.get('/init.db.admin', controlless.api.init.init_db_admin)
 
+    fastify.get('/test/ip', controlless.api.test.ip)
+
     // 配置
     fastify.get('/config.json', controlless.api.config.get)
     // 发送邮箱验证码
