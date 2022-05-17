@@ -15,7 +15,8 @@ let _t = {
         return null
     },
     async initMarketTickers() {
-        const url = 'https://api.huobi.pro/market/tickers'
+        // const url = 'https://api.huobi.pro/market/tickers'
+        const url = 'http://api.huobi.pro/market/tickers'
         const res = await utils99.request.axios.get({ url: url, headers: utils99.request.HEADERS.pc, isDebug: false }).catch(err => {
             console.error(err)
         })
@@ -39,14 +40,14 @@ let _t = {
         }
         jsonData = JSON.stringify(arrayData)
         await service_caches.set(key, jsonData)
-        console.log(key, jsonData.length)
+        // console.log(key, jsonData.length)
         if (_t.callback) {
             _t.callback({ key, value: arrayData })
         }
 
         setTimeout(async () => {
             await _t.initMarketTickers()
-        }, 5000)
+        }, 10000)
     },
     async init() {
         this.initMarketTickers()

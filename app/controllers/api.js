@@ -283,7 +283,16 @@ let _t = {
             const body = request.body
             const id = body.id
             const type = body.type
-            return { flag: 'ok', data: body }
+            let symbol = null
+            if (type.toLocaleLowerCase() == 'coinplatform') {
+                let res = await service_currency_platform.oneById(id)
+                symbol = res.symbol.toLocaleLowerCase() + 'usdt'
+            } else if (type.toLocaleLowerCase() == 'coincontract') {
+                let res = await service_currency_contract.oneById(id)
+                symbol = res.symbol.toLocaleLowerCase() + 'usdt'
+            }
+            const res = await service_kline_history.clearHistoryBySymbol(symbol)
+            return { flag: 'ok', data: { body, symbol } }
         },
     },
 
@@ -451,10 +460,10 @@ let _t = {
             const handling_fee = body.handling_fee
             const margin = body.margin
             const price = body.price
-            const status = 1
+            const status = 2 // 1委托状态，2直接成交状态
 
             if (action == 'buy' || action == 'sell') {
-                const act = action == "buy" ? 'add' : 'sub'
+                const act = (action == "buy") ? 'long' : 'short'
                 const tradeRes = await service_currency_contract_trade_log.addLog(user_id, multiple, status, handling_fee, price, lots, margin, act, symbol)
                 console.log(tradeRes)
                 // 获取用户usdt余额
@@ -474,7 +483,58 @@ let _t = {
             }
 
             return { flag: 'action error' }
-        }
+        },
+
+
+        // 设置 止盈止损 价格
+        put_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('buyStop', S.number().required())
+                    .prop('sellStop', S.number().required())
+            }
+        },
+        async put_buy_sell_price(request, reply) {
+            const body = request.body
+            const id = body.id
+            const buyStop = body.buyStop
+            const sellStop = body.sellStop
+            await service_currency_contract_trade_log.updateBuyStopSellStop(id, buyStop, sellStop)
+            return { flag: 'ok' }
+        },
+
+
+
+        // 撤回 & 平仓
+        put_withdraw_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+            }
+        },
+        // 撤回
+        async put_withdraw(request, reply) {
+            const body = request.body
+            const id = body.id
+            await service_currency_contract_trade_log.updateFieldValue(id, 'status', 3)
+            return { flag: 'ok' }
+        },
+        put_close_a_position_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('price', S.number().required())
+            }
+        },
+        // 平仓
+        async put_close_a_position(request, reply) {
+            const body = request.body
+            const id = body.id
+            const price = body.price
+            await service_currency_contract_trade_log.updateStatusAndPriceSell(id, 4, price)
+            return { flag: 'ok' }
+        },
     }
 }
 module.exports = _t

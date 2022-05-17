@@ -157,7 +157,7 @@ let _t = {
 
     // 清除历史记录 
     async clearHistoryBySymbol(symbol) {
-        const res = await db.Query("DELETE kline_history WHERE symbol=?", [symbol])
+        const res = await db.Query("DELETE FROM kline_history WHERE symbol=?", [symbol])
         return res
     }
 }

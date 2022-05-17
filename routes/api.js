@@ -31,6 +31,10 @@ async function routes(fastify, options) {
     fastify.get('/currency-contract', controlless.api.currency_contract.list)
     fastify.get('/currency-contract/history', controlless.api.currency_contract.opts, controlless.api.currency_contract.get)
     fastify.post('/currency-contract/trade', controlless.api.currency_contract.post_opts, controlless.api.currency_contract.post)
+    // 设置 止盈 止损 撤回 平仓
+    fastify.put('/currency-contract/buystop-sellstop', controlless.api.currency_contract.put_opts, controlless.api.currency_contract.put_buy_sell_price)
+    fastify.put('/currency-contract/withdraw', controlless.api.currency_contract.put_withdraw_opts, controlless.api.currency_contract.put_withdraw)
+    fastify.put('/currency-contract/close-a-position', controlless.api.currency_contract.put_close_a_position_opts, controlless.api.currency_contract.put_close_a_position)
 
 
     // 中间件

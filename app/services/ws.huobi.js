@@ -24,7 +24,7 @@ let _t = {
         }
     },
     onConnectError(error) {
-        console.log(_t.name, "数据错误", error.toString());
+        console.log(_t.name, "联接错误", error.toString());
         _t.reWsConnection()
     },
     onConnectClose() {

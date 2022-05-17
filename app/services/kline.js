@@ -80,8 +80,10 @@ let _t = {
             let res = await service_kline_history.listBySymbol(symbol, period, size, isCurrTime)
             if (period != '1min') {
                 let list_1min = await service_kline_history.listBySymbol(symbol, '1min', 1, isCurrTime)
-                res[0].close = list_1min[0].close
-                res[0].high = list_1min[0].close
+                if(list_1min.length>0){
+                    res[0].close = list_1min[0].close
+                    res[0].high = list_1min[0].close
+                }
             }
             let ts = new Date().getTime()
             return {

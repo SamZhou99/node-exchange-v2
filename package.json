@@ -21,7 +21,7 @@
     "fastify-formbody": "^5.2.0",
     "fastify-static": "^4.5.0",
     "fluent-schema": "^1.1.0",
-    "node-utils99": "^1.1.20211113",
+    "node-utils99": "^1.1.20220430",
     "nodemailer": "^6.7.3",
     "pako": "^2.0.4",
     "point-of-view": "^5.0.0",
