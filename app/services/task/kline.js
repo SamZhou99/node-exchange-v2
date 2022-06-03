@@ -9,7 +9,7 @@ async function huobiApiKline(symbol, period, size) {
     // period: 1min, 5min, 15min, 30min, 60min, 4hour, 1day, 1mon, 1week, 1year
     // https://api.hadax.com/market/history/kline?period=1day&size=10&symbol=btcusdt
     // const URL = `https://api.hadax.com/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
-    const URL = `http://api.hadax.com/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
+    const URL = `https://api.huobi.pro/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
     console.log(URL)
 
     let httpRes = await utils99.request.axios.get({ url: URL, headers: utils99.request.HEADERS.mobile }).catch(err => {

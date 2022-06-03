@@ -9,10 +9,14 @@ const service_kline_history = require('./app/services/kline_history.js')
 
 const service_currency_contract_trade_log = require('./app/services/currency_contract_trade_log.js');
 
+const service_wallet = require('./app/services/wallet.js')
 
 
-
-
+function round(num, len) {
+    let z = "000000000000000000000000000000";
+    let zr = Number(1 + String(z).substring(0, len));
+    return Math.round(Number(num) * zr) / zr
+}
 
 
 
@@ -110,11 +114,17 @@ let contractClass = {
 
                 if (item.action == 'long' && currBtcLastPrice > 0) { // 买涨
 
+                    let yk = (currBtcLastPrice - item.price) * item.lots
+                    let percent = Math.round(yk / item.sum * 10000) / 100
+                    console.log('long', round(yk, 8), percent + "%")
+
                     if (item.buy_stop > 0 && item.buy_stop <= currBtcLastPrice) {
                         // 止盈
                         item.status = 4
                         item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, currBtcLastPrice)
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 3, currBtcLastPrice)
+                        // 更新 平仓余额 到合约账户
+                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20020'], code: 20020, item: item }))
                         return true
                     }
@@ -122,26 +132,37 @@ let contractClass = {
                         // 止损
                         item.status = 4
                         item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, currBtcLastPrice)
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 4, currBtcLastPrice)
+                        // 更新 平仓余额 到合约账户
+                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20030'], code: 20030, item: item }))
                         return true
                     }
-                    if (item.price * (1 - RISK_RATIO) >= currBtcLastPrice) {
+
+                    if (percent < -(RISK_RATIO * 100)) {
                         // 达到 风险率80% 自动清仓状态      100 * (1-0.8)
                         item.status = 4
                         item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, currBtcLastPrice)
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 2, currBtcLastPrice)
+                        // 更新 平仓余额 到合约账户
+                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20040'], code: 20040, item: item }))
                         return true
                     }
 
                 } else if (item.action == 'short' && currBtcLastPrice > 0) { // 买跌
 
+                    let yk = (currBtcLastPrice - item.price) * item.lots
+                    let percent = Math.round(yk / item.sum * 10000) / 100
+                    console.log('short', round(yk, 8), percent + "%")
+
                     if (item.buy_stop > 0 && item.buy_stop >= currBtcLastPrice) {
                         // 止盈
                         item.status = 4
                         item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, currBtcLastPrice)
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 3, currBtcLastPrice)
+                        // 更新 平仓余额 到合约账户
+                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20020'], code: 20020, item: item }))
                         return true
                     }
@@ -149,15 +170,20 @@ let contractClass = {
                         // 止损
                         item.status = 4
                         item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, currBtcLastPrice)
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 4, currBtcLastPrice)
+                        // 更新 平仓余额 到合约账户
+                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20030'], code: 20030, item: item }))
                         return true
                     }
-                    if (item.price * 1.8 <= currBtcLastPrice) {
+
+                    if (percent >= (RISK_RATIO * 100)) {
                         // 达到 风险率80% 自动清仓状态
                         item.status = 4
                         item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, currBtcLastPrice)
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 2, currBtcLastPrice)
+                        // 更新 平仓余额 到合约账户
+                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20040'], code: 20040, item: item }))
                         return true
                     }
@@ -178,15 +204,19 @@ contractClass.init()
 
 // 火币API提供的 btc实时价格
 let currBtcLastPrice = 0
+let xxx = 0
 const huobi = require('./app/services/ws.huobi.js')
 huobi.callback = async function (data) {
     if (data.key == 'HuoBi API') {
         if (data.value.ch == 'market.btcusdt.ticker') {
-            broadcastPathSendText('/market.btcusdt.ticker', JSON.stringify(data.value))
             if (currBtcLastPrice != data.value.tick.close) {
+                if (xxx > 0) {
+                    data.value.tick.close = xxx
+                }
                 console.log('>>>--->', data.value.tick.close, new Date().toLocaleTimeString())
                 contractClass.trade()
             }
+            broadcastPathSendText('/market.btcusdt.ticker', JSON.stringify(data.value))
             currBtcLastPrice = data.value.tick.close
         }
     }
@@ -288,6 +318,9 @@ wsServer.on('request', async function (request) {
                         contractClass.reloadTradeList()
                         break
                 }
+            }
+            else if (data.ch == 'system.set_btc_price') {
+                xxx = data.value
             }
         }
 

@@ -271,7 +271,7 @@ let _t = {
             schema: {
                 body: S.object()
                     .prop('user_id', S.integer().required())
-                    .prop('withdrawAmount', S.integer().required())
+                    .prop('withdrawAmount', S.number().required())
                     .prop('withdrawCoinType', S.string().required())
                     .prop('withdrawAddress', S.string().required())
             }

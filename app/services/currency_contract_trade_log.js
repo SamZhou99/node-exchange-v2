@@ -2,10 +2,20 @@ const utils99 = require('node-utils99')
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
-    // async oneBySymbol(symbol) {
-    //     let res = await db.Query("SELECT * FROM currency_contract_trade_log WHERE symbol=? LIMIT 1", [symbol])
-    //     return res.length > 0 ? res[0] : null
-    // },
+
+    // oneById
+    async oneById(id) {
+        let res = await db.Query("SELECT * FROM currency_contract_trade_log WHERE id=?", [id])
+        return res.length > 0 ? res[0] : null
+    },
+
+    // 查询列表
+    async list(start, length) {
+        let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_trade_log", [])
+        total = total[0]['total']
+        let list = await db.Query("SELECT * FROM currency_contract_trade_log ORDER BY id DESC LIMIT ?,?", [start, length])
+        return { total, list }
+    },
 
     // 查询列表 通过 币种类
     async listBySymbol(symbol, start, length) {
@@ -40,10 +50,10 @@ let _t = {
     },
 
     // 更新 状态,平仓价格
-    async updateStatusAndPriceSell(id, status, priceSell) {
+    async updateStatusAndPriceSell(id, status, status_type, priceSell) {
         const update_datetime = utils99.Time()
-        const sql = `UPDATE currency_contract_trade_log SET status=?, price_sell=?, update_datetime=? WHERE id=?`
-        const res = await db.Query(sql, [status, priceSell, update_datetime, id])
+        const sql = `UPDATE currency_contract_trade_log SET status=?, status_type=?, price_sell=?, update_datetime=? WHERE id=?`
+        const res = await db.Query(sql, [status, status_type, priceSell, update_datetime, id])
         return res
     },
 

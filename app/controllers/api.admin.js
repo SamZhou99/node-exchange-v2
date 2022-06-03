@@ -256,7 +256,10 @@ let _t = {
             const body = request.body
             const user_id = body.user_id
             const key = body.key
-            const value = body.value
+            let value = body.value
+            if (key == 'password') {
+                value = utils99.MD5(value)
+            }
             const res = await service_member.updateFieldValue(user_id, key, value)
             return { flag: 'ok', data: res }
         },
@@ -357,13 +360,53 @@ let _t = {
             let total = res.total
             for (let i = 0; i < list.length; i++) {
                 let item = list[i]
-                item.children = await service_member.listByAgentId(item.id, 0, 999)
+                item.childrenCount = await service_member.countByAgentId(item.id)
             }
             return {
                 flag: 'ok', data: {
                     list: list,
                     page: { total, page, size }
                 }
+            }
+        },
+
+        children_list_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async children_list(request, reply) {
+            const query = request.query
+            const id = query.id
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+            let res = await service_member.listByAgentId(id, start, size)
+            let list = res.list
+            let total = res.total
+            return {
+                flag: 'ok', data: {
+                    list: list,
+                    page: { total, page, size }
+                }
+            }
+        },
+
+        item_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('id', S.integer().required())
+            }
+        },
+        async item(request, reply) {
+            const query = request.query
+            const id = query.id
+            let res = await service_agent.oneById(id)
+            return {
+                flag: 'ok', data: res
             }
         },
 
@@ -427,6 +470,32 @@ let _t = {
             }
             const list = res.list
             const total = res.total
+            return {
+                flag: 'ok', data: { list, page: { total, page, size } }
+            }
+        },
+    },
+
+    recharge_contract: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+            const res = await service_currency_contract_trade_log.list(start, size)
+            const total = res.total
+            let list = res.list
+            for (let i = 0; i < list.length; i++) {
+                let item = list[i]
+                item.user = await service_member.oneById(item.user_id)
+            }
             return {
                 flag: 'ok', data: { list, page: { total, page, size } }
             }

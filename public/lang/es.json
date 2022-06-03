@@ -80,6 +80,8 @@
     "futures_message_please_fill_in_the_amount": "¡Por favor complete la cantidad apropiada!",
     "futures_message_succeed": "¡Operación exitosa!",
 
+    "futures_entrust_tab_current_position": "Posición actual",
+    "futures_entrust_tab_historical_position": "Posición histórica",
     "futures_entrust_time": "cronometrar",
     "futures_entrust_direction": "indicación",
     "futures_entrust_amount": "Numero de ordenes",
@@ -96,6 +98,9 @@
     "futures_entrust_operation_btn_1": "retraerse",
     "futures_entrust_operation_btn_2": "Cerrar una posición",
     "futures_entrust_operation_btn_3": "ninguna",
+    "futures_entrust_profit_and_loss": "Ganancias y pérdidas",
+    "futures_entrust_settlement_price": "Precio de cierre",
+
     "futures_entrust_text_currency": "moneda",
     "futures_entrust_text_latest_price": "precio más reciente",
     "futures_entrust_text_increase": "incrementar",

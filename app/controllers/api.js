@@ -533,13 +533,21 @@ let _t = {
                     .prop('price', S.number().required())
             }
         },
-        // 平仓
+        // 手动平仓
         async put_close_a_position(request, reply) {
             const body = request.body
             const id = body.id
             const price = body.price
-            await service_currency_contract_trade_log.updateStatusAndPriceSell(id, 4, price)
-            return { flag: 'ok' }
+            // 更新 平仓 状态
+            await service_currency_contract_trade_log.updateStatusAndPriceSell(id, 4, 1, price)
+
+            // 更新 平仓余额 到合约账户
+            const item = await service_currency_contract_trade_log.oneById(id)
+            const profit_loss = (price - item.price) * item.lots
+            const usd = Math.round(profit_loss * 100000000) / 100000000
+            await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + usd)
+
+            return { flag: 'ok', profit_loss }
         },
     }
 }

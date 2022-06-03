@@ -93,6 +93,11 @@ let _t = {
         }
         return { total, list }
     },
+    async countByAgentId(agent_id) {
+        let total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE agent_id=?", [agent_id])
+        total = total[0]['total']
+        return total
+    },
 
     // 自动完成账号名
     async listByAccount(account, limit) {

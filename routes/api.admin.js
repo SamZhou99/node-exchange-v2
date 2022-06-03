@@ -17,6 +17,8 @@ async function routes(fastify, options) {
     fastify.get('/agent', controlless.agent.get_opts, controlless.agent.list)
     fastify.put('/agent', controlless.agent.put_opts, controlless.agent.update)
     fastify.post('/agent', controlless.agent.post_opts, controlless.agent.post)
+    fastify.get('/agent/children-list', controlless.agent.children_list_opts, controlless.agent.children_list)
+    fastify.get('/agent/item', controlless.agent.item_opts, controlless.agent.item)
 
     // 查询-网站基础配置
     fastify.get('/config-list', controlless.config.get_opts, controlless.config.get)
@@ -27,6 +29,8 @@ async function routes(fastify, options) {
 
     // 充值记录
     fastify.get('/recharge-list', controlless.recharge.get_opts, controlless.recharge.get)
+    // 合约交易记录
+    fastify.get('/recharge-contract-list', controlless.recharge_contract.get_opts, controlless.recharge_contract.get)
 
 
     // 查询-用户列表 账号自动完成
@@ -39,6 +43,9 @@ async function routes(fastify, options) {
     fastify.put('/account/update-auth', controlless.member.account_update_auth_opts, controlless.member.account_update_auth_put)
     // 添加新用户
     fastify.post('/account/create', controlless.member.create_opts, controlless.member.create_post)
+    // 管理端-修改密码
+    fastify.put('/administrator/password-change', controlless.password_change.put_opts, controlless.password_change.put)
+
 
     // 钱包地址
     fastify.get('/wallet-address/upload', controlless.wallet.get_opts, controlless.wallet.get)
@@ -70,8 +77,7 @@ async function routes(fastify, options) {
 
 
 
-    // 管理端-修改密码
-    fastify.put('/account/password-change', controlless.password_change.put_opts, controlless.password_change.put)
+
 
 
 

@@ -80,6 +80,8 @@
     "futures_message_please_fill_in_the_amount": "請填寫合適的數量！",
     "futures_message_succeed": "操作成功！",
 
+    "futures_entrust_tab_current_position": "當前持倉",
+    "futures_entrust_tab_historical_position": "歷史持倉",
     "futures_entrust_time": "時間",
     "futures_entrust_direction": "方向",
     "futures_entrust_amount": "委托量",
@@ -96,6 +98,8 @@
     "futures_entrust_operation_btn_1": "撤回",
     "futures_entrust_operation_btn_2": "平倉",
     "futures_entrust_operation_btn_3": "無",
+    "futures_entrust_profit_and_loss": "盈虧",
+    "futures_entrust_settlement_price": "平倉價格",
 
     "futures_entrust_text_currency": "貨幣",
     "futures_entrust_text_latest_price": "最新價格",

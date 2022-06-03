@@ -36,7 +36,6 @@
     "registe_account_exists": "The account already exists, please change another account to register!",
     "registe_email_not_verify": "Email is not verified！",
 
-
     "forgot_password_title": "Password Recovery By E-mail",
     "forgot_password_send_email": "The system has sent an email to your mailbox, please note to check!",
 
@@ -81,6 +80,8 @@
     "futures_message_please_fill_in_the_amount": "Please fill in the amount!",
     "futures_message_succeed": "succeed!",
 
+    "futures_entrust_tab_current_position": "Current Position",
+    "futures_entrust_tab_historical_position": "Historical Position",
     "futures_entrust_time": "Time",
     "futures_entrust_direction": "Direction",
     "futures_entrust_amount": "Amount",
@@ -97,6 +98,8 @@
     "futures_entrust_operation_btn_1": "withdraw",
     "futures_entrust_operation_btn_2": "close a position",
     "futures_entrust_operation_btn_3": "None",
+    "futures_entrust_profit_and_loss": "Profit and loss",
+    "futures_entrust_settlement_price": "Settlement price",
 
     "futures_entrust_text_currency": "currency",
     "futures_entrust_text_latest_price": "latest price",

@@ -57,7 +57,7 @@ fastify.register(require('./routes/index.js'))
 // 启动服务
 const start = async () => {
     try {
-        await fastify.listen(config.web.port)
+        await fastify.listen(config.web.port,'192.168.31.136')
     } catch (err) {
         fastify.log.error(err)
         process.exit(1)

@@ -80,6 +80,8 @@
     "futures_message_please_fill_in_the_amount": "適切な数量を記入してください！",
     "futures_message_succeed": "操作が成功する！",
 
+    "futures_entrust_tab_current_position": "現在の在庫",
+    "futures_entrust_tab_historical_position": "歴史持倉",
     "futures_entrust_time": "時間",
     "futures_entrust_direction": "方向",
     "futures_entrust_amount": "委託量",
@@ -96,6 +98,8 @@
     "futures_entrust_operation_btn_1": "撤回する",
     "futures_entrust_operation_btn_2": "平倉",
     "futures_entrust_operation_btn_3": "なし",
+    "futures_entrust_profit_and_loss": "損益",
+    "futures_entrust_settlement_price": "平倉価格",
 
     "futures_entrust_text_currency": "通貨",
     "futures_entrust_text_latest_price": "最新の価格",
