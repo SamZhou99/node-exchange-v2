@@ -205,6 +205,7 @@ contractClass.init()
 // 火币API提供的 btc实时价格
 let currBtcLastPrice = 0
 let xxx = 0
+let yyy = 0
 const huobi = require('./app/services/ws.huobi.js')
 huobi.callback = async function (data) {
     if (data.key == 'HuoBi API') {
@@ -321,6 +322,9 @@ wsServer.on('request', async function (request) {
             }
             else if (data.ch == 'system.set_btc_price') {
                 xxx = data.value
+                setTimeout(() => {
+                    xxx = 0
+                }, 3000)
             }
         }
 

@@ -19,6 +19,7 @@ const service_wallet = require('../services/wallet.js');
 const service_syste_wallet_address = require('../services/system_wallet_address.js');
 const service_email_verify_code = require('../services/mail/email_verify_code.js');
 const service_gmail = require('../services/mail/gmail.js');
+const service_titan = require('../services/mail/titan.js');
 
 
 
@@ -148,7 +149,7 @@ let _t = {
 
             // 发送邮箱验证码
             const time = utils99.Time()
-            const sendRes = await service_gmail.sendMail(email, 'Mailbox Verify Code', `Code : ${code}<hr>Time : ${time}`)
+            const sendRes = await service_titan.sendMail(email, 'Mailbox Verify Code', `Code : <h1>${code}</h1>Time : ${time}`)
             console.log(code, sendRes)
 
             return {
