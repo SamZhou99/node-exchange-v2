@@ -2,8 +2,8 @@ const utils99 = require('node-utils99')
 const { db } = require('../../../lib/db.setup.js')
 
 let _t = {
-    getVerifyCode() {
-        const ch = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+    getVerifyCode(chars) {
+        const ch = chars || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
         let s = ''
         for (let i = 0; i < 6; i++) {
             const r = Math.floor(ch.length * Math.random())

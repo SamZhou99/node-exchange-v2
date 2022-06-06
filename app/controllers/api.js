@@ -151,7 +151,7 @@ let _t = {
             }
 
             // 生成验证码
-            let code = service_email_verify_code.getVerifyCode()
+            let code = service_email_verify_code.getVerifyCode('1234567890')
             const emailRes = await service_email_verify_code.oneByEmail(email)
             if (emailRes) {
                 code = emailRes.code
@@ -163,7 +163,7 @@ let _t = {
 
             // 发送邮箱验证码
             const time = utils99.Time()
-            const sendRes = await service_titan.sendMail(email, 'Mailbox Verify Code', `Code : <h1>${code}</h1>Time : ${time}`)
+            const sendRes = await service_titan.sendMail(email, 'Mailbox Verify Code', `Code : <h1 style="color:blue">${code}</h1>Time : ${time}`)
             console.log(code, sendRes)
 
             return {
