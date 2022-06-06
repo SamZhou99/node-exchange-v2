@@ -5,8 +5,8 @@ async function routes(fastify, options) {
     // @todo remove
     fastify.get('/init.db.web', controlless.api.init.init_db_web)
     fastify.get('/init.db.admin', controlless.api.init.init_db_admin)
-
     fastify.get('/test/ip', controlless.api.test.ip)
+
 
     // 配置
     fastify.get('/config.json', controlless.api.config.get)
@@ -38,6 +38,8 @@ async function routes(fastify, options) {
     fastify.put('/currency-contract/withdraw', controlless.api.currency_contract.put_withdraw_opts, controlless.api.currency_contract.put_withdraw)
     fastify.put('/currency-contract/close-a-position', controlless.api.currency_contract.put_close_a_position_opts, controlless.api.currency_contract.put_close_a_position)
 
+    // pv
+    fastify.get('/pv', controlless.api.pv.opts, controlless.api.pv.get)
 
     // 中间件
     // fastify.use(['/json', '/download'], middleware.test)

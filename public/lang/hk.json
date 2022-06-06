@@ -139,6 +139,8 @@
     "my_assets_recharge_record": "充值記錄",
     "my_assets_address": "地址",
     "my_assets_wallet_address": "錢包地址",
+    "my_assets_exchange_into_USDT": "兑换成USDT",
+    "my_assets_amount_cannot_zero": "金额不能为零!",
     
     "my_assets_transfer_please_select_currency": "請選擇幣種",
     "my_assets_transfer_accounts": "劃轉帳戶",

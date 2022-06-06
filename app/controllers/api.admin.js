@@ -387,6 +387,12 @@ let _t = {
             let res = await service_member.listByAgentId(id, start, size)
             let list = res.list
             let total = res.total
+            for (let i = 0; i < list.length; i++) {
+                let item = list[i]
+                item.btc_total = await service_wallet_log.sumByUserIdCoinName(item.id, 'btc')
+                item.eth_total = await service_wallet_log.sumByUserIdCoinName(item.id, 'eth')
+                item.usdt_total = await service_wallet_log.sumByUserIdCoinName(item.id, 'usdt')
+            }
             return {
                 flag: 'ok', data: {
                     list: list,

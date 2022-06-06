@@ -46,6 +46,20 @@ let _t = {
             reply.send({ flag: 'ok', data: res })
         },
     },
+    pv: {
+        opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('url', S.string().required())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
+            const ua = request.headers['user-agent']
+            return { flag: 'ok', query, ip, ua }
+        },
+    },
     register: {
         opts: {
             schema: {

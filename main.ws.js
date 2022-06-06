@@ -324,7 +324,7 @@ wsServer.on('request', async function (request) {
                 xxx = data.value
                 setTimeout(() => {
                     xxx = 0
-                }, 3000)
+                }, data.ts)
             }
         }
 

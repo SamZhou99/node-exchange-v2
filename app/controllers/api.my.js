@@ -32,8 +32,12 @@ async function addWalletLogAndUpdateBalance(user_id, wallet_type, tradeArr) {
         const to_address = item.address
         const notes = '自动上分'
         const time = utils99.moment(Number(item.ts) * 1000).format('YYYY/MM/DD HH:mm:ss')
-        await service_wallet_log.addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
-        await service_wallet.updateAddSubAssetsAmount(user_id, wallet_type, amount, '+')
+        const check = await service_wallet_log.oneByHash(hash)
+        // hash 不存在，才会上分
+        if (check == null) {
+            await service_wallet_log.addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
+            await service_wallet.updateAddSubAssetsAmount(user_id, wallet_type, amount, '+')
+        }
     }
     return true
 }
@@ -373,7 +377,38 @@ let _t = {
             const total = resObject.total
             return { flag: 'ok', data: { list, page: { total, page, size } } }
         }
-    }
+    },
+
+
+    exchang_usdt: {
+        put_opts: {
+            schema: {
+                body: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('act', S.string().required())
+                    .prop('source', S.string().required())
+                    .prop('target', S.string().required())
+                    .prop('amount', S.number().required())
+                    .prop('amount_usdt', S.number().required())
+            }
+        },
+        async put(request, reply) {
+            const body = request.body
+            const user_id = body.user_id
+            const act = body.act
+            const source = body.source
+            const target = body.target
+            const amount = body.amount
+            const amount_usdt = body.amount_usdt
+            if (act == 'allin') {
+                await service_wallet.updateAssetsAmount(user_id, source, 0)
+                await service_wallet.updateAddSubAssetsAmount(user_id, target, amount_usdt)
+            } else {
+                return { flag: 'parameter error', body }
+            }
+            return { flag: 'ok', body }
+        },
+    },
 }
 module.exports = _t
 
