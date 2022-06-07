@@ -74,7 +74,8 @@
     "futures_modal_handling_fee": "tarifa de manejo",
     "futures_modal_margin": "depósito",
     "futures_modal_total": "total",
-    "futures_modal_submit": "someter",
+    "futures_modal_submit": "Someter",
+    "futures_modal_cancel": "Cancelar",
 
     "futures_message_not_sufficient_funds": "¡Saldo de cuenta insuficiente!",
     "futures_message_please_fill_in_the_amount": "¡Por favor complete la cantidad apropiada!",

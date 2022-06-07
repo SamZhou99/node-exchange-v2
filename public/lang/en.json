@@ -75,6 +75,7 @@
     "futures_modal_margin": "Margin",
     "futures_modal_total": "Total",
     "futures_modal_submit": "Submit",
+    "futures_modal_cancel": "Cancel",
 
     "futures_message_not_sufficient_funds": "not sufficient funds!",
     "futures_message_please_fill_in_the_amount": "Please fill in the amount!",

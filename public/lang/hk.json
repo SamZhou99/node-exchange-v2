@@ -75,6 +75,7 @@
     "futures_modal_margin": "保證金",
     "futures_modal_total": "總計",
     "futures_modal_submit": "提交",
+    "futures_modal_cancel": "取消",
 
     "futures_message_not_sufficient_funds": "帳戶餘額不足！",
     "futures_message_please_fill_in_the_amount": "請填寫合適的數量！",

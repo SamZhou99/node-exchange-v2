@@ -75,6 +75,7 @@
     "futures_modal_margin": "保証金",
     "futures_modal_total": "合計",
     "futures_modal_submit": "提出する",
+    "futures_modal_cancel": "取り消し",
 
     "futures_message_not_sufficient_funds": "口座残高が不足している！",
     "futures_message_please_fill_in_the_amount": "適切な数量を記入してください！",
