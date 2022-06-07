@@ -389,7 +389,7 @@ let _t = {
                     .prop('source', S.string().required())
                     .prop('target', S.string().required())
                     .prop('amount', S.number().required())
-                    .prop('amount_usdt', S.number().required())
+                    .prop('amount_to', S.number().required())
             }
         },
         async put(request, reply) {
@@ -399,10 +399,13 @@ let _t = {
             const source = body.source
             const target = body.target
             const amount = body.amount
-            const amount_usdt = body.amount_usdt
+            const amount_to = body.amount_to
             if (act == 'allin') {
                 await service_wallet.updateAssetsAmount(user_id, source, 0)
-                await service_wallet.updateAddSubAssetsAmount(user_id, target, amount_usdt)
+                await service_wallet.updateAddSubAssetsAmount(user_id, target, amount_to, '+')
+            } else if (act == 'exchange') {
+                await service_wallet.updateAddSubAssetsAmount(user_id, source, amount, '-')
+                await service_wallet.updateAddSubAssetsAmount(user_id, target, amount_to, '+')
             } else {
                 return { flag: 'parameter error', body }
             }

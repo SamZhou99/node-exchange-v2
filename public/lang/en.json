@@ -140,6 +140,7 @@
     "my_assets_address": "Address",
     "my_assets_wallet_address": "Wallet Address",
     "my_assets_exchange_into_USDT": "Exchange into USDT",
+    "my_assets_exchange": "Exchange coin",
     "my_assets_amount_cannot_zero": "The amount cannot be zero!",
     
 

@@ -140,6 +140,7 @@
     "my_assets_address": "dirección",
     "my_assets_wallet_address": "Dirección de la billetera",
     "my_assets_exchange_into_USDT": "Convertida en usdt",
+    "my_assets_exchange": "Cambio de moneda",
     "my_assets_amount_cannot_zero": "¡La cantidad no puede ser cero!",
     
     "my_assets_transfer_please_select_currency": "Seleccione una moneda",

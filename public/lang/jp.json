@@ -140,6 +140,7 @@
     "my_assets_address": "アドレス",
     "my_assets_wallet_address": "財布の住所",
     "my_assets_exchange_into_USDT": "USDTへの交換",
+    "my_assets_exchange": "為替コイン",
     "my_assets_amount_cannot_zero": "量はゼロにすることはできません！",
     
     "my_assets_transfer_please_select_currency": "通貨を選択してください",
