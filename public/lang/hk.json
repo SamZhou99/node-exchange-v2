@@ -41,7 +41,7 @@
 
     "foot_about": "關於我們",
     "foot_contact": "聯繫我們",
-    "table_name": "名稱",
+    "table_name": "代號",
     "table_price": "最新價格",
     "table_increase": "漲幅",
     "table_high": "最高",
@@ -109,6 +109,8 @@
     "futures_entrust_text_amount": "數量",
     "futures_entrust_text_sum": "金額",
     "futures_entrust_text_time": "時間",
+    "futures_entrust_stop_profit_price": "止盈價格",
+    "futures_entrust_stop_loss_price": "止損價格",
 
     "futures_entrust_quick_transfer": "快速劃轉",
 

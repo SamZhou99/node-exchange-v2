@@ -41,7 +41,7 @@
 
     "foot_about": "sobre nosotros",
     "foot_contact": "Contáctenos",
-    "table_name": "nombre",
+    "table_name": "Simbolismo",
     "table_price": "precio más reciente",
     "table_increase": "incrementar",
     "table_high": "más alto",
@@ -109,6 +109,8 @@
     "futures_entrust_text_amount": "cantidad",
     "futures_entrust_text_sum": "Monto",
     "futures_entrust_text_time": "cronometrar",
+    "futures_entrust_stop_profit_price": "Detener el precio de los beneficios",
+    "futures_entrust_stop_loss_price": "Precio de parada",
 
     "futures_entrust_quick_transfer": "Transferencia rápida",
 

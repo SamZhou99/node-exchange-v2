@@ -41,7 +41,7 @@
 
     "foot_about": "About Us",
     "foot_contact": "Contact Us",
-    "table_name": "Name",
+    "table_name": "Symbol",
     "table_price": "Last Price",
     "table_increase": "Increase",
     "table_high": "High",
@@ -109,6 +109,8 @@
     "futures_entrust_text_amount": "Amount",
     "futures_entrust_text_sum": "Sum",
     "futures_entrust_text_time": "Time",
+    "futures_entrust_stop_profit_price": "Stop profit price",
+    "futures_entrust_stop_loss_price": "Stop loss price",
 
     "futures_entrust_quick_transfer": "Quick Transfer",
 
