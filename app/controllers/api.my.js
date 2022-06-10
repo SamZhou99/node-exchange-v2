@@ -260,7 +260,7 @@ let _t = {
             const start = (page - 1) * size
             const user_id = query.user_id
 
-            const withdrawRes = await service_withdraw.list(user_id, start, size)
+            const withdrawRes = await service_withdraw.listByUserId(user_id, start, size)
             const list = withdrawRes.list
             const total = withdrawRes.total
 
@@ -302,7 +302,7 @@ let _t = {
             const charges = withdrawChargesRes.value
             const real_amount = withdrawAmount - charges
             // 写入申请记录
-            const withdrawRes = await service_withdraw.ApplyFor(user_id, 1, withdrawAmount, charges, real_amount, withdrawCoinType, withdrawAddress)
+            const withdrawRes = await service_withdraw.ApplyFor(user_id, 1, withdrawAmount, real_amount, charges, withdrawCoinType, withdrawAddress)
 
             // 更新资产钱包余额
             const balance = walletRes.assets_amount - withdrawAmount

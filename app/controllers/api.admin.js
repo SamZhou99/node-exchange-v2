@@ -574,6 +574,71 @@ let _t = {
         },
     },
 
+    withdraw: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+            const res = await service_withdraw.list(start, size)
+            const total = res.total
+            let list = res.list
+            for (let i = 0; i < list.length; i++) {
+                let item = list[i]
+                item.user = await service_member.oneById(item.user_id)
+            }
+            return {
+                flag: 'ok', data: {
+                    list,
+                    page: {
+                        total,
+                        page,
+                        size
+                    }
+                }
+            }
+        },
+
+        item_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('id', S.integer())
+            }
+        },
+        async item(request, reply) {
+            const query = request.query
+            const id = query.id
+            const res = await service_withdraw.oneById(id)
+            return {
+                flag: 'ok', data: res
+            }
+        },
+
+        put_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('status', S.integer().required())
+                    .prop('failed_reason', S.string().required())
+            }
+        },
+        async put(request, reply) {
+            const body = request.body
+            const id = body.id
+            const status = body.status
+            const failed_reason = body.failed_reason
+            const res = await service_withdraw.updateStatusReason(id, status, failed_reason)
+            return { flag: 'ok', data: res }
+        },
+    },
+
     upload_image: {
         post_opts: {
             schema: {

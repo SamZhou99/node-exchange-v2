@@ -53,6 +53,13 @@ async function routes(fastify, options) {
     // 查询-钱包列表 钱包地址自动完成
     fastify.post('/wallet-address/auto-complete', controlless.wallet.auto_complete_opts, controlless.wallet.auto_complete_post)
 
+    // 用户提现
+    fastify.get('/withdraw', controlless.withdraw.get_opts, controlless.withdraw.get)
+    // fastify.get('/withdraw/item', controlless.withdraw.item_opts, controlless.withdraw.item)
+    // 用户提现修改状态
+    fastify.put('/withdraw', controlless.withdraw.put_opts, controlless.withdraw.put)
+
+
     // 上传任何图片
     fastify.post('/upload/image', controlless.upload_image.post_opts, controlless.upload_image.post)
 
