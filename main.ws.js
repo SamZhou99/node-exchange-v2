@@ -322,6 +322,12 @@ wsServer.on('request', async function (request) {
             }
             else if (data.ch == 'system.set_btc_price') {
                 xxx = data.value
+
+                currBtcLastPrice = xxx
+                contractClass.trade()
+
+                conn.send(JSON.stringify({ ch: 'system.set_btc_price.succeed' }))
+
                 setTimeout(() => {
                     xxx = 0
                 }, data.ts)
