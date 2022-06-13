@@ -55,9 +55,12 @@ async function routes(fastify, options) {
 
     // 用户提现
     fastify.get('/withdraw', controlless.withdraw.get_opts, controlless.withdraw.get)
-    // fastify.get('/withdraw/item', controlless.withdraw.item_opts, controlless.withdraw.item)
     // 用户提现修改状态
     fastify.put('/withdraw', controlless.withdraw.put_opts, controlless.withdraw.put)
+
+    fastify.get('/withdraw-charges', controlless.withdraw_charges.get_opts, controlless.withdraw_charges.get)
+    fastify.put('/withdraw-charges', controlless.withdraw_charges.put_opts, controlless.withdraw_charges.put)
+
 
 
     // 上传任何图片

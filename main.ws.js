@@ -144,8 +144,8 @@ let contractClass = {
                         item.status = 4
                         item.price_sell = currBtcLastPrice
                         await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 2, currBtcLastPrice)
-                        // 更新 平仓余额 到合约账户
-                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
+                        // // 更新 平仓余额 到合约账户(爆仓余额全部干掉)
+                        // await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20040'], code: 20040, item: item }))
                         return true
                     }
@@ -182,8 +182,8 @@ let contractClass = {
                         item.status = 4
                         item.price_sell = currBtcLastPrice
                         await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 2, currBtcLastPrice)
-                        // 更新 平仓余额 到合约账户
-                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
+                        // // 更新 平仓余额 到合约账户(爆仓余额全部干掉)
+                        // await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20040'], code: 20040, item: item }))
                         return true
                     }

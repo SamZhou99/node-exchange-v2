@@ -606,21 +606,6 @@ let _t = {
             }
         },
 
-        item_opts: {
-            schema: {
-                querystring: S.object()
-                    .prop('id', S.integer())
-            }
-        },
-        async item(request, reply) {
-            const query = request.query
-            const id = query.id
-            const res = await service_withdraw.oneById(id)
-            return {
-                flag: 'ok', data: res
-            }
-        },
-
         put_opts: {
             schema: {
                 body: S.object()
@@ -635,6 +620,40 @@ let _t = {
             const status = body.status
             const failed_reason = body.failed_reason
             const res = await service_withdraw.updateStatusReason(id, status, failed_reason)
+            return { flag: 'ok', data: res }
+        },
+    },
+
+    withdraw_charges: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                // .prop('page', S.integer())
+                // .prop('size', S.integer())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const res = await service_withdrawCharges.list()
+            return {
+                flag: 'ok', data: res
+            }
+        },
+
+        put_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('key', S.string().minLength(1).required())
+                    .prop('value', S.string().minLength(1).required())
+            }
+        },
+        async put(request, reply) {
+            const body = request.body
+            const id = body.id
+            const key = body.key
+            const value = body.value
+            const res = await service_withdrawCharges.updateFieldValue(id, key, value)
             return { flag: 'ok', data: res }
         },
     },
