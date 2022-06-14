@@ -116,7 +116,8 @@ let contractClass = {
 
                     let yk = (currBtcLastPrice - item.price) * item.lots
                     let percent = Math.round(yk / item.sum * 10000) / 100
-                    console.log('long', round(yk, 8), percent + "%")
+
+                    // console.log('long', round(yk, 8), percent + "%")
 
                     if (item.buy_stop > 0 && item.buy_stop <= currBtcLastPrice) {
                         // 止盈
@@ -154,7 +155,8 @@ let contractClass = {
 
                     let yk = (currBtcLastPrice - item.price) * item.lots
                     let percent = Math.round(yk / item.sum * 10000) / 100
-                    console.log('short', round(yk, 8), percent + "%")
+
+                    // console.log('short', round(yk, 8), percent + "%")
 
                     if (item.buy_stop > 0 && item.buy_stop >= currBtcLastPrice) {
                         // 止盈
@@ -214,7 +216,7 @@ huobi.callback = async function (data) {
                 if (xxx > 0) {
                     data.value.tick.close = xxx
                 }
-                console.log('>>>--->', data.value.tick.close, new Date().toLocaleTimeString())
+                // console.log('>>>--->', data.value.tick.close, new Date().toLocaleTimeString())
                 contractClass.trade()
             }
             broadcastPathSendText('/market.btcusdt.ticker', JSON.stringify(data.value))
@@ -317,10 +319,12 @@ wsServer.on('request', async function (request) {
                 switch (data.cmd) {
                     case 'reloadTradeList':
                         contractClass.reloadTradeList()
+                        broadcastPathSendText('/market.tickers', JSON.stringify({ ch: 'there.contract.order' }))
                         break
                 }
             }
             else if (data.ch == 'system.set_btc_price') {
+                // 留着插帧用吧。。。
                 xxx = data.value
 
                 currBtcLastPrice = xxx
@@ -331,6 +335,38 @@ wsServer.on('request', async function (request) {
                 setTimeout(() => {
                     xxx = 0
                 }, data.ts)
+            }
+            else if (data.ch == 'system.set_contract_order_close_position') {
+                // 单独设置 用户订单 输赢或爆仓
+                let item = data.value
+                let act = data.act
+                let id = item.id
+                let userId = item.user_id
+                let status = 4
+                let statusType = 0
+                let closePositionPrice = 0
+                if (act == 'win') {
+                    closePositionPrice = item.buy_stop
+                    statusType = 3
+                } else if (act == 'lose') {
+                    closePositionPrice = item.sell_stop
+                    statusType = 4
+                } else if (act == 'overbook') {
+                    // 设置止损价后 没有达到 爆仓价 则无效
+                    // closePositionPrice = item.sell_stop
+                    // statusType = 2
+                }
+                else if (closePositionPrice == 0) {
+                    conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.succeed', msg: '参数错误', data: data }))
+                    return false
+                }
+                // console.log(act, data.value)
+                // 修改订单 状态与成交价格
+                service_currency_contract_trade_log.updateStatusAndPriceSell(userId, status, statusType, closePositionPrice)
+                // 给用户广播
+                broadcastUIDSendText(userId, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20040'], code: 20040 }))
+                // 给管理端发送完成消息
+                conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.succeed' }))
             }
         }
 
