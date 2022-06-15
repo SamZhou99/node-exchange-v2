@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js');
 const { db } = require('../../lib/db.setup.js')
 
 function randomCode() {
@@ -40,8 +41,8 @@ let _t = {
     },
 
     async add(account, password, notes, invite_code, type, status) {
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO agent_list(account, password, notes, invite_code, type, status, create_datetime, update_datetime) VALUES(?,?,?,?,?,?,?,?)", [account, password, notes, invite_code, type, status, create_datetime, update_datetime])
         return res
     },

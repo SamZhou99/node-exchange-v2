@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js')
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
@@ -28,8 +29,8 @@ let _t = {
 
     async ApplyFor(user_id, status, apply_amount, real_amount, charges, type, address) {
         const failed_reason = ""
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query(
             "INSERT INTO member_withdraw_log(user_id, status, apply_amount, real_amount, charges, `type`, address, failed_reason, create_datetime, update_datetime) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [user_id, status, apply_amount, real_amount, charges, type, address, failed_reason, create_datetime, update_datetime])
@@ -37,7 +38,7 @@ let _t = {
     },
 
     async updateStatusReason(id, status, failed_reason = "") {
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("UPDATE `member_withdraw_log` SET `status`=?,`failed_reason`=?,`update_datetime`=? WHERE (`id`=?)", [status, failed_reason, update_datetime, id])
         return res
     },

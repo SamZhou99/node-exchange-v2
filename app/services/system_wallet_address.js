@@ -9,8 +9,8 @@ async function oneByAddress(address) {
 }
 
 async function addAddress(upload_user_id, bind_user_id, address, type) {
-    const create_datetime = utils99.Time()
-    const update_datetime = utils99.Time()
+    const create_datetime = utils99.Time(config.web.timezone)
+    const update_datetime = utils99.Time(config.web.timezone)
     const res = await db.Query(`INSERT INTO system_wallet_address (upload_user_id,bind_user_id,address,type,create_datetime,update_datetime) VALUES (?,?,?,?,?,?)`, [upload_user_id, bind_user_id, address, type, create_datetime, update_datetime])
     return res
 }

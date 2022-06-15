@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js')
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
@@ -9,7 +10,7 @@ let _t = {
         return { total, list, }
     },
     async add(user_id, ip, referer, url, user_agent) {
-        const time = utils99.Time()
+        const time = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO system_pv_log (`user_id`,`ip`,`referer`,`url`,`user_agent`,`create_datetime`) VALUES (?,?,?,?,?,?)", [user_id, ip, referer, url, user_agent, time])
         return res
     },

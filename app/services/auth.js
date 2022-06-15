@@ -1,11 +1,12 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js');
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
     // Auth
     async addAuthInfo(user_id, status, failed_reason, country, full_name, id_number) {
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         // 更新
         const oneRes = await _t.oneById(user_id)
         if (oneRes != null) {
@@ -18,14 +19,14 @@ let _t = {
         return res
     },
     async updateAuthInfo(user_id, status, failed_reason, country, full_name, id_number) {
-        // const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        // const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("UPDATE member_auth SET `status`=?, `failed_reason`=?, `country`=?, `full_name`=?, `id_number`=?, `update_datetime`=? WHERE user_id=?",
             [status, failed_reason, country, full_name, id_number, update_datetime, user_id])
         return res
     },
     async updateAuthStatus(user_id, status, failed_reason) {
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("UPDATE member_auth SET `status`=?, `failed_reason`=?, `update_datetime`=? WHERE user_id=?",
             [status, failed_reason, update_datetime, user_id])
         return res
@@ -39,8 +40,8 @@ let _t = {
 
     // AuthPhoto
     async addPhoto(user_id, photo_name) {
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO member_auth_photo (user_id, id_photo, create_datetime, update_datetime) VALUES(?, ?, ?, ?)",
             [user_id, photo_name, create_datetime, update_datetime])
         return res

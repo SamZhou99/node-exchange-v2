@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js')
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
@@ -17,8 +18,8 @@ let _t = {
      * @returns 
      */
     async addLoginLog(user_id, user_type, user_agent, ip) {
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO login_log (user_id, user_type, user_agent, ip, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?, ?)", [user_id, user_type, user_agent, ip, create_datetime, update_datetime])
         return res
     },

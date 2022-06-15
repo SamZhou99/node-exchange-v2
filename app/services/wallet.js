@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js')
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
@@ -19,7 +20,7 @@ let _t = {
     },
     // 为一个账户 添加一个钱包币种
     async addWallet(user_id, type, assets_amount, contract_amount, name, address) {
-        const time = utils99.Time()
+        const time = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO member_wallet (`user_id`,`type`,`assets_amount`,`contract_amount`,`name`,`address`,`create_datetime`,`update_datetime`) VALUES (?,?,?,?,?,?,?,?)", [user_id, type, assets_amount, contract_amount, name, address, time, time])
         return res
     },

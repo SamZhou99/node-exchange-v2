@@ -1,5 +1,6 @@
 const fs = require('fs');
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js')
 const ktFormat = require('../../lib/kline.time.format.js')
 const { db } = require('../../lib/db.setup.js')
 
@@ -15,8 +16,8 @@ async function delay(time) {
 }
 
 async function insert(symbol, period, open, close, high, low, vol, ts) {
-    const create_datetime = utils99.Time()
-    const update_datetime = utils99.Time()
+    const create_datetime = utils99.Time(config.web.timezone)
+    const update_datetime = utils99.Time(config.web.timezone)
     const res = await db.Query("INSERT INTO kline_history(`symbol`,`period`,`open`,`close`,`high`,`low`,`vol`,`ts`,`create_datetime`,`update_datetime`) VALUES(?,?,?,?,?,?,?,?,?,?)", [symbol, period, open, close, high, low, vol, ts, create_datetime, update_datetime])
     return res
 }
@@ -86,7 +87,7 @@ let _t = {
      */
     async listBySymbol(symbol, period, size, isCurrTime = true) {
         if (isCurrTime) {
-            const ts = utils99.Time()
+            const ts = utils99.Time(config.web.timezone)
             let res = db.Query("SELECT * FROM kline_history WHERE symbol=? AND period=? AND ts<=? ORDER BY ts DESC LIMIT ?", [symbol, period, ts, size])
             return res
         }
@@ -102,7 +103,7 @@ let _t = {
             return insertRes
         }
         console.log("UPDATE")
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const updateRes = await db.Query("UPDATE kline_history SET `symbol`=?,`period`=?,`open`=?,`close`=?,`high`=?,`low`=?,`vol`=?,`ts`=?,`update_datetime`=? WHERE `symbol`=? AND `period`=? AND `ts`=?", [symbol, period, open, close, high, low, vol, ts, update_datetime, symbol, period, ts])
         return updateRes
     },

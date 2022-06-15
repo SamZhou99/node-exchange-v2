@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js');
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
@@ -35,15 +36,15 @@ let _t = {
 
     // 添加记录
     async addLog(user_id, lever, status, charges, price, lots, sum, action, symbol) {
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO currency_contract_trade_log (`user_id`,`lever`,`status`,`charges`,`price`,`lots`,`sum`,`action`,`symbol`,`create_datetime`,`update_datetime`) VALUES (?,?,?,?,?,?,?,?,?,?,?)", [user_id, lever, status, charges, price, lots, sum, action, symbol, create_datetime, update_datetime])
         return res
     },
 
     // 更新状态
     async updateFieldValue(id, fieldName, fieldValue) {
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const sql = `UPDATE currency_contract_trade_log SET \`${fieldName}\`=?, \`update_datetime\`=? WHERE id=?`
         const res = await db.Query(sql, [fieldValue, update_datetime, id])
         return res
@@ -51,7 +52,7 @@ let _t = {
 
     // 更新 状态,平仓价格
     async updateStatusAndPriceSell(id, status, status_type, priceSell) {
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const sql = `UPDATE currency_contract_trade_log SET status=?, status_type=?, price_sell=?, update_datetime=? WHERE id=?`
         const res = await db.Query(sql, [status, status_type, priceSell, update_datetime, id])
         return res
@@ -59,7 +60,7 @@ let _t = {
 
     // 更新 止盈 止损
     async updateBuyStopSellStop(id, buy_stop, sell_stop) {
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const sql = `UPDATE currency_contract_trade_log SET buy_stop=?, sell_stop=?, update_datetime=? WHERE id=?`
         const res = await db.Query(sql, [buy_stop, sell_stop, update_datetime, id])
         return res

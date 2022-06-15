@@ -309,7 +309,7 @@ wsServer.on('request', async function (request) {
         connectionObj.remove(conn.id)
     })
 
-    conn.on('message', function (message) {
+    conn.on('message', async function (message) {
 
         console.log('收到客户端消息', message)
 
@@ -353,16 +353,25 @@ wsServer.on('request', async function (request) {
                     statusType = 4
                 } else if (act == 'overbook') {
                     // 设置止损价后 没有达到 爆仓价 则无效
-                    // closePositionPrice = item.sell_stop
-                    // statusType = 2
+                    if (item.sell_stop <= 0) {
+                        if (item.action == 'long') {
+                            closePositionPrice = item.price - (item.sum * 0.801 / item.lots)
+                        } else if (item.action == 'short') {
+                            closePositionPrice = item.price + (item.sum * 0.801 / item.lots)
+                        }
+                        statusType = 2
+                    } else {
+                        conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.error', msg: '参数错误', data: data }))
+                        return false
+                    }
                 }
                 else if (closePositionPrice == 0) {
-                    conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.succeed', msg: '参数错误', data: data }))
+                    conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.error', msg: '参数错误', data: data }))
                     return false
                 }
                 // console.log(act, data.value)
                 // 修改订单 状态与成交价格
-                service_currency_contract_trade_log.updateStatusAndPriceSell(userId, status, statusType, closePositionPrice)
+                await service_currency_contract_trade_log.updateStatusAndPriceSell(id, status, statusType, closePositionPrice)
                 // 给用户广播
                 broadcastUIDSendText(userId, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20040'], code: 20040 }))
                 // 给管理端发送完成消息

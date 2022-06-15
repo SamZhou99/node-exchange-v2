@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js')
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
@@ -21,20 +22,20 @@ let _t = {
     },
     // 增加一个平台币
     async add(icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, abstract, desc, is_show, start_time, end_time) {
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = db.Query("INSERT INTO currency_platform(`icon`,`symbol`,`name`,`value`,`sell_value`,`withdraw_charges`,`usdt_exchange`,`sort`,`abstract`,`desc`,`is_show`,`start_time`,`end_time`,`create_datetime`,`update_datetime`) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, abstract, desc, is_show, start_time, end_time, create_datetime, update_datetime])
         return res
     },
     // 更新全部信息
     async update(id, icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, abstract, desc, is_show, start_time, end_time) {
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = db.Query("UPDATE currency_platform SET `icon`=?,`symbol`=?,`name`=?,`value`=?,`sell_value`=?,`withdraw_charges`=?,`usdt_exchange`=?,`sort`=?,`abstract`=?,`desc`=?,`is_show`=?,`start_time`=?,`end_time`=?,`update_datetime`=? WHERE id=?", [icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, abstract, desc, is_show, start_time, end_time, update_datetime, id])
         return res
     },
     // 更新描述
     async updateDesc(id, abstract, desc) {
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = db.Query("UPDATE currency_platform SET `abstract`=?,`desc`=?,`update_datetime`=? WHERE id=?", [abstract, desc, update_datetime, id])
         return res
     }

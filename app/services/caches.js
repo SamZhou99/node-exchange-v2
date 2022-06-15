@@ -1,11 +1,12 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js');
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
     async set(key, value) {
         let getRes = await _t.get(key)
-        let create_datetime = utils99.Time()
-        let update_datetime = utils99.Time()
+        let create_datetime = utils99.Time(config.web.timezone)
+        let update_datetime = utils99.Time(config.web.timezone)
         let setRes
         if (getRes) {
             setRes = await db.Query('UPDATE `caches` SET `value`=?, update_datetime=? WHERE `key`=?', [value, update_datetime, key])

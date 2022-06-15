@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js');
 const { db } = require('../../lib/db.setup.js')
 const service_auth = require('./auth.js')
 const service_agent = require('./agent.js')
@@ -38,7 +39,7 @@ let _t = {
     },
     // 修改密码
     async updatePassword(id, password) {
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query(`UPDATE admin_list SET password=?,update_datetime=? WHERE id=? LIMIT 1`, [password, update_datetime, id])
         return res
     }

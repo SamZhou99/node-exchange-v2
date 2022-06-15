@@ -290,7 +290,7 @@ let _t = {
                     let hash = ""
                     let to_address = ""
                     let wallet_type = symbol
-                    let time = utils99.Time()
+                    let time = utils99.Time(config.web.timezone)
                     // console.log(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
                     let walletLogRes = await service_wallet_log.addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
                     if (action == "add") {
@@ -676,7 +676,7 @@ let _t = {
                     mimetype: files[key].mimetype
                 })
             }
-            const time = utils99.Time().replace(/ /g, '').replace(/-/g, '').replace(/:/g, '')
+            const time = utils99.Time(config.web.timezone).replace(/ /g, '').replace(/-/g, '').replace(/:/g, '')
             const random = String(Math.random()).replace('.', '')
             const extens_name = files.file.name.substring(files.file.name.lastIndexOf('.') + 1)
             const new_file_name = `${prefix}-${time}-${random}.${extens_name}`

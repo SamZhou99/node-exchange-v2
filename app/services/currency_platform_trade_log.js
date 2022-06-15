@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js');
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
@@ -20,8 +21,8 @@ let _t = {
 
     // 添加-记录
     async addLog(user_id, operator_id, coin_amount, coin_type, platform_coin_amount, platform_coin_type, notes, action) {
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO currency_platform_trade_log(user_id, operator_id, coin_amount, coin_type, platform_coin_amount, platform_coin_type, notes, action, create_datetime, update_datetime) VALUES(?,?,?,?,?,?,?,?,?,?)", [user_id, operator_id, coin_amount, coin_type, platform_coin_amount, platform_coin_type, notes, action, create_datetime, update_datetime])
         return res
     },

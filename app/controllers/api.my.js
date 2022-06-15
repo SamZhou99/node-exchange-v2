@@ -168,7 +168,7 @@ let _t = {
                 })
             }
             // const new_file_name = `./public/uploads/${files.file.name}`
-            const time = utils99.Time().replace(/ /g, '').replace(/-/g, '').replace(/:/g, '')
+            const time = utils99.Time(config.web.timezone).replace(/ /g, '').replace(/-/g, '').replace(/:/g, '')
             const random = String(Math.random()).replace('.', '')
             const extens_name = files.file.name.substring(files.file.name.lastIndexOf('.') + 1)
             const new_file_name = `authentication-${user_id}-${time}-${random}.${extens_name}`

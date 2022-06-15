@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js')
 const { db } = require('../../lib/db.setup.js')
 const service_auth = require('./auth.js')
 const service_agent = require('./agent.js')
@@ -8,8 +9,8 @@ const service_wallet = require('./wallet.js')
 let _t = {
     // 创建会员
     async createMember(agent_id, account, password, notes, type, status, email_verify, ip) {
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO member_list (agent_id, account, password, notes, type, status, email_verify, ip, create_datetime, update_datetime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [agent_id, account, password, notes, type, status, email_verify, ip, create_datetime, update_datetime])
         return res
     },

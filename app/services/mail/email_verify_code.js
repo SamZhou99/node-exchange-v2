@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../../config/all.js')
 const { db } = require('../../../lib/db.setup.js')
 
 let _t = {
@@ -21,12 +22,12 @@ let _t = {
     },
     async add(email, code) {
         const status = 0
-        const time = utils99.Time()
+        const time = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO email_verify_code (email,code,status,create_datetime,update_datetime) VALUES(?,?,?,?,?)", [email, code, status, time, time])
         return res
     },
     async updateStatusByEmailCode(status, email, code) {
-        const time = utils99.Time()
+        const time = utils99.Time(config.web.timezone)
         const res = await db.Query("UPDATE email_verify_code SET status=?,update_datetime=? WHERE email=? AND code=? LIMIT 1", [status, time, email, code])
         return res
     }

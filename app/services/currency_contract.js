@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const config = require('../../config/all.js');
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
@@ -21,14 +22,14 @@ let _t = {
     },
     // 增加
     async add(icon, symbol, name, charges, amount, close_a_position, sort, is_show) {
-        const create_datetime = utils99.Time()
-        const update_datetime = utils99.Time()
+        const create_datetime = utils99.Time(config.web.timezone)
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO currency_contract(`icon`, `symbol`, `name`, `charges`, `amount`, `close_a_position`, `sort`, `is_show`,`create_datetime`,`update_datetime`) VALUES(?,?,?,?,?,?,?,?,?,?)", [icon, symbol, name, charges, amount, close_a_position, sort, is_show, create_datetime, update_datetime])
         return res
     },
     // 更新
     async update(id, icon, symbol, name, charges, amount, close_a_position, sort, is_show) {
-        const update_datetime = utils99.Time()
+        const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("UPDATE currency_contract SET `icon`=?, `symbol`=?, `name`=?, `charges`=?, `amount`=?, `close_a_position`=?, `sort`=?, `is_show`=?, `update_datetime`=? WHERE id=?", [icon, symbol, name, charges, amount, close_a_position, sort, is_show, update_datetime, id])
         return res
     }
