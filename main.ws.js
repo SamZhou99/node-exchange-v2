@@ -278,7 +278,7 @@ const server = http.createServer(function (request, response) {
 });
 // 监听端口
 server.listen(config.web.websocket_port, function () {
-    console.log('WebSocket端口', config.web.websocket_port, utils99.Time())
+    console.log('WebSocket端口', config.web.websocket_port, utils99.Time(config.web.timezone))
 });
 
 
