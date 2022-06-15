@@ -17,6 +17,7 @@ const service_currency_contract = require('../services/currency_contract.js');
 const service_currency_contract_trade_log = require('../services/currency_contract_trade_log.js');
 const service_wallet = require('../services/wallet.js');
 const service_syste_wallet_address = require('../services/system_wallet_address.js');
+const service_syste_pv_log = require('../services/system_pv_log.js');
 const service_email_verify_code = require('../services/mail/email_verify_code.js');
 const service_gmail = require('../services/mail/gmail.js');
 const service_titan = require('../services/mail/titan.js');
@@ -55,9 +56,19 @@ let _t = {
         },
         async get(request, reply) {
             const query = request.query
-            const ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
-            const ua = request.headers['user-agent']
-            return { flag: 'ok', query, ip, ua }
+            let user_id = 0
+            let ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
+            let ua = request.headers['user-agent']
+            let referer = ''
+            let url = query.url
+            if (query.token) {
+                let b = Buffer.from(query.token, 'base64')
+                let s = b.toString('utf8');
+                let j = JSON.parse(s)
+                user_id = j.id
+            }
+            await service_syste_pv_log.add(user_id, ip, referer, url, ua)
+            return { flag: 'ok' }
         },
     },
     register: {
