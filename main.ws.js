@@ -348,9 +348,23 @@ wsServer.on('request', async function (request) {
                 if (act == 'win') {
                     closePositionPrice = item.buy_stop
                     statusType = 3
+                    let yk = 0
+                    if (item.action == 'long') {
+                        yk = (closePositionPrice - item.price) * item.lots
+                    } else if (item.action == 'short') {
+                        yk = (item.price - closePositionPrice) * item.lots
+                    }
+                    await service_wallet.updateContractAmountAction(item.user_id, 'usdt', round(yk, 8))
                 } else if (act == 'lose') {
                     closePositionPrice = item.sell_stop
                     statusType = 4
+                    let yk = 0
+                    if (item.action == 'long') {
+                        yk = (item.price - closePositionPrice) * item.lots
+                    } else if (item.action == 'short') {
+                        yk = (closePositionPrice - item.price) * item.lots
+                    }
+                    await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum - round(yk, 8))
                 } else if (act == 'overbook') {
                     // 设置止损价后 没有达到 爆仓价 则无效
                     if (item.sell_stop <= 0) {
@@ -369,9 +383,10 @@ wsServer.on('request', async function (request) {
                     conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.error', msg: '参数错误', data: data }))
                     return false
                 }
-                // console.log(act, data.value)
+
                 // 修改订单 状态与成交价格
                 await service_currency_contract_trade_log.updateStatusAndPriceSell(id, status, statusType, closePositionPrice)
+
                 // 给用户广播
                 broadcastUIDSendText(userId, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20040'], code: 20040 }))
                 // 给管理端发送完成消息
