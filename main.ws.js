@@ -346,26 +346,33 @@ wsServer.on('request', async function (request) {
                 let statusType = 0
                 let closePositionPrice = 0
                 if (act == 'win') {
+                    // 赢
                     closePositionPrice = item.buy_stop
                     statusType = 3
                     let yk = 0
                     if (item.action == 'long') {
+                        // 买涨
                         yk = (closePositionPrice - item.price) * item.lots
                     } else if (item.action == 'short') {
+                        // 买跌
                         yk = (item.price - closePositionPrice) * item.lots
                     }
-                    await service_wallet.updateContractAmountAction(item.user_id, 'usdt', round(yk, 8))
+                    await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                 } else if (act == 'lose') {
+                    // 输
                     closePositionPrice = item.sell_stop
                     statusType = 4
                     let yk = 0
                     if (item.action == 'long') {
+                        // 买涨
                         yk = (item.price - closePositionPrice) * item.lots
                     } else if (item.action == 'short') {
+                        // 买跌
                         yk = (closePositionPrice - item.price) * item.lots
                     }
                     await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum - round(yk, 8))
                 } else if (act == 'overbook') {
+                    // 爆仓
                     // 设置止损价后 没有达到 爆仓价 则无效
                     if (item.sell_stop <= 0) {
                         if (item.action == 'long') {
