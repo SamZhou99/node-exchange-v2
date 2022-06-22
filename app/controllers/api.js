@@ -495,21 +495,23 @@ let _t = {
             const status = 2 // 1委托状态，2直接成交状态
 
             if (action == 'buy' || action == 'sell') {
-                const act = (action == "buy") ? 'long' : 'short'
-                const tradeRes = await service_currency_contract_trade_log.addLog(user_id, multiple, status, handling_fee, price, lots, margin, act, symbol)
-                console.log(tradeRes)
                 // 获取用户usdt余额
                 const walletRes = await service_wallet.oneByCoinName(user_id, "usdt")
                 // 扣除合约余额
                 const balance = walletRes.contract_amount - margin
                 // 更新合约余额
                 const walletUpdateRes = await service_wallet.updateContractAmount(user_id, "usdt", balance)
+                // 增加一条合约交易记录
+                const act = (action == "buy") ? 'long' : 'short'
+                const tradeRes = await service_currency_contract_trade_log.addLog(user_id, multiple, status, handling_fee, price, lots, margin, act, symbol, balance)
+
                 return {
                     flag: 'ok', data: {
                         action,
                         body,
                         walletRes,
                         walletUpdateRes,
+                        tradeRes,
                     }
                 }
             }
