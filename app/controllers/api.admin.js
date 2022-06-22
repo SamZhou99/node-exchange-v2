@@ -17,6 +17,8 @@ const service_agent = require('../services/agent.js')
 const service_admin = require('../services/admin.js')
 const service_login_log = require('../services/login_log.js')
 const service_system_session = require('../services/system_session.js')
+const service_system_banner = require('../services/system_banner.js')
+const service_system_pv_log = require('../services/system_pv_log.js')
 const service_kline_history = require('../services/kline_history.js')
 
 
@@ -663,6 +665,7 @@ let _t = {
             schema: {
                 querystring: S.object()
                     .prop('prefix', S.string().minLength(1).required())
+                    .prop('id', S.integer().required())
             }
         },
         async post(request, reply) {
@@ -685,7 +688,7 @@ let _t = {
                 if (err) {
                     return request.status(500).send(err);
                 }
-                return reply.send({ flag: 'ok', data: new_file_name })
+                return reply.send({ flag: 'ok', data: { id: query.id, name: new_file_name } })
             })
         },
     },
@@ -954,6 +957,97 @@ let _t = {
         },
     },
 
+    banner: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            let res = await service_system_banner.list()
+            return { flag: 'ok', data: res }
+        },
+
+
+        post_opts: {
+            schema: {
+                body: S.object()
+                    .prop('type', S.integer().required())
+                    .prop('img', S.string().minLength(1).required())
+                    .prop('sort', S.string().minLength(1).required())
+            }
+        },
+        async post(request, reply) {
+            const body = request.body
+            const type = body.type
+            const img = body.img
+            const sort = body.sort
+            const res = await service_system_banner.add(img, sort, type)
+            return { flag: 'ok', data: res }
+        },
+
+
+        put_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('img', S.string().minLength(1).required())
+                    .prop('sort', S.string().minLength(1).required())
+            }
+        },
+        async put(request, reply) {
+            const body = request.body
+            const id = body.id
+            const img = body.img
+            const sort = body.sort
+            const res = await service_system_banner.updateById(id, img, sort)
+            return { flag: 'ok', data: res }
+        },
+
+
+        delete_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+            }
+        },
+        async delete(request, reply) {
+            const body = request.body
+            const id = body.id
+            const res = await service_system_banner.deleteById(id)
+            return { flag: 'ok', data: res }
+        },
+    },
+
+    pv_log: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+            let res = await service_system_pv_log.list(start, size)
+            for (let i = 0; i < res.list.length; i++) {
+                let item = res.list[i]
+                item['user'] = await service_member.oneById(item.user_id)
+            }
+            return {
+                flag: 'ok', data: {
+                    list: res.list,
+                    page: { total: res.total, page, size }
+                }
+            }
+
+        }
+    },
+
     config: {
         // 查询-配置列表
         get_opts: {
@@ -1006,7 +1100,8 @@ let _t = {
             const res = await service_config.insert(key, value)
             return { flag: 'ok', res }
         },
-    }
+    },
+
 }
 module.exports = _t
 

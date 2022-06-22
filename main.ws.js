@@ -430,9 +430,9 @@ wsServer.on('request', async function (request) {
         const start = 0
         const size = 99
         conn.uid = userId
-        // 推送给客户 历史记录
-        const res = await service_currency_contract_trade_log.listByUserId(userId, start, size)
-        conn.sendUTF(JSON.stringify(res.list))
+        // // 推送给客户 历史记录
+        // const res = await service_currency_contract_trade_log.listByUserId(userId, start, size)
+        // conn.sendUTF(JSON.stringify(res.list))
     }
 
     // 实时市场行情

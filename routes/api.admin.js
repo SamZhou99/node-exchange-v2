@@ -1,5 +1,6 @@
 const controlless = require('../app/controllers/api.admin.js')
-// const middleware = require('../app/middleware/index.js')
+const middleware = require('../app/middleware/index.js')
+const system_crpto = require('../lib/system.crypto.js')
 
 async function routes(fastify, options) {
     // 获取验证码
@@ -85,7 +86,12 @@ async function routes(fastify, options) {
     fastify.post('/currency-contract', controlless.currency_contract.post_opts, controlless.currency_contract.post)
 
 
+    fastify.get('/banner', controlless.banner.get_opts, controlless.banner.get)
+    fastify.post('/banner', controlless.banner.post_opts, controlless.banner.post)
+    fastify.put('/banner', controlless.banner.put_opts, controlless.banner.put)
+    fastify.delete('/banner', controlless.banner.delete_opts, controlless.banner.delete)
 
+    fastify.get('/pv-log', controlless.pv_log.get_opts, controlless.pv_log.get)
 
 
 
@@ -97,7 +103,52 @@ async function routes(fastify, options) {
     // fastify.post('/upload-photo', controlless.upload_photo.post_opts, controlless.upload_photo.post)
 
     // 中间件
-    // fastify.use(['/json', '/download'], middleware.test)
+    // fastify.use(['/api/admin/dashboard', '/user-list'], middleware.test)
+
+
+
+    const EXCLUDE_ARR = ['/api/admin/VerifyCode', '/api/admin/login']
+    fastify.addHook('preHandler', (request, reply, done) => {
+        // 排除
+        let url = request.url
+        for (let i in EXCLUDE_ARR) {
+            if (url.indexOf(EXCLUDE_ARR[i]) != -1) {
+                done()
+                return
+            }
+        }
+
+        // 解密 token
+        let token = request.query.token || request.body.token
+
+        if (token == undefined) {
+            reply.code(400)
+            done(new Error('OMG'))
+            return
+        }
+
+        // 解密是否错误
+        try {
+            let result = system_crpto.decryption(token)
+            // console.log("其他代码", request.url, result)
+            if (result.id == result.account) {
+                // 检查ID和账号
+            }
+            if (result.status != 0) {
+                // return
+            }
+            if (result.ip) {
+                // 安全检查
+            }
+            if (result.ts) {
+                // 是否有超时
+            }
+            done()
+        } catch (err) {
+            reply.code(400)
+            done(new Error('OMG'))
+        }
+    })
 }
 
 module.exports = routes
