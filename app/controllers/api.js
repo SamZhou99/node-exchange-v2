@@ -457,13 +457,18 @@ let _t = {
             const page = query.page || 1
             const size = query.size || 10
             const start = (page - 1) * size
-            const res = await service_currency_contract_trade_log.listByUserId(user_id, start, size)
+            const status = 4 // 平仓的订单
+            const closeResult = await service_currency_contract_trade_log.listByCloseUserId(user_id, status, start, size)
+            const tradeList = await service_currency_contract_trade_log.listByTradeUserId(user_id)
             reply.send({
                 flag: 'ok', data: {
-                    list: res.list,
-                    page: {
-                        total: res.total,
-                        page, size
+                    tradeList,
+                    closeList: {
+                        list: closeResult.list,
+                        page: {
+                            total: closeResult.total,
+                            page, size
+                        }
                     }
                 }
             })
