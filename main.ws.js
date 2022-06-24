@@ -112,6 +112,12 @@ let contractClass = {
             } else if (item.status == 2) {
                 // 2 交易成功
 
+                // 订单状态已改变，阻止重复瞬间操作。
+                let tradeItem = await service_currency_contract_trade_log.oneById(item.id)
+                if (tradeItem != null && tradeItem.status == 4) {
+                    return false
+                }
+
                 if (item.action == 'long' && currBtcLastPrice > 0) { // 买涨
 
                     let yk = (currBtcLastPrice - item.price) * item.lots

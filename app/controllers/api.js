@@ -467,7 +467,8 @@ let _t = {
                         list: closeResult.list,
                         page: {
                             total: closeResult.total,
-                            page, size
+                            page,
+                            size
                         }
                     }
                 }
@@ -571,6 +572,14 @@ let _t = {
             const body = request.body
             const id = body.id
             const price = body.price
+
+            // 订单状态已改变，阻止重复瞬间操作。
+            let tradeItem = await service_currency_contract_trade_log.oneById(item.id)
+            if (tradeItem != null && tradeItem.status == 4) {
+                return { flag: 'Order status has been closed!' }
+            }
+
+
             // 更新 平仓 状态
             await service_currency_contract_trade_log.updateStatusAndPriceSell(id, 4, 1, price)
 
