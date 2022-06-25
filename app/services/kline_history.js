@@ -98,11 +98,11 @@ let _t = {
     async update(symbol, period, open, close, high, low, vol, ts) {
         let checkRes = await one(symbol, period, ts)
         if (checkRes == null) {
-            console.log("INSERT")
+            // console.log("INSERT")
             let insertRes = await insert(symbol, period, open, close, high, low, vol, ts)
             return insertRes
         }
-        console.log("UPDATE")
+        // console.log("UPDATE")
         const update_datetime = utils99.Time(config.web.timezone)
         const updateRes = await db.Query("UPDATE kline_history SET `symbol`=?,`period`=?,`open`=?,`close`=?,`high`=?,`low`=?,`vol`=?,`ts`=?,`update_datetime`=? WHERE `symbol`=? AND `period`=? AND `ts`=?", [symbol, period, open, close, high, low, vol, ts, update_datetime, symbol, period, ts])
         return updateRes

@@ -138,14 +138,14 @@ let _t = {
             const period = periods[index]
             const size = getSize(symbol, period)
             const res = await huobiApiKline(symbol, period, size)
-            console.log(period, size, res)
+            // console.log(period, size, res)
             if (res && res.data != undefined) {
                 let a = getList(res, symbol, period, size)
                 for (let i = 0; i < a.length; i++) {
                     let it = a[i]
                     await service_kline_history.update(it.symbol, it.period, it.open, it.close, it.high, it.low, it.vol, it.ts)
                 }
-                console.log("insert", symbol, period, size, a.length)
+                // console.log("insert", symbol, period, size, a.length)
             }
             await delay(1000)
         }
@@ -158,7 +158,7 @@ let _t = {
                 for (let i = 0; i < a.length; i++) {
                     let it = a[i]
                     await service_kline_history.update(it.symbol, it.period, it.open, it.close, it.high, it.low, it.vol, it.ts)
-                    console.log("update", symbol, period, size, a.length)
+                    // console.log("update", symbol, period, size, a.length)
                 }
             }
         })

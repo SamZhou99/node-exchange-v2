@@ -123,7 +123,7 @@ let contractClass = {
                     let yk = (currBtcLastPrice - item.price) * item.lots
                     let percent = Math.round(yk / item.sum * 10000) / 100
 
-                    // console.log('long', round(yk, 8), percent + "%")
+                    console.log('ID:', item.id, 'long', '盈亏:', round(yk, 8), "百分比:", percent + "%", '暴:', percent < -(RISK_RATIO * 100))
 
                     if (item.buy_stop > 0 && item.buy_stop <= currBtcLastPrice) {
                         // 止盈
@@ -163,7 +163,7 @@ let contractClass = {
                     let yk = (item.price - currBtcLastPrice) * item.lots // 正数:为盈 负数:为输
                     let percent = Math.round(yk / item.sum * 10000) / 100
 
-                    // console.log('short', round(yk, 8), percent + "%")
+                    console.log('ID:', item.id, 'short', '盈亏:', round(yk, 8), "百分比:", percent + "%", '暴:', percent >= (RISK_RATIO * 100))
 
                     if (item.buy_stop > 0 && item.buy_stop >= currBtcLastPrice) {
                         // 止盈
