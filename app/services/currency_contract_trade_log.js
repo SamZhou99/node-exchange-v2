@@ -30,7 +30,7 @@ let _t = {
     async listByCloseUserId(user_id, status, start, length) {
         let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_trade_log WHERE user_id=? AND status=?", [user_id, status])
         total = total[0]['total']
-        let list = await db.Query("SELECT * FROM currency_contract_trade_log WHERE user_id=? AND status=? ORDER BY id DESC LIMIT ?,?", [user_id, status, start, length])
+        let list = await db.Query("SELECT * FROM currency_contract_trade_log WHERE user_id=? AND status=? ORDER BY update_datetime DESC LIMIT ?,?", [user_id, status, start, length])
         return { total, list }
     },
     async listByTradeUserId(user_id) {
