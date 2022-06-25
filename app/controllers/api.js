@@ -574,7 +574,7 @@ let _t = {
             const price = body.price
 
             // 订单状态已改变，阻止重复瞬间操作。
-            let tradeItem = await service_currency_contract_trade_log.oneById(item.id)
+            let tradeItem = await service_currency_contract_trade_log.oneById(id)
             if (tradeItem != null && tradeItem.status == 4) {
                 return { flag: 'Order status has been closed!' }
             }
