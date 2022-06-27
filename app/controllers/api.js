@@ -263,10 +263,8 @@ let _t = {
             let period = query.period || '1day'
             let size = query.size || '365'
             // 限时和不限时 都要显示
-            let isCurrTime = query.isCurrTime
-            if (isCurrTime) {
-                isCurrTime = isCurrTime == 'true' ? true : false
-            }
+            let isCurrTime = query.isCurrTime == 'false' ? false : true
+
             let symbol_type = await service_kline_history.getSymbolType(symbol)
 
             let klineRes

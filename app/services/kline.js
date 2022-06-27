@@ -84,7 +84,7 @@ let _t = {
     platform: {
         async get(symbol, period, size, isCurrTime) {
             let res = await service_kline_history.listBySymbol(symbol, period, size, isCurrTime)
-            if (period != '1min') {
+            if (period != '1min' && isCurrTime) {
                 let list_1min = await service_kline_history.listBySymbol(symbol, '1min', 1, isCurrTime)
                 if (list_1min.length > 0) {
                     if (res[0].open < res[0].close) {
