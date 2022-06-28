@@ -49,9 +49,9 @@ let _t = {
 
     // 会员列表
     async list(start, length) {
-        let total = await db.Query("SELECT COUNT(0) AS total FROM member_list")
+        let total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE deleted=0")
         total = total[0]['total']
-        let list = await db.Query("SELECT * FROM member_list ORDER BY id DESC LIMIT ?,?", [start, length])
+        let list = await db.Query("SELECT * FROM member_list WHERE deleted=0 ORDER BY id DESC LIMIT ?,?", [start, length])
         for (let i = 0; i < list.length; i++) {
             let item = list[i]
             delete item.password
@@ -67,9 +67,9 @@ let _t = {
      * @returns 
      */
     async listDetail(type, start, length) {
-        let total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE type=?", [type])
+        let total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE deleted=0 AND type=?", [type])
         total = total[0]['total']
-        let list = await db.Query("SELECT * FROM member_list WHERE type=? ORDER BY id DESC LIMIT ?,?", [type, start, length])
+        let list = await db.Query("SELECT * FROM member_list WHERE deleted=0 AND type=? ORDER BY id DESC LIMIT ?,?", [type, start, length])
 
         for (let i = 0; i < list.length; i++) {
             let item = list[i]
