@@ -52,6 +52,12 @@ let _t = {
     async updateNameByName(old_name, new_name) {
         const res = await db.Query("UPDATE member_wallet SET `name`=? WHERE `name`=?", [new_name, old_name])
         return res
-    }
+    },
+
+    // 解决绑定钱包地址，清空使用
+    async updateWalletAddressByUserId(user_id) {
+        const res = await db.Query("UPDATE member_wallet SET `address`='' WHERE `user_id`=?", [user_id])
+        return res
+    },
 }
 module.exports = _t

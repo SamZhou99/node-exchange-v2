@@ -278,9 +278,10 @@ let _t = {
             const user_id = body.user_id
             const key = 'deleted'
             const value = 1
-            const updateRes = await service_member.updateFieldValue(user_id, key, value)
-            const unbindRes = await service_system_wallet_address.unbindByUserId(user_id)
-            return { flag: 'ok', data: { updateRes, unbindRes } }
+            const updateDelStatusRes = await service_member.updateFieldValue(user_id, key, value)
+            const unbindAddressRes = await service_system_wallet_address.unbindByUserId(user_id)
+            const walletAddressRes = await service_wallet.updateWalletAddressByUserId(user_id)
+            return { flag: 'ok', data: { updateDelStatusRes, unbindAddressRes, walletAddressRes } }
         },
 
         // 上下分
@@ -600,7 +601,11 @@ let _t = {
             }
         },
         async unbind_put(request, reply) {
-            return { flag: 'ok' }
+            const body = request.body
+            const user_id = body.user_id
+            const unbindAddressRes = await service_system_wallet_address.unbindByUserId(user_id)
+            const walletAddressRes = await service_wallet.updateWalletAddressByUserId(user_id)
+            return { flag: 'ok', data: { unbindAddressRes, walletAddressRes } }
         },
     },
 
