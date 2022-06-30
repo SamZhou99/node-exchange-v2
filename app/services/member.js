@@ -37,7 +37,7 @@ let _t = {
     },
     // 通过账号密码 查询一条记录
     async oneByAccountPassword(account, password, status) {
-        const res = await db.Query("SELECT * FROM member_list WHERE account=? AND password=? AND status=? LIMIT 1", [account, password, status])
+        const res = await db.Query("SELECT * FROM member_list WHERE account=? AND password=? AND status=? AND deleted=0 LIMIT 1", [account, password, status])
         if (res.length > 0) {
             let member = res[0]
             delete member.password

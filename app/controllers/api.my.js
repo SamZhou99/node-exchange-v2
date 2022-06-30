@@ -103,18 +103,25 @@ let _t = {
             const coin_type = 0
             // 法币列表
             const coinRes = await service_wallet.listByType(user_id, coin_type)
-            // 1 获取btc,eth,usdt钱包地址
+
+            // 1 获取btc,eth,usdt钱包地址 // 2 请求链上钱包交易数据 // 3 添加交易记录金额 和 更新钱包金额
+            let btcAddLogUpdateBanlanceRes, ethAddLogUpdateBanlanceRes, usdtAddLogUpdateBanlanceRes
             const btcWallet = getWalletByType(coinRes, config.common.coin.type.BTC)
+            if (btcWallet.address != '') {
+                const btcTradeArr = await service_blockchain.btc(btcWallet.address)
+                btcAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.BTC, btcTradeArr)
+            }
             const ethWallet = getWalletByType(coinRes, config.common.coin.type.ETH)
+            if (ethWallet.address != '') {
+                const ethTradeArr = await service_blockchain.eth(ethWallet.address)
+                ethAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.ETH, ethTradeArr)
+            }
             const usdtWallet = getWalletByType(coinRes, config.common.coin.type.USDT)
-            // 2 请求链上钱包交易数据
-            const btcTradeArr = await service_blockchain.btc(btcWallet.address)
-            const ethTradeArr = await service_blockchain.eth(ethWallet.address)
-            const usdtTradeArr = await service_blockchain.usdt(usdtWallet.address)
-            // 3 添加交易记录金额 和 更新钱包金额
-            const btcAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.BTC, btcTradeArr)
-            const ethAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.ETH, ethTradeArr)
-            const usdtAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.USDT, usdtTradeArr)
+            if (usdtWallet.address != '') {
+                const usdtTradeArr = await service_blockchain.usdt(usdtWallet.address)
+                usdtAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.USDT, usdtTradeArr)
+            }
+
             return {
                 flag: 'ok', data: {
                     user_id,
