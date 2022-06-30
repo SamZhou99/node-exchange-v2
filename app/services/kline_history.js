@@ -33,7 +33,7 @@ async function saveKlineArr(symbol, period, klineArr) {
         let item = klineArr[i]
         await _t.update(symbol, period, item.open, item.close, item.high, item.low, item.volume, utils99.moment(item.timestamp).format("YYYY/MM/DD HH:mm:ss"))
         // console.log(i, ":", item.open, item.close, item.high, item.low, item.volume, utils99.moment(item.timestamp).format("YYYY/MM/DD HH:mm:ss"))
-        console.log(i)
+        // console.log(i)
     }
 }
 
@@ -72,7 +72,161 @@ function getKlineArr(lastObj, tsStep, length) {
     return a
 }
 
+function getKlineTimeArr(arr, step) {
+    let a = []
+    let o
+    for (let i = 0; i < arr.length; i++) {
+        let item = arr[i]
 
+        if (i % step == 0) {
+            o = {
+                open: 0,
+                close: 0,
+                high: 0,
+                low: 999999999,
+                volume: 0,
+                timestamp: 0,
+            }
+            o.open = item.open
+            o.timestamp = item.timestamp
+        }
+
+        o.high = Math.max(o.high, item.high)
+        o.low = Math.min(o.low, item.low)
+        o.volume += item.volume
+
+        if (i % step == step - 1) {
+            o.close = item.close
+            a.push(o)
+        }
+    }
+    return a
+}
+
+function round(num, len = 2) {
+    const z = '0000000000000000000000'
+    const n = Number(1 + z.substring(0, len))
+    return Math.round(num * n) / n
+}
+
+function random(min, max) {
+    return min + (Math.random() * (max - min))
+}
+
+function klineDataDemo01(symbol, period, item, time_step) {
+    const START_DATE_TIME = item.timestamp
+    const PERIOD = period // 时间线 单位
+    const TIME_STEP = time_step // 时间线 间隔
+    const DATE_LENGTH = 60 * 24 // 时长
+
+    const START_PRICE = item.open // 开盘价
+    const CLOSE_PRICE = item.close // 收盘价
+    const HIGH = item.high // 最高价
+    const LOW = item.low // 最低价
+
+    let rangeProb = 5
+    let highPercent = START_PRICE / 100
+    let lowPercent = START_PRICE / 100
+    let ts = new Date(START_DATE_TIME).getTime()
+
+    let isUp = random(1, 10) < rangeProb
+    let open = Number(START_PRICE)
+    let close = Number(isUp ? open + random(open / 10000, open / 1000) : open - random(open / 10000, open / 1000))
+    // close = round(close, 8)
+    let high = Math.max(open, close) + open * round(highPercent / 100, 4)
+    let low = Math.min(open, close) - open * round(lowPercent / 100, 4)
+    let vol = Math.floor(Math.abs(open - close) * 10000) + random(10000, 20000)
+
+    let _high = 0
+    let _low = 0
+
+    let a = [];
+    for (let i = 0; i < DATE_LENGTH; i++) {
+        let item = {
+            open: open,
+            close: close,
+            high: high,
+            low: low,
+            volume: vol,
+            timestamp: ts,
+            period: PERIOD
+        }
+        if (i + 1 == DATE_LENGTH) {
+            // console.log("最后一条数据", close)
+            item.close = CLOSE_PRICE
+        }
+        a.push(item)
+
+        // 1day
+        // ts += 1000 * 60 * 60 * 24
+
+        ts += TIME_STEP
+        let timePercent = round(i / DATE_LENGTH * 100, 2)
+        isUp = random(1, 10) < rangeProb
+
+        _high = Math.max(_high, item.high)
+        _low = Math.min(_low, item.low)
+
+        // 保证有 Low
+        if (timePercent > 2 && timePercent < 4) {
+            if (_low > LOW) {
+                isUp = random(1, 10) < 2
+            }
+        }
+
+        // 保证有 High
+        if (timePercent > 89 && timePercent < 91) {
+            if (_high < HIGH) {
+                isUp = true
+            }
+        }
+
+        // 保证到 收盘价
+        if (timePercent > 95) {
+            if (close < CLOSE_PRICE) {
+                isUp = random(1, 10) < 8
+            } else {
+                isUp = false
+            }
+        }
+        open = round(close)
+        let temp
+        if (isUp) {
+            temp = open + random(open / 1000, open / 100)
+            if (HIGH < temp) {
+                close = open - random(open / 1000, open / 100)
+                high = HIGH
+                low = Math.min(open, close) - open * random(close / 1000, close / 100) / 100
+                if (low < LOW) low = LOW
+            } else {
+                close = temp
+                high = Math.max(open, close) + open * random(close / 1000, close / 100) / 100
+                if (high > HIGH) high = HIGH
+                low = Math.min(open, close) - open * random(close / 1000, close / 100) / 100
+                if (low < LOW) low = LOW
+            }
+        } else {
+            temp = open - random(open / 1000, open / 100)
+            if (LOW > temp) {
+                close = open + random(open / 1000, open / 100)
+                high = Math.max(open, close) + open * random(close / 1000, close / 100) / 100
+                if (high > HIGH) high = HIGH
+                low = LOW
+            } else {
+                close = temp
+                high = Math.max(open, close) + open * random(close / 1000, close / 100) / 100
+                if (high > HIGH) high = HIGH
+                low = Math.min(open, close) - open * random(close / 1000, close / 100) / 100
+                if (low < LOW) low = LOW
+            }
+        }
+        vol = Math.floor(Math.abs(open - close) * 10000) + random(10000, 20000)
+        // console.log(round(i / DATE_LENGTH * 100, 2), utils99.moment(ts).format("HH:mm:ss"), close)
+    }
+    // this.klineData = a;
+    // this.klineChart.applyNewData(this.klineData);
+    return a
+}
 
 
 
@@ -133,18 +287,38 @@ let _t = {
             const item = a[i]
             // 1day
             await _t.update(symbol, period, item.open, item.close, item.high, item.low, item.volume, item.timestamp)
-            // 4hour
-            await saveKlineArr(symbol, "4hour", getKlineArr(item, 1000 * 60 * 240, 60 * 24 / 240))
-            // 60min
-            await saveKlineArr(symbol, "60min", getKlineArr(item, 1000 * 60 * 60, 60 * 24 / 60))
-            // 30min
-            await saveKlineArr(symbol, "30min", getKlineArr(item, 1000 * 60 * 30, 60 * 24 / 30))
-            // 15min
-            await saveKlineArr(symbol, "15min", getKlineArr(item, 1000 * 60 * 15, 60 * 24 / 15))
-            // 5min
-            await saveKlineArr(symbol, "5min", getKlineArr(item, 1000 * 60 * 5, 60 * 24 / 5))
+            // // 4hour
+            // await saveKlineArr(symbol, "4hour", getKlineArr(item, 1000 * 60 * 240, 60 * 24 / 240))
+            // // 60min
+            // await saveKlineArr(symbol, "60min", getKlineArr(item, 1000 * 60 * 60, 60 * 24 / 60))
+            // // 30min
+            // await saveKlineArr(symbol, "30min", getKlineArr(item, 1000 * 60 * 30, 60 * 24 / 30))
+            // // 15min
+            // await saveKlineArr(symbol, "15min", getKlineArr(item, 1000 * 60 * 15, 60 * 24 / 15))
+            // // 5min
+            // await saveKlineArr(symbol, "5min", getKlineArr(item, 1000 * 60 * 5, 60 * 24 / 5))
+            // // 1min
+            // await saveKlineArr(symbol, "1min", getKlineArr(item, 1000 * 60, 60 * 24))
+
+
             // 1min
-            await saveKlineArr(symbol, "1min", getKlineArr(item, 1000 * 60, 60 * 24))
+            let oneMinArr = klineDataDemo01(symbol, '1min', item, 1000 * 60)
+            await saveKlineArr(symbol, "1min", oneMinArr)
+            // 5min
+            let fiveMinArr = getKlineTimeArr(oneMinArr, 5)
+            await saveKlineArr(symbol, "5min", fiveMinArr)
+            // 15min
+            let fifteenMinArr = getKlineTimeArr(fiveMinArr, 3)
+            await saveKlineArr(symbol, "15min", fifteenMinArr)
+            // 30min
+            let thirtyMinArr = getKlineTimeArr(fifteenMinArr, 2)
+            await saveKlineArr(symbol, "30min", thirtyMinArr)
+            // 60min
+            let sixtyMinArr = getKlineTimeArr(thirtyMinArr, 2)
+            await saveKlineArr(symbol, "60min", sixtyMinArr)
+            // 4hour
+            let fourHourArr = getKlineTimeArr(sixtyMinArr, 4)
+            await saveKlineArr(symbol, "4hour", fourHourArr)
         }
 
         return true

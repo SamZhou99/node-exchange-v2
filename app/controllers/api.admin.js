@@ -266,6 +266,23 @@ let _t = {
             return { flag: 'ok', data: res }
         },
 
+        // 修改账号属性
+        account_delete_opts: {
+            schema: {
+                body: S.object()
+                    .prop('user_id', S.integer().required())
+            }
+        },
+        async account_delete_put(request, reply) {
+            const body = request.body
+            const user_id = body.user_id
+            const key = 'deleted'
+            const value = 1
+            const updateRes = await service_member.updateFieldValue(user_id, key, value)
+            const unbindRes = await service_system_wallet_address.unbindByUserId(user_id)
+            return { flag: 'ok', data: { updateRes, unbindRes } }
+        },
+
         // 上下分
         account_update_score_opts: {
             schema: {
@@ -573,6 +590,17 @@ let _t = {
                     list: res
                 }
             }
+        },
+
+
+        unbind_opts: {
+            schema: {
+                body: S.object()
+                    .prop('user_id', S.integer().required())
+            }
+        },
+        async unbind_put(request, reply) {
+            return { flag: 'ok' }
         },
     },
 

@@ -116,7 +116,6 @@ let _t = {
 
         return res[0]
     },
-
     // 币 总数 和 使用数
     async walletUseTotal(type) {
         const total_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=?", [type])
@@ -124,7 +123,12 @@ let _t = {
         const use_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=? AND bind_user_id>0 ", [type])
         const use = use_res[0]['total']
         return { total, use }
-    }
+    },
+    // 解除 某用户绑定的钱包地址
+    async unbindByUserId(user_id) {
+        const res = await db.Query("UPDATE system_wallet_address SET bind_user_id=0 WHERE bind_user_id=?", [user_id])
+        return res
+    },
 }
 
 module.exports = _t

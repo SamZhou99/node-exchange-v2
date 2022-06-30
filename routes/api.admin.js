@@ -38,6 +38,7 @@ async function routes(fastify, options) {
     fastify.post('/account/auto-complete', controlless.member.auto_complete_opts, controlless.member.auto_complete_post)
     // 更新-用户属性
     fastify.put('/account/update', controlless.member.account_update_opts, controlless.member.account_update_put)
+    fastify.put('/account/delete', controlless.member.account_delete_opts, controlless.member.account_delete_put)
     // 更新-用户上下分
     fastify.put('/account/update-score', controlless.member.account_update_score_opts, controlless.member.account_update_score_put)
     // 更新-审核状态 用户身份认证
@@ -53,6 +54,8 @@ async function routes(fastify, options) {
     fastify.post('/wallet-address/upload', controlless.wallet.upload_walletaddress_post)
     // 查询-钱包列表 钱包地址自动完成
     fastify.post('/wallet-address/auto-complete', controlless.wallet.auto_complete_opts, controlless.wallet.auto_complete_post)
+    fastify.put('/wallet-address/unbind', controlless.wallet.unbind_opts, controlless.wallet.unbind_put)
+
 
     // 用户提现
     fastify.get('/withdraw', controlless.withdraw.get_opts, controlless.withdraw.get)
