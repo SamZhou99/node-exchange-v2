@@ -14,6 +14,7 @@ const service_login_log = require('../services/login_log.js');
 const service_currency_platform = require('../services/currency_platform.js');
 const service_currency_platform_buy = require('../services/currency_platform_trade_log.js');
 const service_currency_contract = require('../services/currency_contract.js');
+const service_currency_contract_charges = require('../services/currency_contract_charges.js');
 const service_currency_contract_trade_log = require('../services/currency_contract_trade_log.js');
 const service_wallet = require('../services/wallet.js');
 const service_syste_wallet_address = require('../services/system_wallet_address.js');
@@ -127,9 +128,9 @@ let _t = {
             // 账户关联的钱包和地址
             const newUserId = createMemberRes.insertId
             // 给用户绑定一个钱包地址
-            const btc = await service_syste_wallet_address.oneByUnused(newUserId, 'btc')
-            const eth = await service_syste_wallet_address.oneByUnused(newUserId, 'eth')
-            const usdt = await service_syste_wallet_address.oneByUnused(newUserId, 'usdt')
+            const btc = await service_syste_wallet_address.bindWalletAddressByUserId(newUserId, 'btc')
+            const eth = await service_syste_wallet_address.bindWalletAddressByUserId(newUserId, 'eth')
+            const usdt = await service_syste_wallet_address.bindWalletAddressByUserId(newUserId, 'usdt')
             // 给我的资产中添加钱包地址
             await service_wallet.addWallet(newUserId, 0, 0, 0, 'btc', btc.address)
             await service_wallet.addWallet(newUserId, 0, 0, 0, 'eth', eth.address)
@@ -473,6 +474,46 @@ let _t = {
             })
         },
 
+
+        charge_opts: {
+            schema: {
+                querystring: S.object()
+                // .prop('user_id', S.integer().required())
+                // .prop('page', S.integer())
+                // .prop('size', S.integer())
+            }
+        },
+        async charge_get(request, reply) {
+            const res = await service_currency_contract_charges.list()
+            return { flag: 'ok', data: res }
+        },
+
+        charge_put_opts: {
+            schema: {
+                body: S.object()
+                    // .prop('id', S.integer().required())
+                    .prop('label', S.string().minLength(1).required())
+                    .prop('charge', S.number().required())
+                    .prop('lots', S.number().required())
+            }
+        },
+        async charge_put(request, reply) {
+            const body = request.body
+            const id = body.id
+            const label = body.label
+            const charge = body.charge
+            const lots = body.lots
+            let res
+            if (id) {
+                res = await service_currency_contract_charges.update(id, label, charge, lots)
+            } else {
+                res = await service_currency_contract_charges.add(label, charge, lots)
+            }
+
+            return { flag: 'ok', data: res }
+        },
+
+
         post_opts: {
             schema: {
                 body: S.object()
@@ -589,7 +630,8 @@ let _t = {
 
             return { flag: 'ok', profit_loss }
         },
-    }
+    },
+
 }
 module.exports = _t
 

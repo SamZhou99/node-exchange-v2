@@ -26,6 +26,8 @@ async function routes(fastify, options) {
     fastify.get('/transfer/history', controlless.transfer.get_opts, controlless.transfer.get)
     // BTC,ETH 兑换成USDT
     fastify.put('/exchange-usdt', controlless.exchang_usdt.put_opts, controlless.exchang_usdt.put)
+    // 重新绑定钱包地址
+    fastify.put('/wallet-address/bind', controlless.wallet.bind_opts, controlless.wallet.bind_put)
 
     // 中间件
     // fastify.use(['/json', '/download'], middleware.test)

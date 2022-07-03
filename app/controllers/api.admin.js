@@ -187,9 +187,9 @@ let _t = {
             // 账户关联的钱包和地址
             const newUserId = createMemberRes.insertId
             // // 给用户绑定一个钱包地址 【不绑定系统钱包，节省钱包地址】
-            // const btc = await service_syste_wallet_address.oneByUnused(newUserId, 'btc')
-            // const eth = await service_syste_wallet_address.oneByUnused(newUserId, 'eth')
-            // const usdt = await service_syste_wallet_address.oneByUnused(newUserId, 'usdt')
+            // const btc = await service_syste_wallet_address.updateWalletAddressByUserId(newUserId, 'btc')
+            // const eth = await service_syste_wallet_address.updateWalletAddressByUserId(newUserId, 'eth')
+            // const usdt = await service_syste_wallet_address.updateWalletAddressByUserId(newUserId, 'usdt')
             // 给我的资产中添加钱包地址
             await service_wallet.addWallet(newUserId, 0, 0, 0, 'btc', btc_address)
             await service_wallet.addWallet(newUserId, 0, 0, 0, 'eth', eth_address)

@@ -99,14 +99,19 @@ let _t = {
         let list = await db.Query("SELECT * FROM system_wallet_address ORDER BY id DESC LIMIT ?,?", [start, length])
         return { total, list }
     },
-    // 自动完成账号名
+    // 自动完成
     async listByAddress(address, limit) {
         const list = await db.Query("SELECT id,address FROM system_wallet_address WHERE address LIKE ? ORDER BY id DESC LIMIT ?", [`%${address}%`, limit])
         return list
     },
-    // 未使用的钱包地址
-    async oneByUnused(user_id, coin_type) {
-        const res = await db.Query("SELECT * FROM system_wallet_address WHERE type=? AND bind_user_id=0 LIMIT 1", [coin_type])
+    // 检查 是否有已绑定的记录
+    async checkBindAddress(user_id) {
+        const res = await db.Query("SELECT id FROM system_wallet_address WHERE bind_user_id=? LIMIT 1", [user_id])
+        return res
+    },
+    // 未使用的钱包地址 随机取一条 并 绑定给用户
+    async bindWalletAddressByUserId(user_id, coin_type) {
+        const res = await db.Query("SELECT * FROM system_wallet_address WHERE type=? AND bind_user_id=0 ORDER BY RAND() LIMIT 1", [coin_type])
         if (res.length <= 0) {
             return null;
         }
@@ -116,6 +121,11 @@ let _t = {
 
         return res[0]
     },
+    // 解除 某用户绑定的钱包地址
+    async unbindByUserId(user_id) {
+        const res = await db.Query("UPDATE system_wallet_address SET bind_user_id=0 WHERE bind_user_id=?", [user_id])
+        return res
+    },
     // 币 总数 和 使用数
     async walletUseTotal(type) {
         const total_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=?", [type])
@@ -123,11 +133,6 @@ let _t = {
         const use_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=? AND bind_user_id>0 ", [type])
         const use = use_res[0]['total']
         return { total, use }
-    },
-    // 解除 某用户绑定的钱包地址
-    async unbindByUserId(user_id) {
-        const res = await db.Query("UPDATE system_wallet_address SET bind_user_id=0 WHERE bind_user_id=?", [user_id])
-        return res
     },
 }
 

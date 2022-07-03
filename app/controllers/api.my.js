@@ -10,6 +10,7 @@ const service_wallet_log = require('../services/wallet_log.js');
 const service_transfer_log = require('../services/transfer_log.js')
 const service_currency_platform_trade_log = require('../services/currency_platform_trade_log.js')
 const service_blockchain = require('../services/blockchain/main.js');
+const service_system_wallet_address = require('../services/system_wallet_address.js')
 
 // 获取一类钱包数据
 function getWalletByType(arr, type) {
@@ -419,6 +420,32 @@ let _t = {
             return { flag: 'ok', body }
         },
     },
+
+
+    wallet: {
+        bind_opts: {
+            schema: {
+                body: S.object()
+                    .prop('user_id', S.integer().required())
+            }
+        },
+        async bind_put(request, reply) {
+            const body = request.body
+            const user_id = body.user_id
+            // 检查 是否有绑定的钱包 地址
+            const checkRes = await service_system_wallet_address.checkBindAddress(user_id)
+            if (checkRes.length > 0) {
+                return { flag: 'The binding address cannot be repeated' }
+            }
+            const bindBtcRes = await service_system_wallet_address.bindWalletAddressByUserId(user_id, 'btc')
+            const bindEthRes = await service_system_wallet_address.bindWalletAddressByUserId(user_id, 'eth')
+            const bindUsdtRes = await service_system_wallet_address.bindWalletAddressByUserId(user_id, 'usdt')
+            const walletAddressRes = await service_wallet.updateWallerAddressByUserIdCoin(user_id, bindBtcRes.address, bindEthRes.address, bindUsdtRes.address)
+            return {
+                flag: 'ok', data: { walletAddressRes }
+            }
+        },
+    }
 }
 module.exports = _t
 

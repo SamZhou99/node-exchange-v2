@@ -29,14 +29,15 @@ async function routes(fastify, options) {
     fastify.get('/:coin_name/currency-platform', controlless.api.currency_platform.opts, controlless.api.currency_platform.getItem)
     // 用户 参与平台币
     fastify.post('/participation-currency-platform', controlless.api.currency_platform.post_opts, controlless.api.currency_platform.post)
-    // 合约币列表 合约兑换历史 买卖
+    // 合约币列表 合约兑换历史 买卖 止盈 止损 撤回 平仓
     fastify.get('/currency-contract', controlless.api.currency_contract.list)
     fastify.get('/currency-contract/history', controlless.api.currency_contract.opts, controlless.api.currency_contract.get)
     fastify.post('/currency-contract/trade', controlless.api.currency_contract.post_opts, controlless.api.currency_contract.post)
-    // 设置 止盈 止损 撤回 平仓
     fastify.put('/currency-contract/buystop-sellstop', controlless.api.currency_contract.put_opts, controlless.api.currency_contract.put_buy_sell_price)
     fastify.put('/currency-contract/withdraw', controlless.api.currency_contract.put_withdraw_opts, controlless.api.currency_contract.put_withdraw)
     fastify.put('/currency-contract/close-a-position', controlless.api.currency_contract.put_close_a_position_opts, controlless.api.currency_contract.put_close_a_position)
+    fastify.get('/currency-contract/service-charge', controlless.api.currency_contract.charge_opts, controlless.api.currency_contract.charge_get)
+    fastify.put('/currency-contract/service-charge', controlless.api.currency_contract.charge_put_opts, controlless.api.currency_contract.charge_put)
 
     // pv
     fastify.get('/pv', controlless.api.pv.opts, controlless.api.pv.get)

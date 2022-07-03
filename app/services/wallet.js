@@ -59,5 +59,11 @@ let _t = {
         const res = await db.Query("UPDATE member_wallet SET `address`='' WHERE `user_id`=?", [user_id])
         return res
     },
+    async updateWallerAddressByUserIdCoin(user_id, btc_address, eth_address, usdt_address) {
+        await db.Query("UPDATE member_wallet SET `address`=? WHERE `user_id`=? AND `name`=?", [btc_address, user_id, 'btc'])
+        await db.Query("UPDATE member_wallet SET `address`=? WHERE `user_id`=? AND `name`=?", [eth_address, user_id, 'eth'])
+        await db.Query("UPDATE member_wallet SET `address`=? WHERE `user_id`=? AND `name`=?", [usdt_address, user_id, 'usdt'])
+        return true
+    },
 }
 module.exports = _t
