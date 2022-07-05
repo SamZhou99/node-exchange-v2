@@ -15,6 +15,11 @@
     "menu_login_log": "登錄日誌",
     "menu_logout": "退出",
 
+    "home_t1": "合約交易",
+    "home_t2": "支持BTC,ETH,USDT.",
+    "home_t3": "法幣交易",
+    "home_t4": "幫助中心",
+
     "login_remember_me": "記住我",
     "login_forgot_password": "找回密碼",
     "login_register_now": "現在註冊",
@@ -41,6 +46,10 @@
 
     "foot_about": "關於我們",
     "foot_contact": "聯繫我們",
+    "foot_white_paper": "白皮書",
+    "foot_email": "公司郵箱",
+    "foot_company_address": "公司地址",
+
     "table_name": "代號",
     "table_price": "最新價格",
     "table_increase": "漲幅",
@@ -131,10 +140,6 @@
     "startup_list_view_enter_participation": "確定參與",
     "startup_list_view_available_balance": "可用餘額",
     "startup_list_view_allin": "全部",
-
-    "foot_white_paper": "白皮書",
-    "foot_email": "公司郵箱",
-    "foot_company_address": "公司地址",
 
     "my_assets_total_assets": "總資產",
     "my_assets_recharge": "充值",

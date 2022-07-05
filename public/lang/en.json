@@ -15,6 +15,11 @@
     "menu_login_log": "Login Log",
     "menu_logout": "Logout",
 
+    "home_t1": "Contract transaction",
+    "home_t2": "Support BTC,ETH,USDT.",
+    "home_t3": "Legal currency transaction",
+    "home_t4": "Help center",
+
     "login_remember_me": "Remember Me",
     "login_forgot_password": "Forgot Password",
     "login_register_now": "Register Now",
@@ -41,6 +46,10 @@
 
     "foot_about": "About Us",
     "foot_contact": "Contact Us",
+    "foot_white_paper": "White Paper",
+    "foot_email": "Email",
+    "foot_company_address": "Company Address",
+
     "table_name": "Symbol",
     "table_price": "Last Price",
     "table_increase": "Increase",
@@ -131,10 +140,6 @@
     "startup_list_view_enter_participation": "Enter Participation",
     "startup_list_view_available_balance": "Available Balance",
     "startup_list_view_allin": "Allin",
-
-    "foot_white_paper": "White Paper",
-    "foot_email": "Email",
-    "foot_company_address": "Company Address",
 
     "my_assets_total_assets": "Total Assets",
     "my_assets_recharge": "Recharge",

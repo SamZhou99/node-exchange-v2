@@ -15,6 +15,11 @@
     "menu_login_log": "ログインログ",
     "menu_logout": "脱退する",
 
+    "home_t1": "契約取引",
+    "home_t2": "サポート BTC,ETH,USDT.",
+    "home_t3": "法貨取引",
+    "home_t4": "ヘルプセンター",
+
     "login_remember_me": "記憶する",
     "login_forgot_password": "パスワードを取り戻す",
     "login_register_now": "今登録します",
@@ -41,6 +46,10 @@
 
     "foot_about": "について",
     "foot_contact": "連絡します",
+    "foot_white_paper": "ホワイトペーパー",
+    "foot_email": "会社のメールボックス",
+    "foot_company_address": "会社の住所",
+
     "table_name": "シンボル",
     "table_price": "最新の価格",
     "table_increase": "上げ幅",
@@ -131,10 +140,6 @@
     "startup_list_view_enter_participation": "参加を確定する",
     "startup_list_view_available_balance": "使用可能残高",
     "startup_list_view_allin": "すべて",
-
-    "foot_white_paper": "ホワイトペーパー",
-    "foot_email": "会社のメールボックス",
-    "foot_company_address": "会社の住所",
 
     "my_assets_total_assets": "総資産",
     "my_assets_recharge": "入金",

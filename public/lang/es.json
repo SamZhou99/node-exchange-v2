@@ -15,6 +15,11 @@
     "menu_login_log": "Registro de inicio de sesión",
     "menu_logout": "abandonar",
 
+    "home_t1": "Transacciones contractuales",
+    "home_t2": "Apoyo BTC,ETH,USDT.",
+    "home_t3": "Transacciones en moneda francesa",
+    "home_t4": "Centro de ayuda",
+
     "login_remember_me": "Recuérdame",
     "login_forgot_password": "Recuperar Contraseña",
     "login_register_now": "Regístrate ahora",
@@ -41,6 +46,10 @@
 
     "foot_about": "sobre nosotros",
     "foot_contact": "Contáctenos",
+    "foot_white_paper": "libro blanco",
+    "foot_email": "Correo electrónico de la empresa",
+    "foot_company_address": "Dirección de la empresa",
+
     "table_name": "Simbolismo",
     "table_price": "precio más reciente",
     "table_increase": "incrementar",
@@ -131,10 +140,6 @@
     "startup_list_view_enter_participation": "Confirmar participación",
     "startup_list_view_available_balance": "Saldo disponible",
     "startup_list_view_allin": "todas",
-
-    "foot_white_paper": "libro blanco",
-    "foot_email": "Correo electrónico de la empresa",
-    "foot_company_address": "Dirección de la empresa",
 
     "my_assets_total_assets": "Los activos totales",
     "my_assets_recharge": "Recargar",
