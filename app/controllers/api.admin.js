@@ -994,11 +994,13 @@ let _t = {
         get_opts: {
             schema: {
                 querystring: S.object()
+                    .prop('type', S.integer())
             }
         },
         async get(request, reply) {
             const query = request.query
-            let res = await service_system_banner.list()
+            const type = query.type
+            let res = await service_system_banner.list(type)
             return { flag: 'ok', data: res }
         },
 
@@ -1007,15 +1009,15 @@ let _t = {
             schema: {
                 body: S.object()
                     .prop('type', S.integer().required())
+                    .prop('sort', S.integer().required())
                     .prop('img', S.string().minLength(1).required())
-                    .prop('sort', S.string().minLength(1).required())
             }
         },
         async post(request, reply) {
             const body = request.body
             const type = body.type
-            const img = body.img
             const sort = body.sort
+            const img = body.img
             const res = await service_system_banner.add(img, sort, type)
             return { flag: 'ok', data: res }
         },

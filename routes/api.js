@@ -1,4 +1,5 @@
 const controlless = require('../app/controllers/index.js')
+const controlless_admin = require('../app/controllers/api.admin.js')
 const middleware = require('../app/middleware/index.js')
 
 async function routes(fastify, options) {
@@ -41,6 +42,8 @@ async function routes(fastify, options) {
 
     // pv
     fastify.get('/pv', controlless.api.pv.opts, controlless.api.pv.get)
+    // banner
+    fastify.get('/banner', controlless_admin.banner.get_opts, controlless_admin.banner.get)
 
     // 中间件
     // fastify.use(['/json', '/download'], middleware.test)

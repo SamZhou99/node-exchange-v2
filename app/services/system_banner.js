@@ -17,8 +17,12 @@ let _t = {
         const res = await db.Query("UPDATE system_banner SET img=?, sort=?, update_datetime=? WHERE id=?", [img, sort, time, id])
         return res
     },
-    async list() {
-        const res = await db.Query("SELECT * FROM system_banner ORDER BY sort,id DESC")
+    async list(type) {
+        let where = ''
+        if (type != null) {
+            where = `WHERE type=${type}`
+        }
+        const res = await db.Query(`SELECT * FROM system_banner ${where} ORDER BY sort DESC`)
         return res
     },
 }
