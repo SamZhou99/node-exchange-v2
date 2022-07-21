@@ -410,7 +410,7 @@ let _t = {
     async updateAllData(symbol, period, kline) {
         console.log(symbol, period, kline.length)
 
-        let dir_path = __dirname + `./../../public/kline-template`
+        let dir_path = __dirname + `/../../public/kline-template`
         let dir_list = fs.readdirSync(dir_path)
         let up_list = findList(dir_list, 'up')
         let down_list = findList(dir_list, 'down')
