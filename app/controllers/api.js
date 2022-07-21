@@ -356,7 +356,7 @@ let _t = {
             }
         },
         async get(request, reply) {
-            let path = __dirname + './../../public/kline-template'
+            let path = __dirname + '/../../public/kline-template'
             let list = fs.readdirSync(path)
             return { flag: 'ok', data: list }
         },
@@ -387,7 +387,7 @@ let _t = {
         },
         async delete(request, reply) {
             let name = request.query.name
-            let path = __dirname + `./../../public/kline-template/${name}`
+            let path = __dirname + `/../../public/kline-template/${name}`
             let res = fs.unlinkSync(path)
             return { flag: 'ok', data: res }
         },
