@@ -1,4 +1,8 @@
 const controlless = require('../app/controllers/api.admin.js')
+const controlless_article = require('../app/controllers/admin/article.js')
+const controlless_article_category = require('../app/controllers/admin/article.category.js')
+
+
 const middleware = require('../app/middleware/index.js')
 const system_crpto = require('../lib/system.crypto.js')
 
@@ -88,13 +92,29 @@ async function routes(fastify, options) {
     // 增加-合约币
     fastify.post('/currency-contract', controlless.currency_contract.post_opts, controlless.currency_contract.post)
 
-
+    // Banner相关
     fastify.get('/banner', controlless.banner.get_opts, controlless.banner.get)
     fastify.post('/banner', controlless.banner.post_opts, controlless.banner.post)
     fastify.put('/banner', controlless.banner.put_opts, controlless.banner.put)
     fastify.delete('/banner', controlless.banner.delete_opts, controlless.banner.delete)
 
+    // 文章相关
+    fastify.get('/article', controlless_article.get_opts, controlless_article.get)
+    fastify.get('/article/item', controlless_article.getItem_opts, controlless_article.getItem)
+    fastify.post('/article', controlless_article.post_opts, controlless_article.post)
+    fastify.put('/article', controlless_article.put_opts, controlless_article.put)
+    fastify.delete('/article', controlless_article.delete_opts, controlless_article.delete)
+    // 文章分类相关
+    fastify.get('/article/category', controlless_article_category.get_opts, controlless_article_category.get)
+    fastify.post('/article/category', controlless_article_category.post_opts, controlless_article_category.post)
+    fastify.put('/article/category', controlless_article_category.put_opts, controlless_article_category.put)
+    fastify.delete('/article/category', controlless_article_category.delete_opts, controlless_article_category.delete)
+
+
+
+    // PageView记录
     fastify.get('/pv-log', controlless.pv_log.get_opts, controlless.pv_log.get)
+    fastify.delete('/pv-log', controlless.pv_log.get_opts, controlless.pv_log.delete)
 
 
 
@@ -114,11 +134,9 @@ async function routes(fastify, options) {
     fastify.addHook('preHandler', (request, reply, done) => {
         // 排除
         let url = request.url
-        for (let i in EXCLUDE_ARR) {
-            if (url.indexOf(EXCLUDE_ARR[i]) != -1) {
-                done()
-                return
-            }
+        if (EXCLUDE_ARR.includes(url)) {
+            done()
+            return
         }
 
         // 解密 token
@@ -131,26 +149,40 @@ async function routes(fastify, options) {
         }
 
         // 解密是否错误
+        let result
         try {
-            let result = system_crpto.decryption(token)
-            // console.log("其他代码", request.url, result)
-            if (result.id == result.account) {
-                // 检查ID和账号
-            }
-            if (result.status != 0) {
-                // return
-            }
-            if (result.ip) {
-                // 安全检查
-            }
-            if (result.ts) {
-                // 是否有超时
-            }
-            done()
+            result = system_crpto.decryption(token)
         } catch (err) {
             reply.code(400)
             done(new Error('OMG'))
+            return
         }
+
+        // console.log("其他代码", request.url, result)
+        result = JSON.parse(result)
+        if (result.id == result.account) {
+            // 检查ID和账号
+        }
+        if (result.status == 0) {
+            // 状态不对
+            reply.code(400)
+            done(new Error('OMG'))
+            return
+        }
+        if (result.ip) {
+            // // 安全检查
+            // reply.code(400)
+            // done(new Error('OMG'))
+            // return
+        }
+        if (new Date().getTime() - result.ts > 86400000) {
+            // 是否有超时
+            // console.log("\n是否有超时", result.ts, new Date().getTime(), new Date().getTime() - result.ts > 86400000)
+            reply.code(400)
+            done(new Error('AUTH'))
+            return
+        }
+        done()
     })
 }
 

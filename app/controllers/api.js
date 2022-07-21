@@ -1,4 +1,5 @@
 const utils99 = require('node-utils99')
+const fs = require('fs')
 const S = require('fluent-schema')
 
 const service_db = require('../services/db.init.js')
@@ -30,7 +31,25 @@ let _t = {
         async ip(request, reply) {
             const ip = request.headers
             return { flag: 'ok', data: { ip } }
-        }
+        },
+
+        save_file_opts: {
+            schema: {
+                body: S.object()
+                    .prop('content', S.string().minLength(1).required())
+            }
+        },
+        async save_file(request, reply) {
+            let body = request.body
+            let content = body.content
+            let json = JSON.parse(content)
+            let type = json.type
+            let name = utils99.moment().format('YYYYMMDD_HHmmss')
+            let file_name = `./public/kline-template/${type}_${name}.json`
+            utils99.fsTools.text.Save(content, file_name, () => {
+                reply.send({ flag: 'ok' })
+            })
+        },
     },
     init: {
         async init_db_web(request, reply) {
@@ -324,6 +343,53 @@ let _t = {
             }
             const res = await service_kline_history.clearHistoryBySymbol(symbol)
             return { flag: 'ok', data: { body, symbol } }
+        },
+    },
+    kline_template: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                // .prop('symbol', S.string().required())
+                // .prop('period', S.string().required())
+                // .prop('size', S.integer())
+                // .prop('isCurrTime', S.string()),
+            }
+        },
+        async get(request, reply) {
+            let path = __dirname + './../../public/kline-template'
+            let list = fs.readdirSync(path)
+            return { flag: 'ok', data: list }
+        },
+
+        post_opts: {
+            schema: {
+                body: S.object()
+                    .prop('content', S.string().minLength(5).required())
+            }
+        },
+        async post(request, reply) {
+            let body = request.body
+            let content = body.content
+            let json = JSON.parse(content)
+            let type = json.type
+            let name = utils99.moment().format('YYYYMMDD_HHmmss')
+            let file_name = `./public/kline-template/${type}_${name}.json`
+            utils99.fsTools.text.Save(content, file_name, () => {
+                reply.send({ flag: 'ok' })
+            })
+        },
+
+        delete_opts: {
+            schema: {
+                body: S.object()
+                    .prop('name', S.string().minLength(5).required())
+            }
+        },
+        async delete(request, reply) {
+            let name = request.query.name
+            let path = __dirname + `./../../public/kline-template/${name}`
+            let res = fs.unlinkSync(path)
+            return { flag: 'ok', data: res }
         },
     },
 

@@ -1080,6 +1080,12 @@ let _t = {
                 }
             }
 
+        },
+
+
+        async delete(request, reply) {
+            let res = await service_system_pv_log.clearBeforeMonth()
+            return { flag: 'ok', data: res }
         }
     },
 

@@ -18,13 +18,13 @@ let _t = {
         const currTS = new Date().getTime()
         // 7天前
         const befreTS = currTS - 1000 * 60 * 60 * 24 * 7
-        const date = utils99.moment(befreTS).format('YYYY/MM/DD')
+        const date = utils99.moment(befreTS).format('YYYY/MM/DD 00:00:00')
         console.log('date', date)
-        const res = await db.Query(`DELETE system_pv_log WHERE create_datetime<?`, [date])
+        const res = await db.Query(`DELETE FROM system_pv_log WHERE create_datetime<?`, [date])
         return res
     },
     async deleteById(id) {
-        const res = await db.Query(`DELETE system_pv_log WHERE id=?`, [id])
+        const res = await db.Query(`DELETE FROM system_pv_log WHERE id=?`, [id])
         return res
     },
 }

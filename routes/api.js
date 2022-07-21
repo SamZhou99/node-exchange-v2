@@ -7,6 +7,7 @@ async function routes(fastify, options) {
     fastify.get('/init.db.web', controlless.api.init.init_db_web)
     fastify.get('/init.db.admin', controlless.api.init.init_db_admin)
     fastify.get('/test/ip', controlless.api.test.ip)
+    // fastify.post('/test/save.file', controlless.api.test.save_file)
 
 
     // 配置
@@ -25,6 +26,11 @@ async function routes(fastify, options) {
     fastify.get('/kline', controlless.api.kline.opts, controlless.api.kline.get)
     fastify.post('/kline', controlless.api.kline.post_opts, controlless.api.kline.post)
     fastify.delete('/kline', controlless.api.kline.delete_opts, controlless.api.kline.delete)
+    // K线图模板
+    fastify.get('/kline-template/', controlless.api.kline_template.get_opts, controlless.api.kline_template.get)
+    fastify.post('/kline-template/', controlless.api.kline_template.post_opts, controlless.api.kline_template.post)
+    fastify.delete('/kline-template/', controlless.api.kline_template.delete_opts, controlless.api.kline_template.delete)
+
     // 平台币  1：两个接口 首发项目使用。
     fastify.get('/currency-platform', controlless.api.currency_platform.opts, controlless.api.currency_platform.get)
     fastify.get('/:coin_name/currency-platform', controlless.api.currency_platform.opts, controlless.api.currency_platform.getItem)

@@ -228,6 +228,90 @@ function klineDataDemo01(symbol, period, item, time_step) {
     return a
 }
 
+function klineDataDemo02(symbol, period, kline) {
+    // 
+}
+
+function findList(arr, key) {
+    let a = []
+    for (let i = 0; i < arr.length; i++) {
+        let item = arr[i]
+        let arrItem = item.split('_')
+        if (arrItem[0] == key) {
+            a.push(item)
+        }
+    }
+    return a
+}
+
+function oneRandomList(arr, path_dir) {
+    let file_name = path_dir + '/' + arr[Math.floor(Math.random() * arr.length)]
+    console.log(file_name)
+    let res = fs.readFileSync(file_name)
+    let json = JSON.parse(res)
+    return json.list
+}
+
+function templateToKline(tempalteArr, dayItem) {
+    let startPrice = dayItem.open
+    let endPrice = dayItem.close
+    let volumeAdd = 12345
+    let volumeMultiple = 8000000 / startPrice
+
+    // let t_high = templateData.high
+    // let t_low = templateData.low
+    let t_open = tempalteArr[0]
+    let t_close = tempalteArr[tempalteArr.length - 1]
+
+    // let _a = t_high - t_low
+    let _b = -(t_close - t_open)
+    let _c = endPrice - startPrice
+    let _d = _b / _c
+
+    let a = []
+    let templateList = tempalteArr
+    let len = templateList.length - 1
+    let date = utils99.moment(dayItem.timestamp).format("YYYY-MM-DD 00:00:00")
+    let timestamp = new Date(date).getTime()
+    let open = startPrice
+    let close = -templateList[0] / _d + startPrice
+    let rh = random(Math.abs(open - close) * (1 / 50), Math.abs(open - close))
+    let rl = random(Math.abs(open - close) * (1 / 50), Math.abs(open - close))
+    let high = Math.max(open + rh, close + rh)
+    let low = Math.min(open - rl, close - rl)
+
+    let item = {
+        open: open,
+        close: close,
+        high: high,
+        low: low,
+        volume: (Math.abs(open - close) * volumeMultiple) + volumeAdd,
+        timestamp: timestamp,
+    }
+    a.push(item)
+
+    for (let i = 1; i < len; i++) {
+        timestamp += 60000
+        open = close
+        close = -templateList[i] / _d + startPrice
+        let rh = random(Math.abs(open - close) * (1 / 50), Math.abs(open - close))
+        let rl = random(Math.abs(open - close) * (1 / 50), Math.abs(open - close))
+        high = Math.max(open + rh, close + rh)
+        low = Math.min(open - rl, close - rl)
+
+        let item = {
+            open: open,
+            close: close,
+            high: high,
+            low: low,
+            volume: (Math.abs(open - close) * volumeMultiple) + volumeAdd,
+            timestamp: timestamp,
+        }
+        a.push(item)
+    }
+    return a
+}
+
 
 
 let _t = {
@@ -280,7 +364,7 @@ let _t = {
     },
 
     // 后台添加数据时，生成其他时刻的数据
-    async updateAllData(symbol, period, kline) {
+    async updateAllData2(symbol, period, kline) {
         let a = kline
         let len = a.length
         for (let i = 0; i < len; i++) {
@@ -322,6 +406,51 @@ let _t = {
         }
 
         return true
+    },
+    async updateAllData(symbol, period, kline) {
+        console.log(symbol, period, kline.length)
+
+        let dir_path = __dirname + `./../../public/kline-template`
+        let dir_list = fs.readdirSync(dir_path)
+        let up_list = findList(dir_list, 'up')
+        let down_list = findList(dir_list, 'down')
+        let kline_list = []
+
+        for (let i = 0; i < kline.length; i++) {
+            let day_item = kline[i]
+            if (day_item.open < day_item.close) {
+                kline_list = oneRandomList(up_list, dir_path)
+            } else {
+                kline_list = oneRandomList(down_list, dir_path)
+            }
+            let one_day_kline = templateToKline(kline_list, day_item)
+            // console.log(one_day_kline)
+            // continue
+
+            // 1min
+            let oneMinArr = one_day_kline
+            await saveKlineArr(symbol, "1min", one_day_kline)
+            // 5min
+            let fiveMinArr = getKlineTimeArr(oneMinArr, 5)
+            await saveKlineArr(symbol, "5min", fiveMinArr)
+            // 15min
+            let fifteenMinArr = getKlineTimeArr(fiveMinArr, 3)
+            await saveKlineArr(symbol, "15min", fifteenMinArr)
+            // 30min
+            let thirtyMinArr = getKlineTimeArr(fifteenMinArr, 2)
+            await saveKlineArr(symbol, "30min", thirtyMinArr)
+            // 60min
+            let sixtyMinArr = getKlineTimeArr(thirtyMinArr, 2)
+            await saveKlineArr(symbol, "60min", sixtyMinArr)
+            // 4hour
+            let fourHourArr = getKlineTimeArr(sixtyMinArr, 4)
+            await saveKlineArr(symbol, "4hour", fourHourArr)
+            // 1day
+            let oneDayArr = getKlineTimeArr(fourHourArr, 6)
+            await saveKlineArr(symbol, "1day", oneDayArr)
+        }
+
+
     },
 
     // 更新平台币名称
