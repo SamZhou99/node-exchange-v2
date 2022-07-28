@@ -324,12 +324,13 @@ let _t = {
      * @returns 
      */
     async listBySymbol(symbol, period, size, isCurrTime = true) {
+        const f = 'id,symbol,period,open,close,high,low,vol,ts'
         if (isCurrTime) {
             const ts = utils99.Time(config.web.timezone)
-            let res = db.Query("SELECT * FROM kline_history WHERE symbol=? AND period=? AND ts<=? ORDER BY ts DESC LIMIT ?", [symbol, period, ts, size])
+            let res = db.Query("SELECT " + f + " FROM kline_history WHERE symbol=? AND period=? AND ts<=? ORDER BY ts DESC LIMIT ?", [symbol, period, ts, size])
             return res
         }
-        let res = db.Query("SELECT * FROM kline_history WHERE symbol=? AND period=? ORDER BY ts DESC LIMIT ?", [symbol, period, size])
+        let res = db.Query("SELECT " + f + " FROM kline_history WHERE symbol=? AND period=? ORDER BY ts DESC LIMIT ?", [symbol, period, size])
         return res
     },
 

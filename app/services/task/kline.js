@@ -10,6 +10,7 @@ async function huobiApiKline(symbol, period, size) {
     // https://api.hadax.com/market/history/kline?period=1day&size=10&symbol=btcusdt
     // const URL = `https://api.hadax.com/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
     const URL = `https://api.huobi.pro/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
+    console.log(utils99.Time())
     console.log(URL)
 
     let httpRes = await utils99.request.axios.get({ url: URL, headers: utils99.request.HEADERS.mobile }).catch(err => {
@@ -120,7 +121,7 @@ function initCronJob(callback) {
 }
 
 let _t = {
-    async init(symbol = "btcusdt") {
+    async init(symbol = "btcusdt", callback) {
         // const symbol = "btcusdt"
         const periods = [
             '1min',
@@ -151,15 +152,24 @@ let _t = {
         }
 
         initCronJob(async (period) => {
+            await delay(1000)
             let size = 2
             let res = await huobiApiKline(symbol, period, size)
+            let ts
             if (res && res.data != undefined) {
                 let a = getList(res, symbol, period, size)
                 for (let i = 0; i < a.length; i++) {
                     let it = a[i]
+                    // it.ts = String(it.ts).replace(/-/g, '/')
+                    console.log(`it.ts = ${it.ts}`)
+                    ts = utils99.moment(it.ts, 'YYYY-MM-DD H:m:ss').format('YYYY/MM/DD HH:mm:ss')
                     await service_kline_history.update(it.symbol, it.period, it.open, it.close, it.high, it.low, it.vol, it.ts)
                     // console.log("update", symbol, period, size, a.length)
                 }
+            }
+
+            if (callback) {
+                callback({ symbol, period, size, ts })
             }
         })
     },

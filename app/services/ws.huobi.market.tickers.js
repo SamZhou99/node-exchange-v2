@@ -15,8 +15,8 @@ let _t = {
         return null
     },
     async initMarketTickers() {
-        // const url = 'https://api.huobi.pro/market/tickers'
-        const url = 'http://api.huobi.pro/market/tickers'
+        const url = 'https://api.huobi.pro/market/tickers'
+        // const url = 'http://api.huobi.pro/market/tickers'
         const res = await utils99.request.axios.get({ url: url, headers: utils99.request.HEADERS.pc, isDebug: false }).catch(err => {
             console.error(err)
         })

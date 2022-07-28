@@ -323,6 +323,7 @@ wsServer.on('request', async function (request) {
 
         if (message.type == 'utf8') {
             let data = JSON.parse(message.utf8Data)
+
             if (data.ch == 'market.contract.trade') {
                 switch (data.cmd) {
                     case 'reloadTradeList':
@@ -407,6 +408,9 @@ wsServer.on('request', async function (request) {
                 // 给管理端发送完成消息
                 conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.succeed' }))
             }
+            else if (data.ch == 'kline.update.success') {
+                broadcastPathSendText('/kline.update.success', JSON.stringify(data))
+            }
         }
 
 
@@ -431,17 +435,21 @@ wsServer.on('request', async function (request) {
     //     conn.sendUTF(JSON.stringify(data))
     // }
 
-    // 合约交易
-    let contract_trade_path = '/contract.trade/?uid='
-    if (conn.path.indexOf(contract_trade_path) != -1) {
-        const userId = Number(conn.path.replace(contract_trade_path, ''))
-        const start = 0
-        const size = 99
-        conn.uid = userId
-        // // 推送给客户 历史记录
-        // const res = await service_currency_contract_trade_log.listByUserId(userId, start, size)
-        // conn.sendUTF(JSON.stringify(res.list))
+    if (conn.path === '/kline.update.success') {
+        conn.sendUTF(JSON.stringify({ 'msg': 'connect success' }))
     }
+
+    // // 合约交易
+    // let contract_trade_path = '/contract.trade/?uid='
+    // if (conn.path.indexOf(contract_trade_path) != -1) {
+    //     const userId = Number(conn.path.replace(contract_trade_path, ''))
+    //     const start = 0
+    //     const size = 99
+    //     conn.uid = userId
+    //     // // 推送给客户 历史记录
+    //     // const res = await service_currency_contract_trade_log.listByUserId(userId, start, size)
+    //     // conn.sendUTF(JSON.stringify(res.list))
+    // }
 
     // 实时市场行情
     if (conn.path === '/market.tickers' && huobiData['huobi-market-tickers']) {

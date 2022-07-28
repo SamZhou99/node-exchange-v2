@@ -10,7 +10,7 @@ async function getHuobiApiKline(symbol, period, size) {
     // const URL = `https://api.hadax.com/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
     // const URL = `http://api.hadax.com/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
     const URL = `https://api.huobi.pro/market/history/kline?period=${period}&size=${size}&symbol=${symbol}`
-    console.log(URL)
+    console.log(utils99.Time(), URL)
     let httpRes = await utils99.request.axios.get({ url: URL, headers: utils99.request.HEADERS.mobile }).catch(err => {
         console.log('请求异常', URL, err)
     })
@@ -36,7 +36,7 @@ let _t = {
             let res = await service_kline_history.listBySymbol(symbol, period, size, true)
             // console.log(res, symbol, period, size)
             return {
-                "ch": `market.${symbol} .kline.${period} `,
+                "ch": `market.${symbol}.kline.${period}`,
                 "status": "ok",
                 "ts": Date.now(),
                 "data": res

@@ -297,6 +297,7 @@ let _t = {
             else {
                 klineRes = await service_kline.get(symbol, period, size)
             }
+            console.log("kline", utils99.Time())
             return { flag: 'ok', data: klineRes }
         },
 
