@@ -116,14 +116,13 @@ let _t = {
             // 检查帐户 是否存在
             const isExist = await service_member.oneByAccount(Email)
             if (isExist) {
-                reply.send({ flag: config.common.message[10030], code: 10030 })
-                return
+                return { flag: config.common.message[10030], code: 10030 }
             }
 
             // 检查邮箱验证
             const emailVerifyRes = await service_email_verify_code.oneByEmailCode(Email, EmailVerify)
             if (!emailVerifyRes) {
-                return { flag: config.common.message[10010], code: 10010 }
+                return { flag: config.common.message[10015], code: 10015 }
             }
             email_verify = 1
 
