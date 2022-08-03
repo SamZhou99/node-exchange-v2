@@ -28,9 +28,9 @@ let _t = {
         return res
     },
     // 更新全部信息
-    async update(id, icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, abstract, desc, is_show, start_time, end_time) {
+    async update(id, icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, is_show, start_time, end_time) {
         const update_datetime = utils99.Time(config.web.timezone)
-        const res = db.Query("UPDATE currency_platform SET `icon`=?,`symbol`=?,`name`=?,`value`=?,`sell_value`=?,`withdraw_charges`=?,`usdt_exchange`=?,`sort`=?,`abstract`=?,`desc`=?,`is_show`=?,`start_time`=?,`end_time`=?,`update_datetime`=? WHERE id=?", [icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, abstract, desc, is_show, start_time, end_time, update_datetime, id])
+        const res = db.Query("UPDATE currency_platform SET `icon`=?,`symbol`=?,`name`=?,`value`=?,`sell_value`=?,`withdraw_charges`=?,`usdt_exchange`=?,`sort`=?,`is_show`=?,`start_time`=?,`end_time`=?,`update_datetime`=? WHERE id=?", [icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, is_show, start_time, end_time, update_datetime, id])
         return res
     },
     // 更新描述

@@ -772,8 +772,8 @@ let _t = {
             const withdraw_charges = body.withdraw_charges
             const usdt_exchange = body.usdt_exchange
             const sort = body.sort
-            const abstract = body.abstract || ''
-            const desc = body.desc || ''
+            // const abstract = body.abstract || ''
+            // const desc = body.desc || ''
             const is_show = body.is_show
             const start_time = body.start_time
             const end_time = body.end_time
@@ -790,7 +790,7 @@ let _t = {
             }
 
             // 更新 平台币信息
-            const res = await service_currency_platform.update(id, icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, abstract, desc, is_show, start_time, end_time)
+            const res = await service_currency_platform.update(id, icon, symbol, name, value, sell_value, withdraw_charges, usdt_exchange, sort, is_show, start_time, end_time)
             return { flag: 'ok', data: res }
         },
 
