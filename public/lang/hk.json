@@ -40,6 +40,7 @@
     "registe_successfully": "註冊成功，現在去登錄！",
     "registe_account_exists": "該郵箱已經存在，請更換其他郵箱註冊！",
     "registe_email_not_verify": "帳號郵箱未驗證！",
+    "registe_email_verification_code_incorrect": "郵箱驗證碼錯誤！",
 
     "forgot_password_title": "通過郵件找回密碼",
     "forgot_password_send_email": "系統已發送郵件到您的郵箱，請注意查收！",

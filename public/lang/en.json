@@ -40,6 +40,7 @@
     "registe_successfully": "Register successfully, go to login now!",
     "registe_account_exists": "The account already exists, please change another account to register!",
     "registe_email_not_verify": "Email is not verified！",
+    "registe_email_verification_code_incorrect": "The Email verification code is incorrect!",
 
     "forgot_password_title": "Password Recovery By E-mail",
     "forgot_password_send_email": "The system has sent an email to your mailbox, please note to check!",

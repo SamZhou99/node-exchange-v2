@@ -40,6 +40,7 @@
     "registe_successfully": "¡Registro exitoso, inicia sesión ahora!",
     "registe_account_exists": "La dirección de correo electrónico ya existe, ¡regístrese con otra dirección de correo electrónico!",
     "registe_email_not_verify": "¡Correo electrónico de cuenta no verificado!",
+    "registe_email_verification_code_incorrect": "¡El Código de verificación de correo electrónico es incorrecto!",
 
     "forgot_password_title": "Recuperar contraseña por correo electrónico",
     "forgot_password_send_email": "El sistema ha enviado un correo electrónico a su buzón, ¡preste atención para verificarlo!",

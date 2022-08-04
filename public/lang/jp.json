@@ -40,6 +40,7 @@
     "registe_successfully": "登録に成功しました。今ログインします。",
     "registe_account_exists": "このメールボックスはすでに存在します。別のメールボックスに変更して登録してください。！",
     "registe_email_not_verify": "アカウントの未検証！",
+    "registe_email_verification_code_incorrect": "メールの検証コードが間違っている！",
 
     "forgot_password_title": "メールでパスワードを取り戻す",
     "forgot_password_send_email": "メールアドレスにメールが送信されましたので、ご査収にご注意ください！",
