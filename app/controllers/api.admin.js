@@ -211,15 +211,17 @@ let _t = {
                     .prop('page', S.integer())
                     .prop('size', S.integer())
                     .prop('type', S.string().minLength(1).required())
+                    .prop('target_user_id', S.integer())
             }
         },
         async get(request, reply) {
             const query = request.query
             const page = query.page || 1
             const size = query.size || 10
-            const type = query.type
             const start = (page - 1) * size
-            const res = await service_member.listDetail(type, start, size)
+            const type = query.type
+            const target_user_id = query.target_user_id
+            const res = await service_member.listDetail(type, target_user_id, start, size)
             const list = res.list
             const total = res.total
             return {

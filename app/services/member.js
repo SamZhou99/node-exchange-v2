@@ -66,10 +66,17 @@ let _t = {
      * @param {*} length 
      * @returns 
      */
-    async listDetail(type, start, length) {
-        let total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE deleted=0 AND type=?", [type])
-        total = total[0]['total']
-        let list = await db.Query("SELECT * FROM member_list WHERE deleted=0 AND type=? ORDER BY id DESC LIMIT ?,?", [type, start, length])
+    async listDetail(type, target_user_id, start, length) {
+        let total, list
+        if (target_user_id) {
+            total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE deleted=0 AND type=? AND id=?", [type, target_user_id])
+            total = total[0]['total']
+            list = await db.Query("SELECT * FROM member_list WHERE deleted=0 AND type=? AND id=? ORDER BY id DESC LIMIT ?,?", [type, target_user_id, start, length])
+        } else {
+            total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE deleted=0 AND type=?", [type])
+            total = total[0]['total']
+            list = await db.Query("SELECT * FROM member_list WHERE deleted=0 AND type=? ORDER BY id DESC LIMIT ?,?", [type, start, length])
+        }
 
         for (let i = 0; i < list.length; i++) {
             let item = list[i]
