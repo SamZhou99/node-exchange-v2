@@ -3,10 +3,17 @@ const config = require('../../config/all.js')
 const { db } = require('../../lib/db.setup.js')
 
 let _t = {
-    async list(start, size) {
-        const totalRes = await db.Query("SELECT COUNT(*) AS total FROM system_pv_log")
-        const total = totalRes[0]['total']
-        const list = await db.Query("SELECT * FROM system_pv_log ORDER BY id DESC LIMIT ?,?", [start, size])
+    async list(target_user_id, start, size) {
+        let total, list
+        if (target_user_id) {
+            let totalRes = await db.Query("SELECT COUNT(*) AS total FROM system_pv_log WHERE user_id=?", [target_user_id])
+            total = totalRes[0]['total']
+            list = await db.Query("SELECT * FROM system_pv_log WHERE user_id=? ORDER BY id DESC LIMIT ?,?", [target_user_id, start, size])
+        } else {
+            let totalRes = await db.Query("SELECT COUNT(*) AS total FROM system_pv_log")
+            total = totalRes[0]['total']
+            list = await db.Query("SELECT * FROM system_pv_log ORDER BY id DESC LIMIT ?,?", [start, size])
+        }
         return { total, list, }
     },
     async add(user_id, ip, referer, url, user_agent) {

@@ -112,6 +112,11 @@ let _t = {
             const eth = await service_system_wallet_address.walletUseTotal('eth')
             const usdt = await service_system_wallet_address.walletUseTotal('usdt')
 
+            for (let i = 0; i < Earning.length; i++) {
+                let item = Earning[i]
+                item.user = await service_member.oneById(item.user_id)
+            }
+
             return {
                 flag: 'ok', data: {
                     Users: Users,
@@ -1063,6 +1068,7 @@ let _t = {
                 querystring: S.object()
                     .prop('page', S.integer())
                     .prop('size', S.integer())
+                    .prop('target_user_id', S.integer())
             }
         },
         async get(request, reply) {
@@ -1070,7 +1076,8 @@ let _t = {
             const page = query.page || 1
             const size = query.size || 10
             const start = (page - 1) * size
-            let res = await service_system_pv_log.list(start, size)
+            const target_user_id = query.target_user_id
+            let res = await service_system_pv_log.list(target_user_id, start, size)
             for (let i = 0; i < res.list.length; i++) {
                 let item = res.list[i]
                 item['user'] = await service_member.oneById(item.user_id)
