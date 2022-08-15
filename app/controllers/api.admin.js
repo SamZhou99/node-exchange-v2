@@ -661,8 +661,31 @@ let _t = {
             const id = body.id
             const status = body.status
             const failed_reason = body.failed_reason
-            const res = await service_withdraw.updateStatusReason(id, status, failed_reason)
-            return { flag: 'ok', data: res }
+
+            const oneRes = await service_withdraw.oneById(id)
+            if (!oneRes) {
+                // 参数异常
+                return { flag: '参数异常！' }
+            }
+            if (oneRes.status == '2') {
+                // 不要重复驳回 否则 会多给出金额数量到用户钱包
+                return { flag: '已经是驳回状态，不能再次修改！' }
+            }
+
+            const updateStatusRes = await service_withdraw.updateStatusReason(oneRes.id, status, failed_reason)
+            let updateUserWalletAmountRes
+            if (status == '2') {
+                // 驳回状态时=2 返还申请数量
+                updateUserWalletAmountRes = await service_wallet.updateAddSubAssetsAmount(oneRes.user_id, oneRes.type, oneRes.apply_amount, '+')
+            }
+
+            return {
+                flag: 'ok', data: {
+                    oneRes,
+                    updateStatusRes,
+                    updateUserWalletAmountRes,
+                }
+            }
         },
     },
 
