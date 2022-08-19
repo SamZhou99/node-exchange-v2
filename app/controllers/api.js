@@ -192,7 +192,7 @@ let _t = {
             }
 
             // 发送邮箱验证码
-            const time = utils99.Time(config.web.timezone)
+            const time = utils99.Time(config.web.timezone_mail)
             const sendRes = await service_titan.sendMail(email, 'Mailbox Verify Code', `Code : <p><span style="color:#ffee00;background-color:#000000;font-size:2rem;padding:1rem;font-family:Verdana;">${code}</span></p><p>Time : ${time}</p>`)
             console.log(code, sendRes)
 
