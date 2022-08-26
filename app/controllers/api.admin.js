@@ -112,6 +112,14 @@ let _t = {
             const eth = await service_system_wallet_address.walletUseTotal('eth')
             const usdt = await service_system_wallet_address.walletUseTotal('usdt')
 
+            for (let i = 0; i < Users.length; i++) {
+                let item = Users[i]
+                let btc = await service_wallet_log.sumByUserIdCoinName(item.id, 'btc')
+                let eth = await service_wallet_log.sumByUserIdCoinName(item.id, 'eth')
+                let usdt = await service_wallet_log.sumByUserIdCoinName(item.id, 'usdt')
+                item.pay_sum = { btc, eth, usdt }
+            }
+
             for (let i = 0; i < Earning.length; i++) {
                 let item = Earning[i]
                 item.user = await service_member.oneById(item.user_id)

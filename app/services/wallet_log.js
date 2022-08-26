@@ -31,8 +31,8 @@ let _t = {
     },
 
     async sumByUserIdCoinName(user_id, coin_name) {
-        const sum = await db.Query("SELECT SUM(amount) AS sum FROM member_wallet_log WHERE user_id=? AND wallet_type=? AND `hash`<>'' ORDER BY id DESC", [user_id, coin_name])
-        return sum[0]['sum']
+        const sum = await db.Query("SELECT SUM(amount) AS sum FROM member_wallet_log WHERE user_id=? AND wallet_type=? AND `hash`<>'' ", [user_id, coin_name])
+        return sum.length <= 0 ? null : sum[0]['sum']
     },
 
     async listDashboard() {
