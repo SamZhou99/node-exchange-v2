@@ -126,6 +126,21 @@
 
     "futures_entrust_quick_transfer": "Quick Transfer",
 
+    "sec_transaction_mode": "transaction mode",
+    "sec_open_quantity": "open quantity",
+    "sec_opening_time": "opening time",
+    "sec_account_balance": "account balance",
+    "sec_profit_rate": "profit rate",
+    "sec_opening_quantity": "fill in the correct number in [Opening Quantity]!",
+    "sec_order_quantity_not_less": "The order quantity shall not be less than",
+    "sec_quantity": "quantity",
+    "sec_purchase_price": "purchase price",
+    "sec_closing_price": "closing price",
+    "sec_service_charge": "service charge",
+    "sec_profit_and_loss": "profit and loss",
+    "sec_current_price": "current price",
+    "sec_estimated_profit_and_loss": "estimated profit and loss",
+
     "startup_list_project": "Starting project",
     "startup_list_back": "Back",
     "startup_list_ongoing": "ongoing",

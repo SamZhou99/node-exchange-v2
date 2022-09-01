@@ -126,6 +126,21 @@
 
     "futures_entrust_quick_transfer": "クイック移動",
 
+    "sec_transaction_mode": "トランザクションモード",
+    "sec_open_quantity": "開放数量",
+    "sec_opening_time": "開館時間",
+    "sec_account_balance": "アカウント残高",
+    "sec_profit_rate": "利益率",
+    "sec_opening_quantity": "正しい量を[開始量]で記入！",
+    "sec_order_quantity_not_less": "次の数量は、数量",
+    "sec_quantity": "量",
+    "sec_purchase_price": "購入金額",
+    "sec_closing_price": "終値",
+    "sec_service_charge": "サービス料",
+    "sec_profit_and_loss": "利益と損失",
+    "sec_current_price": "現在の価格",
+    "sec_estimated_profit_and_loss": "見積損益",
+
     "startup_list_project": "ファイナンス",
     "startup_list_back": "戻る",
     "startup_list_ongoing": "進行中",

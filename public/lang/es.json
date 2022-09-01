@@ -126,6 +126,21 @@
 
     "futures_entrust_quick_transfer": "Transferencia rápida",
 
+    "sec_transaction_mode": "modo de transacción",
+    "sec_open_quantity": "cantidad abierta",
+    "sec_opening_time": "hora de apertura",
+    "sec_account_balance": "saldo de la cuenta",
+    "sec_profit_rate": "tasa de ganancia",
+    "sec_opening_quantity": "¡Ingrese el número correcto en [Cantidad de apertura]!",
+    "sec_order_quantity_not_less": "La cantidad de pedido no será inferior a",
+    "sec_quantity": "cantidad",
+    "sec_purchase_price": "precio de compra",
+    "sec_closing_price": "precio de cierre",
+    "sec_service_charge": "cargo por servicio",
+    "sec_profit_and_loss": "Ganancia y perdida",
+    "sec_current_price": "Precio actual",
+    "sec_estimated_profit_and_loss": "Pérdidas y ganancias estimadas",
+
     "startup_list_project": "Primer Proyecto",
     "startup_list_back": "devolver",
     "startup_list_ongoing": "en curso",
