@@ -7,6 +7,7 @@ const config = require('../../config/all.js');
 
 const service_config = require('../services/config.js');
 const service_member = require('../services/member.js');
+const service_member_wallet = require('../services/wallet.js');
 const service_agent = require('../services/agent.js');
 const service_caches = require('../services/caches.js');
 const service_kline = require('../services/kline.js');
@@ -15,9 +16,9 @@ const service_login_log = require('../services/login_log.js');
 const service_currency_platform = require('../services/currency_platform.js');
 const service_currency_platform_buy = require('../services/currency_platform_trade_log.js');
 const service_currency_contract = require('../services/currency_contract.js');
+const service_currency_contract_sec = require('../services/currency_contract_sec.js');
 const service_currency_contract_charges = require('../services/currency_contract_charges.js');
 const service_currency_contract_trade_log = require('../services/currency_contract_trade_log.js');
-const service_wallet = require('../services/wallet.js');
 const service_syste_wallet_address = require('../services/system_wallet_address.js');
 const service_syste_pv_log = require('../services/system_pv_log.js');
 const service_email_verify_code = require('../services/mail/email_verify_code.js');
@@ -150,14 +151,14 @@ let _t = {
             const eth = await service_syste_wallet_address.bindWalletAddressByUserId(newUserId, 'eth')
             const usdt = await service_syste_wallet_address.bindWalletAddressByUserId(newUserId, 'usdt')
             // 给我的资产中添加钱包地址
-            await service_wallet.addWallet(newUserId, 0, 0, 0, 'btc', btc.address)
-            await service_wallet.addWallet(newUserId, 0, 0, 0, 'eth', eth.address)
-            await service_wallet.addWallet(newUserId, 0, 0, 0, 'usdt', usdt.address)
+            await service_member_wallet.addWallet(newUserId, 0, 0, 0, 'btc', btc.address)
+            await service_member_wallet.addWallet(newUserId, 0, 0, 0, 'eth', eth.address)
+            await service_member_wallet.addWallet(newUserId, 0, 0, 0, 'usdt', usdt.address)
             const platformRes = await service_currency_platform.list(0, 999)
             const platformList = platformRes.list
             for (let i = 0; i < platformList.length; i++) {
                 let item = platformList[i]
-                await service_wallet.addWallet(newUserId, 1, 0, 0, item.symbol.toLocaleLowerCase(), '')
+                await service_member_wallet.addWallet(newUserId, 1, 0, 0, item.symbol.toLocaleLowerCase(), '')
             }
 
             reply.send({ flag: 'ok' })
@@ -444,7 +445,7 @@ let _t = {
             }
 
             if (user_id) {
-                data.walletList = await service_wallet.list(user_id)
+                data.walletList = await service_member_wallet.list(user_id)
             }
 
             return {
@@ -472,18 +473,18 @@ let _t = {
             const PlatformCoinType = body.PlatformCoinType
 
             // 检查余额数量
-            const res = await service_wallet.oneByCoinName(user_id, CoinType)
+            const res = await service_member_wallet.oneByCoinName(user_id, CoinType)
             if (res.assets_amount < CoinAmount) {
                 return { flag: 'not sufficient funds!' }
             }
             // 扣除用户资产相应数量
             const balance = res.assets_amount - CoinAmount
-            const balanceRes = await service_wallet.updateAssetsAmount(user_id, CoinType, balance)
+            const balanceRes = await service_member_wallet.updateAssetsAmount(user_id, CoinType, balance)
             // 添加用户 平台币相应数量
             // const platformBalanceRes = await service_wallet.oneByCoinName(user_id, PlatformCoinType)
             // const pfRes = await service_wallet.updateAssetsAmount(user_id, PlatformCoinType, platformBalanceRes.assets_amount + PlatformCoinAmount)
             // @todo 上面，两个合成一个
-            const pfRes = await service_wallet.updateAddSubAssetsAmount(user_id, PlatformCoinType, PlatformCoinAmount, '+')
+            const pfRes = await service_member_wallet.updateAddSubAssetsAmount(user_id, PlatformCoinType, PlatformCoinAmount, '+')
 
             // 添加用户 平台币参与记录
             const operator_id = 0
@@ -607,11 +608,11 @@ let _t = {
 
             if (action == 'buy' || action == 'sell') {
                 // 获取用户usdt余额
-                const walletRes = await service_wallet.oneByCoinName(user_id, "usdt")
+                const walletRes = await service_member_wallet.oneByCoinName(user_id, "usdt")
                 // 扣除合约余额
                 const balance = walletRes.contract_amount - margin
                 // 更新合约余额
-                const walletUpdateRes = await service_wallet.updateContractAmount(user_id, "usdt", balance)
+                const walletUpdateRes = await service_member_wallet.updateContractAmount(user_id, "usdt", balance)
                 // 增加一条合约交易记录
                 const act = (action == "buy") ? 'long' : 'short'
                 const tradeRes = await service_currency_contract_trade_log.addLog(user_id, multiple, status, handling_fee, price, lots, margin, act, symbol, balance)
@@ -692,7 +693,254 @@ let _t = {
             const item = await service_currency_contract_trade_log.oneById(id)
             const profit_loss = (price - item.price) * item.lots
             const usd = Math.round(profit_loss * 100000000) / 100000000
-            await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + usd)
+            await service_member_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + usd)
+
+            return { flag: 'ok', profit_loss }
+        },
+    },
+
+
+
+
+
+    contract_sec: {
+        opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async list(request, reply) {
+            const query = request.query
+            const user_id = query.user_id
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+
+            const res = await service_currency_contract_sec.listByUserId(user_id, start, size)
+            return { flag: 'ok', data: { list: res.list } }
+        },
+        async list_history(request, reply) {
+            const query = request.query
+            const user_id = query.user_id
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+
+            let res = await service_currency_contract_sec.listHistoryByUserId(user_id, start, size)
+            return {
+                flag: 'ok', data: {
+                    list: res.list,
+                    page: {
+                        total: res.total,
+                        page, size
+                    }
+                }
+            }
+        },
+
+
+        charge_opts: {
+            schema: {
+                querystring: S.object()
+                // .prop('user_id', S.integer().required())
+                // .prop('page', S.integer())
+                // .prop('size', S.integer())
+            }
+        },
+        async charge_get(request, reply) {
+            const res = await service_currency_contract_charges.list()
+            return { flag: 'ok', data: res }
+        },
+
+        charge_put_opts: {
+            schema: {
+                body: S.object()
+                    // .prop('id', S.integer().required())
+                    .prop('label', S.string().minLength(1).required())
+                    .prop('charge', S.number().required())
+                    .prop('lots', S.number().required())
+            }
+        },
+        async charge_put(request, reply) {
+            const body = request.body
+            const id = body.id
+            const label = body.label
+            const charge = body.charge
+            const lots = body.lots
+            let res
+            if (id) {
+                res = await service_currency_contract_charges.update(id, label, charge, lots)
+            } else {
+                res = await service_currency_contract_charges.add(label, charge, lots)
+            }
+
+            return { flag: 'ok', data: res }
+        },
+
+
+        check_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required()) // 单号ID
+                    .prop('price_pay', S.number().required()) // 结算价格
+            }
+        },
+        async check_post(request, reply) {
+            const body = request.body
+            const id = body.id
+            const price_pay = body.price_pay // 结算价格
+
+            const item = await service_currency_contract_sec.oneById(id)
+            const status = 0 // 平仓状态
+
+            if (item.action == 'long') {
+                if (price_pay > item.price_buy) {
+                    // 用户 赢，给本金加利润
+                    await service_currency_contract_sec.updateById(item.id, item.amount_buy * (item.rate / 100), price_pay, status)
+                    await service_member_wallet.updateContractAmountAction(item.user_id, 'usdt', item.amount_buy + (item.amount_buy * (item.rate / 100)), '+')
+                } else if (price_pay < item.price_buy) {
+                    // 用户 输，不做任何处理
+                    await service_currency_contract_sec.updateById(item.id, -item.amount_buy, price_pay, status)
+                } else {
+                    // 用户 平，退本金
+                    await service_currency_contract_sec.updateById(item.id, 0, price_pay, status)
+                    await service_member_wallet.updateContractAmountAction(item.user_id, 'usdt', item.amount_buy, '+')
+                }
+            }
+            else if (item.action == 'short') {
+                if (price_pay < item.price_buy) {
+                    // 用户 赢，给本金加利润
+                    await service_currency_contract_sec.updateById(item.id, item.amount_buy * (item.rate / 100), price_pay, status)
+                    await service_member_wallet.updateContractAmountAction(item.user_id, 'usdt', item.amount_buy + (item.amount_buy * (item.rate / 100)), '+')
+                } else if (price_pay > item.price_buy) {
+                    // 用户 输，不做任何处理
+                    await service_currency_contract_sec.updateById(item.id, -item.amount_buy, price_pay, status)
+                } else {
+                    // 用户 平，退本金
+                    await service_currency_contract_sec.updateById(item.id, 0, price_pay, status)
+                    await service_member_wallet.updateContractAmountAction(item.user_id, 'usdt', item.amount_buy, '+')
+                }
+            } else {
+                return { flag: 'data exception!' }
+            }
+
+            return { flag: 'ok', data: {} }
+        },
+
+
+        post_opts: {
+            schema: {
+                body: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('action', S.string().required()) //交易，long买涨，short买跌
+                    .prop('sec', S.integer().required()) //秒
+                    .prop('rate', S.integer().required()) //盈利率
+                    .prop('min', S.integer().required()) //最少买多少
+                    .prop('amount_buy', S.integer().required()) //买数量金额
+                    .prop('price_buy', S.number().required()) //买时价格
+                // .prop('balance', S.number().required()) //用户余额
+            }
+        },
+        async post(request, reply) {
+            const body = request.body
+            const user_id = body.user_id
+            const action = body.action
+            const sec = body.sec
+            const rate = body.rate
+            const min = body.min
+            const amount_buy = body.amount_buy
+            const amount_result = 0 // 未有结果
+            const price_buy = body.price_buy
+            const price_pay = 0 // 结算时价格
+            const balance = body.balance
+            const status = 1 // 持仓中
+
+            // 最小金额不能小于1
+            if (min < 1) {
+                return { flag: `Parameters of the abnormal!` }
+            }
+
+            if (amount_buy < min) {
+                // 数量金额必须大于${min}USDT
+                return { flag: `The amount must be greater than ${min}USDT` }
+            }
+            // 合约账户 减去购买金额
+            await service_member_wallet.updateContractAmountAction(user_id, 'usdt', amount_buy, '-')
+            // 读取 用户 合约账户余额
+            const balanceRes = await service_member_wallet.oneByCoinName(user_id, 'usdt')
+            const currBalance = balanceRes['contract_amount']
+
+            let addRes = await service_currency_contract_sec.add(user_id, sec, rate, amount_buy, amount_result, price_buy, price_pay, currBalance, action, status)
+            // let listRes = await service_currency_contract_sec.listByUserId(user_id, 0, 10)
+            return { flag: 'ok', data: { addRes } }
+        },
+
+
+        // 设置 止盈止损 价格
+        put_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('buyStop', S.number().required())
+                    .prop('sellStop', S.number().required())
+            }
+        },
+        async put_buy_sell_price(request, reply) {
+            const body = request.body
+            const id = body.id
+            const buyStop = body.buyStop
+            const sellStop = body.sellStop
+            await service_currency_contract_trade_log.updateBuyStopSellStop(id, buyStop, sellStop)
+            return { flag: 'ok' }
+        },
+
+
+
+        // 撤回 & 平仓
+        put_withdraw_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+            }
+        },
+        // 撤回
+        async put_withdraw(request, reply) {
+            const body = request.body
+            const id = body.id
+            await service_currency_contract_trade_log.updateFieldValue(id, 'status', 3)
+            return { flag: 'ok' }
+        },
+        put_close_a_position_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('price', S.number().required())
+            }
+        },
+        // 手动平仓
+        async put_close_a_position(request, reply) {
+            const body = request.body
+            const id = body.id
+            const price = body.price
+
+            // 订单状态已改变，阻止重复瞬间操作。
+            let tradeItem = await service_currency_contract_trade_log.oneById(id)
+            if (tradeItem != null && tradeItem.status == 4) {
+                return { flag: 'Order status has been closed!' }
+            }
+
+
+            // 更新 平仓 状态
+            await service_currency_contract_trade_log.updateStatusAndPriceSell(id, 4, 1, price)
+
+            // 更新 平仓余额 到合约账户
+            const item = await service_currency_contract_trade_log.oneById(id)
+            const profit_loss = (price - item.price) * item.lots
+            const usd = Math.round(profit_loss * 100000000) / 100000000
+            await service_member_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + usd)
 
             return { flag: 'ok', profit_loss }
         },
