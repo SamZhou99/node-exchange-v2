@@ -140,6 +140,7 @@
     "sec_profit_and_loss": "Ganancia y perdida",
     "sec_current_price": "Precio actual",
     "sec_estimated_profit_and_loss": "Pérdidas y ganancias estimadas",
+    "sec_need_at_least": "Al menos necesita",
 
     "startup_list_project": "Primer Proyecto",
     "startup_list_back": "devolver",

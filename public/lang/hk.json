@@ -140,6 +140,7 @@
     "sec_profit_and_loss": "盈虧",
     "sec_current_price": "當前價格",
     "sec_estimated_profit_and_loss": "預計盈虧",
+    "sec_need_at_least": "最少需要",
 
     "startup_list_project": "首發項目",
     "startup_list_back": "返回",
