@@ -5,6 +5,7 @@ const service_currency_platform = require('../services/currency_platform.js');
 const service_currency_platform_trade_log = require('../services/currency_platform_trade_log.js');
 const service_currency_contract = require('../services/currency_contract.js');
 const service_currency_contract_trade_log = require('../services/currency_contract_trade_log.js');
+const service_currency_contract_sec = require('../services/currency_contract_sec.js');
 const service_auth = require('../services/auth.js');
 const service_withdraw = require('../services/withdraw_log.js');
 const service_withdrawCharges = require('../services/withdraw_charges.js');
@@ -543,6 +544,32 @@ let _t = {
         },
     },
 
+    recharge_contract_sec: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+            const res = await service_currency_contract_sec.list(start, size)
+            const total = res.total
+            let list = res.list
+            for (let i = 0; i < list.length; i++) {
+                let item = list[i]
+                item.user = await service_member.oneById(item.user_id)
+            }
+            return {
+                flag: 'ok', data: { list, page: { total, page, size } }
+            }
+        },
+    },
+
     wallet: {
         get_opts: {
             schema: {
@@ -997,6 +1024,23 @@ let _t = {
             const res = await service_currency_contract.add(icon, symbol, name, charges, amount, close_a_position, sort, is_show)
             return { flag: 'ok', data: res }
         }
+    },
+
+    currency_contract_sec: {
+        putItem_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('manual', S.integer().required())
+            }
+        },
+        async putItem(request, reply) {
+            const body = request.body
+            const id = body.id
+            const manual = body.manual
+            await service_currency_contract_sec.updateManualById(id, manual)
+            return { flag: 'ok' }
+        },
     },
 
     password_change: {

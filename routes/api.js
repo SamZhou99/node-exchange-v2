@@ -51,11 +51,8 @@ async function routes(fastify, options) {
     fastify.get('/contract-sec/history', controlless.api.contract_sec.opts, controlless.api.contract_sec.list_history)
     fastify.post('/contract-sec/trade', controlless.api.contract_sec.post_opts, controlless.api.contract_sec.post)
     fastify.post('/contract-sec/check', controlless.api.contract_sec.check_opts, controlless.api.contract_sec.check_post)
-    // fastify.put('/contract-sec/buystop-sellstop', controlless.api.contract_sec.put_opts, controlless.api.contract_sec.put_buy_sell_price)
-    // fastify.put('/contract-sec/withdraw', controlless.api.contract_sec.put_withdraw_opts, controlless.api.contract_sec.put_withdraw)
-    // fastify.put('/contract-sec/close-a-position', controlless.api.contract_sec.put_close_a_position_opts, controlless.api.contract_sec.put_close_a_position)
-    // fastify.get('/contract-sec/service-charge', controlless.api.contract_sec.charge_opts, controlless.api.contract_sec.charge_get)
-    // fastify.put('/contract-sec/service-charge', controlless.api.contract_sec.charge_put_opts, controlless.api.contract_sec.charge_put)
+    fastify.get('/contract-sec/service-charge', controlless.api.contract_sec.charge_opts, controlless.api.contract_sec.charge_get)
+    fastify.put('/contract-sec/service-charge', controlless.api.contract_sec.charge_put_opts, controlless.api.contract_sec.charge_put)
 
     // pv
     fastify.get('/pv', controlless.api.pv.opts, controlless.api.pv.get)

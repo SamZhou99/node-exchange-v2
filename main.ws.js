@@ -7,6 +7,9 @@ const service_currency_platform = require('./app/services/currency_platform.js')
 const service_currency_contract = require('./app/services/currency_contract.js')
 const service_kline_history = require('./app/services/kline_history.js')
 
+const service_currency_contract_sec = require('./app/services/currency_contract_sec.js')
+const service_currency_contract_sec_check = require('./app/services/currency_contract_sec_check.js')
+
 const service_currency_contract_trade_log = require('./app/services/currency_contract_trade_log.js');
 
 const service_wallet = require('./app/services/wallet.js')
@@ -72,6 +75,47 @@ huobiMarketTickers.callback = async function (data) {
 }
 huobiMarketTickers.init()
 
+
+
+// 初始化 秒合约
+let contractSecClass = {
+    tempHistory: 0,
+    tradeArr: [],
+    async reloadTradeList() {
+        contractSecClass.initContractList()
+    },
+    async initContractList() {
+        let list = await service_currency_contract_sec.listByStatus(1)
+        contractSecClass.tradeArr = list
+
+        clearInterval(contractSecClass.tempHistory)
+        contractSecClass.tempHistory = setInterval(async () => {
+            if (currBtcLastPrice <= 0) return;
+
+            let now = new Date().getTime()
+            let len = list.length
+
+            for (let i = len - 1; i >= 0; i--) {
+                let item = list[i]
+                let item_time = new Date(item.create_datetime).getTime()
+                item.price_pay = currBtcLastPrice
+
+                if (item.sec * 1000 + item_time <= now) {
+                    let res = await service_currency_contract_sec_check.check(item.id, item.price_pay)
+                    console.log('数据库结果', res)
+
+                    // 广播给后台更新
+                    broadcastPathSendText('/market.tickers', JSON.stringify({ ch: 'there.contract.sec.order' }))
+
+                    list.splice(i, 1)
+                    if (list.length <= 0) {
+                        clearInterval(contractSecClass.tempHistory)
+                    }
+                }
+            }
+        }, 10)
+    },
+}
 
 
 
@@ -324,11 +368,24 @@ wsServer.on('request', async function (request) {
         if (message.type == 'utf8') {
             let data = JSON.parse(message.utf8Data)
 
+
             if (data.ch == 'market.contract.trade') {
+                // 收到合约列表更新消息
                 switch (data.cmd) {
                     case 'reloadTradeList':
                         contractClass.reloadTradeList()
+                        // 广播给后台更新
                         broadcastPathSendText('/market.tickers', JSON.stringify({ ch: 'there.contract.order' }))
+                        break
+                }
+            }
+            else if (data.ch == 'market.contract.sec.trade') {
+                // 收到 秒合约列表更新消息
+                switch (data.cmd) {
+                    case 'reloadTradeList':
+                        contractSecClass.reloadTradeList()
+                        // 广播给后台更新
+                        broadcastPathSendText('/market.tickers', JSON.stringify({ ch: 'there.contract.sec.order' }))
                         break
                 }
             }

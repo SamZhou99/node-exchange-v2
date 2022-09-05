@@ -36,6 +36,8 @@ async function routes(fastify, options) {
     fastify.get('/recharge-list', controlless.recharge.get_opts, controlless.recharge.get)
     // 合约交易记录
     fastify.get('/recharge-contract-list', controlless.recharge_contract.get_opts, controlless.recharge_contract.get)
+    // 秒合约交易记录
+    fastify.get('/recharge-contract-list-sec', controlless.recharge_contract_sec.get_opts, controlless.recharge_contract_sec.get)
 
 
     // 查询-用户列表 账号自动完成
@@ -65,7 +67,7 @@ async function routes(fastify, options) {
     fastify.get('/withdraw', controlless.withdraw.get_opts, controlless.withdraw.get)
     // 用户提现修改状态
     fastify.put('/withdraw', controlless.withdraw.put_opts, controlless.withdraw.put)
-
+    // 提现手续费
     fastify.get('/withdraw-charges', controlless.withdraw_charges.get_opts, controlless.withdraw_charges.get)
     fastify.put('/withdraw-charges', controlless.withdraw_charges.put_opts, controlless.withdraw_charges.put)
 
@@ -91,6 +93,12 @@ async function routes(fastify, options) {
     fastify.put('/currency-contract/item', controlless.currency_contract.putItem_opts, controlless.currency_contract.putItem)
     // 增加-合约币
     fastify.post('/currency-contract', controlless.currency_contract.post_opts, controlless.currency_contract.post)
+
+    // 秒合约币
+    // fastify.get('/currency-contract-sec/item', controlless.currency_contract.getItem_opts, controlless.currency_contract.getItem)
+    // 修改订单 控制输赢
+    fastify.put('/currency-contract-sec/item/order', controlless.currency_contract_sec.putItem_opts, controlless.currency_contract_sec.putItem)
+    // fastify.post('/currency-contract-sec', controlless.currency_contract.post_opts, controlless.currency_contract.post)
 
     // Banner相关
     fastify.get('/banner', controlless.banner.get_opts, controlless.banner.get)

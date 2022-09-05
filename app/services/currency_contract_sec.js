@@ -9,13 +9,24 @@ let _t = {
         return res.length > 0 ? res[0] : null
     },
     // 列表
+    async list(start, length) {
+        let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_sec")
+        total = total[0]['total']
+        let list = await db.Query("SELECT * FROM currency_contract_sec ORDER BY id DESC LIMIT ?,?", [start, length])
+        return { total, list }
+    },
+    // 用户 列表
     async listByUserId(user_id, start, length) {
         let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_sec WHERE status=1 AND user_id=?", [user_id])
         total = total[0]['total']
         let list = await db.Query("SELECT * FROM currency_contract_sec WHERE status=1 AND user_id=? ORDER BY id DESC LIMIT ?,?", [user_id, start, length])
         return { total, list }
     },
-    // 列表 历史
+    async listByStatus(status) {
+        let list = await db.Query("SELECT * FROM currency_contract_sec WHERE status=? ORDER BY id DESC", [status])
+        return list
+    },
+    // 用户 历史列表
     async listHistoryByUserId(user_id, start, length) {
         let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_sec WHERE status=0 AND user_id=?", [user_id])
         total = total[0]['total']
@@ -38,6 +49,12 @@ let _t = {
     async updateById(id, amount_result, price_pay, status) {
         const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("UPDATE currency_contract_sec SET `amount_result`=?, `price_pay`=?, `status`=?, `update_datetime`=? WHERE id=?", [amount_result, price_pay, status, update_datetime, id])
+        return res
+    },
+    // 更新 手动控制输赢 值
+    async updateManualById(id, manual) {
+        const update_datetime = utils99.Time(config.web.timezone)
+        const res = await db.Query("UPDATE currency_contract_sec SET `manual`=?, `update_datetime`=? WHERE id=?", [manual, update_datetime, id])
         return res
     }
 }
