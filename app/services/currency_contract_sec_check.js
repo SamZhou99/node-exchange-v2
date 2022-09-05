@@ -13,6 +13,7 @@ let _t = {
         }
 
         price_pay = await _t.manualWinLosePrice(item, price_pay)
+        price_pay = Math.round(price_pay * 10000) / 10000
         console.log('check pricePay', price_pay)
 
         const status = 0 // 平仓状态
@@ -84,12 +85,12 @@ let _t = {
         if (action == 'long') {
             // 行情涨了，用户赢。但强制要输。
             if (item.price_buy < pricePay || item.price_buy == pricePay) {
-                pricePay = item.price_buy - Math.random() * 2
+                pricePay = item.price_buy - (Math.random() * 2)
             }
         } else if (action == 'short') {
             // 行情跌了，用户赢。但强制要输。
             if (item.price_buy > pricePay || item.price_buy == pricePay) {
-                pricePay = item.price_buy + Math.random() * 2
+                pricePay = item.price_buy + (Math.random() * 2)
             }
         }
         console.log('lose pricePay', pricePay)
@@ -99,12 +100,12 @@ let _t = {
         if (action == 'long') {
             // 行情跌了，用户输。但强制要赢。
             if (item.price_buy > pricePay || item.price_buy == pricePay) {
-                pricePay = item.price_buy + Math.random() * 2
+                pricePay = item.price_buy + (Math.random() * 2)
             }
         } else if (action == 'short') {
             // 行情涨了，用户输。但强制要赢。
             if (item.price_buy < pricePay || item.price_buy == pricePay) {
-                pricePay = item.price_buy - Math.random() * 2
+                pricePay = item.price_buy - (Math.random() * 2)
             }
         }
         console.log('win pricePay', pricePay)
