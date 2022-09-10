@@ -90,6 +90,12 @@ let _t = {
         return { total, list }
     },
 
+    // 某段时间 注册人数
+    async listByDateBetween(startDate, endDate) {
+        let list = await db.Query("SELECT * FROM member_list WHERE type=0 AND create_datetime BETWEEN ? AND ? ORDER BY id DESC", [startDate, endDate])
+        return list
+    },
+
     // 会员列表 通过 代理ID 查询
     async listByAgentId(agent_id, start, length) {
         let total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE agent_id=?", [agent_id])

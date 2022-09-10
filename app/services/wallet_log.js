@@ -40,6 +40,12 @@ let _t = {
         return res
     },
 
+    // 某段时间 注册人数
+    async listByDateBetween(coinType, startDate, endDate) {
+        let list = await db.Query("SELECT * FROM member_wallet_log WHERE wallet_type=? AND `hash`<>'' AND time BETWEEN ? AND ? ORDER BY time DESC", [coinType, startDate, endDate])
+        return list
+    },
+
     async addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time) {
         const create_datetime = utils99.Time(config.web.timezone)
         const update_datetime = utils99.Time(config.web.timezone)

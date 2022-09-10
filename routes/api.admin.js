@@ -14,6 +14,7 @@ async function routes(fastify, options) {
 
     // 仪表盘
     fastify.get('/dashboard', controlless.dashboard.get_opts, controlless.dashboard.get)
+    fastify.get('/dashboard/earning/search', controlless.dashboard.earning_get_opts, controlless.dashboard.earning_get)
 
     // 查询-用户列表
     fastify.get('/user-list', controlless.member.get_opts, controlless.member.get)

@@ -136,6 +136,34 @@ let _t = {
                     },
                 }
             }
+        },
+
+
+        earning_get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('StartDate', S.string().minLength(1).required())
+                    .prop('EndDate', S.string().minLength(1).required())
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async earning_get(request, reply) {
+            const query = request.query
+            const StartDate = query.StartDate
+            const EndDate = query.EndDate
+            // const page = query.page || 1
+            // const size = query.size || 10
+            // const start = (page - 1) * size
+            const memberList = await service_member.listByDateBetween(StartDate, EndDate)
+            const payList = {
+                btc: await service_wallet_log.listByDateBetween('btc', StartDate, EndDate),
+                eth: await service_wallet_log.listByDateBetween('eth', StartDate, EndDate),
+                usdt: await service_wallet_log.listByDateBetween('usdt', StartDate, EndDate),
+            }
+            return {
+                flag: 'ok', data: { memberList, payList }
+            }
         }
     },
 
