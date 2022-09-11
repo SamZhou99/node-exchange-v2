@@ -756,7 +756,7 @@ let _t = {
             }
         },
         async charge_get(request, reply) {
-            const res = await service_currency_contract_charges.list()
+            const res = await service_currency_contract_sec_charges.list()
             return { flag: 'ok', data: res }
         },
 
