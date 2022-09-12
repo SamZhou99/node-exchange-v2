@@ -172,8 +172,8 @@ let contractClass = {
                     if (item.buy_stop > 0 && item.buy_stop <= currBtcLastPrice) {
                         // 止盈
                         item.status = 4
-                        item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 3, currBtcLastPrice)
+                        item.price_sell = item.buy_stop
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 3, item.buy_stop)
                         // 更新 平仓余额 到合约账户
                         await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20020'], code: 20020, item: item }))
@@ -183,8 +183,8 @@ let contractClass = {
                     if (item.sell_stop > 0 && item.sell_stop >= currBtcLastPrice) {
                         // 止损
                         item.status = 4
-                        item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 4, currBtcLastPrice)
+                        item.price_sell = item.sell_stop
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 4, item.sell_stop)
                         // 更新 平仓余额 到合约账户
                         await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20030'], code: 20030, item: item }))
@@ -212,8 +212,8 @@ let contractClass = {
                     if (item.buy_stop > 0 && item.buy_stop >= currBtcLastPrice) {
                         // 止盈
                         item.status = 4
-                        item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 3, currBtcLastPrice)
+                        item.price_sell = item.buy_stop
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 3, item.buy_stop)
                         // 更新 平仓余额 到合约账户
                         await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20020'], code: 20020, item: item }))
@@ -223,8 +223,8 @@ let contractClass = {
                     if (item.sell_stop > 0 && item.sell_stop <= currBtcLastPrice) {
                         // 止损
                         item.status = 4
-                        item.price_sell = currBtcLastPrice
-                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 4, currBtcLastPrice)
+                        item.price_sell = item.sell_stop
+                        await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 4, item.sell_stop)
                         // 更新 平仓余额 到合约账户
                         await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum - round(yk, 8))
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20030'], code: 20030, item: item }))
