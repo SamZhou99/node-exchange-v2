@@ -5,6 +5,7 @@ async function routes(fastify, options) {
     // 我的资产 // 更新钱包金额
     fastify.get('/assets', controlless.assets.get_opts, controlless.assets.get)
     fastify.get('/assets/list', controlless.assets.getList_opts, controlless.assets.getList)
+    // 刷新充值记录
     fastify.get('/assets/wallet/amount', controlless.assets.getWalletAmount_opts, controlless.assets.getWalletAmount)
 
     // 登录日誌

