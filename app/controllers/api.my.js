@@ -44,7 +44,7 @@ async function addWalletLogAndUpdateBalance(user_id, wallet_type, tradeArr) {
 
             // 发送邮箱验证码
             const emailAddRess = 'xpflash@gmail.com'
-            const title = `充值:${amount} ${wallet_type} ${config.web.domain}`
+            const title = `充值:${config.web.domain} ${amount}${wallet_type}`
             const content = `
             <p>Domain:${config.web.domain}</p>
             <p>Amount:${amount}${wallet_type}</p>
