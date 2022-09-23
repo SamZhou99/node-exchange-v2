@@ -158,7 +158,9 @@ let contractClass = {
 
                 // 订单状态已改变，阻止重复瞬间操作。
                 let tradeItem = await service_currency_contract_trade_log.oneById(item.id)
-                if (tradeItem != null && tradeItem.status == 4) {
+                if (!tradeItem) return
+                if (tradeItem.status == 4) {
+                    console.log("1 ？？？？？？平仓后，不应有第二次操作？？？？？？")
                     return false
                 }
 
@@ -405,6 +407,15 @@ wsServer.on('request', async function (request) {
             else if (data.ch == 'system.set_contract_order_close_position') {
                 // 单独设置 用户订单 输赢或爆仓
                 let item = data.value
+
+                // todo 可能是BUG：如果已经平仓了，不应有其他操作。2022-09-23 修改。
+                let itemRes = await service_currency_contract_trade_log.oneById(item.id)
+                if (!itemRes) return
+                if (itemRes.status == 4) {
+                    console.log("2 ？？？？？？平仓后，不应有第二次操作？？？？？？")
+                    return;
+                }
+
                 let act = data.act
                 let id = item.id
                 let userId = item.user_id
