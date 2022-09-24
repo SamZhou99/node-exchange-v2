@@ -188,7 +188,7 @@ let contractClass = {
                         item.price_sell = item.sell_stop
                         await service_currency_contract_trade_log.updateStatusAndPriceSell(item.id, 4, 4, item.sell_stop)
                         // 更新 平仓余额 到合约账户
-                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum + round(yk, 8))
+                        await service_wallet.updateContractAmountAction(item.user_id, 'usdt', item.sum - round(yk, 8)) // 20220924 fix:bug
                         broadcastUIDSendText(item.user_id, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20030'], code: 20030, item: item }))
                         return true
                     }
@@ -375,7 +375,7 @@ wsServer.on('request', async function (request) {
                 // 收到合约列表更新消息
                 switch (data.cmd) {
                     case 'reloadTradeList':
-                        contractClass.reloadTradeList()
+                        await contractClass.reloadTradeList()
                         // 广播给后台更新
                         broadcastPathSendText('/market.tickers', JSON.stringify({ ch: 'there.contract.order' }))
                         break
@@ -385,7 +385,7 @@ wsServer.on('request', async function (request) {
                 // 收到 秒合约列表更新消息
                 switch (data.cmd) {
                     case 'reloadTradeList':
-                        contractSecClass.reloadTradeList()
+                        await contractSecClass.reloadTradeList()
                         // 广播给后台更新
                         broadcastPathSendText('/market.tickers', JSON.stringify({ ch: 'there.contract.sec.order' }))
                         break
@@ -451,28 +451,30 @@ wsServer.on('request', async function (request) {
                 } else if (act == 'overbook') {
                     // 爆仓
                     // 设置止损价后 没有达到 爆仓价 则无效
-                    if (item.sell_stop <= 0) {
-                        if (item.action == 'long') {
-                            closePositionPrice = item.price - (item.sum * 0.801 / item.lots)
-                        } else if (item.action == 'short') {
-                            closePositionPrice = item.price + (item.sum * 0.801 / item.lots)
-                        }
-                        statusType = 2
-                    } else {
-                        conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.error', msg: '参数错误', data: data }))
-                        return false
+                    // if (item.sell_stop <= 0) {
+                    if (item.action == 'long') {
+                        closePositionPrice = item.price - (item.sum * 0.801 / item.lots)
+                    } else if (item.action == 'short') {
+                        closePositionPrice = item.price + (item.sum * 0.801 / item.lots)
                     }
+                    statusType = 2
+                    // } else {
+                    //     conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.error', msg: '1参数错误', data: data }))
+                    //     return false
+                    // }
                 }
                 else if (closePositionPrice == 0) {
-                    conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.error', msg: '参数错误', data: data }))
+                    conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.error', msg: '2参数错误', data: data }))
                     return false
                 }
 
                 // 修改订单 状态与成交价格
                 await service_currency_contract_trade_log.updateStatusAndPriceSell(id, status, statusType, closePositionPrice)
+                // 重新加载交易记录
+                await contractClass.reloadTradeList()
 
                 // 给用户广播
-                broadcastUIDSendText(userId, JSON.stringify({ ch: 'market.contract.trade', msg: config.common.message['20040'], code: 20040 }))
+                broadcastUIDSendText(userId, JSON.stringify({ ch: 'market.contract.trade.reload', msg: '', code: '' }))
                 // 给管理端发送完成消息
                 conn.send(JSON.stringify({ ch: 'system.set_contract_order_close_position.succeed' }))
             }
@@ -503,21 +505,21 @@ wsServer.on('request', async function (request) {
     //     conn.sendUTF(JSON.stringify(data))
     // }
 
-    if (conn.path === '/kline.update.success') {
-        conn.sendUTF(JSON.stringify({ 'msg': 'connect success' }))
-    }
-
-    // // 合约交易
-    // let contract_trade_path = '/contract.trade/?uid='
-    // if (conn.path.indexOf(contract_trade_path) != -1) {
-    //     const userId = Number(conn.path.replace(contract_trade_path, ''))
-    //     const start = 0
-    //     const size = 99
-    //     conn.uid = userId
-    //     // // 推送给客户 历史记录
-    //     // const res = await service_currency_contract_trade_log.listByUserId(userId, start, size)
-    //     // conn.sendUTF(JSON.stringify(res.list))
+    // if (conn.path === '/kline.update.success') {
+    //     conn.sendUTF(JSON.stringify({ 'msg': 'connect success' }))
     // }
+
+    // 合约交易
+    let contract_trade_path = '/contract.trade/?uid='
+    if (conn.path.indexOf(contract_trade_path) != -1) {
+        const userId = Number(conn.path.replace(contract_trade_path, ''))
+        const start = 0
+        const size = 99
+        conn.uid = userId
+        // // 推送给客户 历史记录
+        // const res = await service_currency_contract_trade_log.listByUserId(userId, start, size)
+        // conn.sendUTF(JSON.stringify(res.list))
+    }
 
     // 实时市场行情
     if (conn.path === '/market.tickers' && huobiData['huobi-market-tickers']) {
