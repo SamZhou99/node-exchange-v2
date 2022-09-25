@@ -598,6 +598,8 @@ let _t = {
                     .prop('handling_fee', S.number().required()) //手续费
                     .prop('margin', S.number().required()) //保证金
                     .prop('price', S.number()) //价格
+                    .prop('stop_profit_price', S.number()) //止盈价格
+                    .prop('stop_loss_price', S.number()) //止损价格
             }
         },
         async post(request, reply) {
@@ -611,6 +613,8 @@ let _t = {
             const handling_fee = body.handling_fee
             const margin = body.margin
             const price = body.price
+            const stop_profit_price = body.stop_profit_price || 0
+            const stop_loss_price = body.stop_loss_price || 0
             const status = 2 // 1委托状态，2直接成交状态
 
             if (action == 'buy' || action == 'sell') {
@@ -622,7 +626,7 @@ let _t = {
                 const walletUpdateRes = await service_member_wallet.updateContractAmount(user_id, "usdt", balance)
                 // 增加一条合约交易记录
                 const act = (action == "buy") ? 'long' : 'short'
-                const tradeRes = await service_currency_contract_trade_log.addLog(user_id, multiple, status, handling_fee, price, lots, margin, act, symbol, balance)
+                const tradeRes = await service_currency_contract_trade_log.addLog(user_id, multiple, status, handling_fee, price, lots, margin, act, symbol, balance, stop_profit_price, stop_loss_price)
 
                 return {
                     flag: 'ok', data: {

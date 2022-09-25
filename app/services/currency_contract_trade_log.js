@@ -39,10 +39,10 @@ let _t = {
     },
 
     // 添加记录
-    async addLog(user_id, lever, status, charges, price, lots, sum, action, symbol, balance) {
+    async addLog(user_id, lever, status, charges, price, lots, sum, action, symbol, balance, buy_stop, sell_stop) {
         const create_datetime = utils99.Time(config.web.timezone)
         const update_datetime = utils99.Time(config.web.timezone)
-        const res = await db.Query("INSERT INTO currency_contract_trade_log (`user_id`,`lever`,`status`,`charges`,`price`,`lots`,`sum`,`action`,`symbol`,`balance`,`create_datetime`,`update_datetime`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", [user_id, lever, status, charges, price, lots, sum, action, symbol, balance, create_datetime, update_datetime])
+        const res = await db.Query("INSERT INTO currency_contract_trade_log (`user_id`,`lever`,`status`,`charges`,`price`,`lots`,`sum`,`action`,`symbol`,`balance`,`buy_stop`,`sell_stop`,`create_datetime`,`update_datetime`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [user_id, lever, status, charges, price, lots, sum, action, symbol, balance, buy_stop, sell_stop, create_datetime, update_datetime])
         return res
     },
 
