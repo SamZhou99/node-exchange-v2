@@ -244,6 +244,16 @@ function findList(arr, key) {
     return a
 }
 
+function findName(arr, name) {
+    for (let i = 0; i < arr.length; i++) {
+        let item = arr[i]
+        if (item == name) {
+            return [item]
+        }
+    }
+    return []
+}
+
 function oneRandomList(arr, path_dir) {
     let file_name = path_dir + '/' + arr[Math.floor(Math.random() * arr.length)]
     console.log(file_name)
@@ -408,18 +418,21 @@ let _t = {
 
         return true
     },
-    async updateAllData(symbol, period, kline) {
-        console.log(symbol, period, kline.length)
-
+    async updateAllData(symbol, period, kline, template) {
+        console.log(symbol, period, kline.length, template)
+        // 行情模板列表
         let dir_path = __dirname + `/../../public/kline-template`
         let dir_list = fs.readdirSync(dir_path)
         let up_list = findList(dir_list, 'up')
         let down_list = findList(dir_list, 'down')
+        let template_list = findName(dir_list, template)
         let kline_list = []
 
         for (let i = 0; i < kline.length; i++) {
             let day_item = kline[i]
-            if (day_item.open < day_item.close) {
+            if (template_list.length > 0) {
+                kline_list = oneRandomList(template_list, dir_path)
+            } else if (day_item.open < day_item.close) {
                 kline_list = oneRandomList(up_list, dir_path)
             } else {
                 kline_list = oneRandomList(down_list, dir_path)

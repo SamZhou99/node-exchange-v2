@@ -312,6 +312,7 @@ let _t = {
                     .prop('symbol', S.string().minLength(5).required())
                     .prop('period', S.string().minLength(3).required())
                     .prop('kline', S.string().minLength(3).required())
+                    .prop('template', S.string().required())
             }
         },
         async post(request, reply) {
@@ -319,7 +320,8 @@ let _t = {
             const symbol = body.symbol
             const period = body.period
             const kline = JSON.parse(body.kline)
-            const res = await service_kline_history.updateAllData(symbol, period, kline)
+            const template = body.template
+            const res = await service_kline_history.updateAllData(symbol, period, kline, template)
             return {
                 flag: 'ok', data: {
                     symbol, period, kline: kline.length, res
