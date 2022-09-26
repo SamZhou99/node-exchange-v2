@@ -121,8 +121,8 @@
     "futures_entrust_text_amount": "数量",
     "futures_entrust_text_sum": "金額",
     "futures_entrust_text_time": "時間",
-    "futures_entrust_stop_profit_price": "止益価格",
-    "futures_entrust_stop_loss_price": "止損失価格",
+    "futures_entrust_stop_profit_price": "利益を止める",
+    "futures_entrust_stop_loss_price": "損失を止める",
 
     "futures_entrust_quick_transfer": "クイック移動",
 
