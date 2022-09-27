@@ -9,6 +9,8 @@ const service_wallet = require('../services/wallet.js');
 const service_wallet_log = require('../services/wallet_log.js');
 const service_transfer_log = require('../services/transfer_log.js')
 const service_currency_platform_trade_log = require('../services/currency_platform_trade_log.js')
+const service_currency_contract_trade_log = require('../services/currency_contract_trade_log.js')
+const service_currency_contract_sec = require('../services/currency_contract_sec.js')
 const service_blockchain = require('../services/blockchain/main.js');
 const service_system_wallet_address = require('../services/system_wallet_address.js')
 
@@ -173,6 +175,41 @@ let _t = {
             const total = resObject.total
             reply.send({ flag: 'ok', data: { list, page: { total, page, size } } })
             return
+        }
+    },
+
+    trade_log: {
+        get_opts: {
+            schema: {
+                querystring: S.object()
+                    .prop('user_id', S.integer().required())
+                    .prop('page', S.integer())
+                    .prop('size', S.integer())
+            }
+        },
+        async get(request, reply) {
+            const query = request.query
+            const page = query.page || 1
+            const size = query.size || 10
+            const start = (page - 1) * size
+            const user_id = query.user_id
+            // 充值记录
+            let wallet = await service_wallet_log.listByUserId(user_id, 0, 10)
+            // 平台币购买记录
+            let platform = await service_currency_platform_trade_log.listByUserId(user_id, 0, 10)
+            // 合约交易记录
+            let contract = await service_currency_contract_trade_log.listByCloseUserId(user_id, 4, 0, 10)
+            // 秒合约交易记录
+            let sec = await service_currency_contract_sec.listByUserId(user_id, 0, 10, 0)
+            return {
+                flag: 'ok',
+                data: {
+                    wallet_list: wallet.list,
+                    platform_list: platform.list,
+                    contract_list: contract.list,
+                    sec_list: sec.list
+                },
+            }
         }
     },
 

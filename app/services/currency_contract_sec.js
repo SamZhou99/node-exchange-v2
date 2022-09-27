@@ -16,10 +16,10 @@ let _t = {
         return { total, list }
     },
     // 用户 列表
-    async listByUserId(user_id, start, length) {
-        let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_sec WHERE status=1 AND user_id=?", [user_id])
+    async listByUserId(user_id, start, length, status = 1) {
+        let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_sec WHERE status=? AND user_id=?", [status, user_id])
         total = total[0]['total']
-        let list = await db.Query("SELECT * FROM currency_contract_sec WHERE status=1 AND user_id=? ORDER BY id DESC LIMIT ?,?", [user_id, start, length])
+        let list = await db.Query("SELECT * FROM currency_contract_sec WHERE status=? AND user_id=? ORDER BY id DESC LIMIT ?,?", [status, user_id, start, length])
         return { total, list }
     },
     async listByStatus(status) {

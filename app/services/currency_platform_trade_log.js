@@ -19,6 +19,14 @@ let _t = {
         return { total, list }
     },
 
+    // 查询-交易记录 通过userId
+    async listByUserId(user_id, start, length) {
+        let total = await db.Query("SELECT COUNT(0) AS total FROM currency_platform_trade_log WHERE user_id=?", [user_id])
+        total = total[0]['total']
+        const list = await db.Query("SELECT * FROM currency_platform_trade_log WHERE user_id=? ORDER BY id DESC LIMIT ?,?", [user_id, start, length])
+        return { total, list }
+    },
+
     // 添加-记录
     async addLog(user_id, operator_id, coin_amount, coin_type, platform_coin_amount, platform_coin_type, notes, action) {
         const create_datetime = utils99.Time(config.web.timezone)

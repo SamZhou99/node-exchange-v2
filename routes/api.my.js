@@ -10,6 +10,8 @@ async function routes(fastify, options) {
 
     // 登录日誌
     fastify.get('/login-log', controlless.login_log.get_opts, controlless.login_log.get)
+    // 交易日誌
+    fastify.get('/trade-log', controlless.trade_log.get_opts, controlless.trade_log.get)
     // 上传照片
     fastify.post('/upload-photo', controlless.upload_photo.post_opts, controlless.upload_photo.post)
     // 身份信息
