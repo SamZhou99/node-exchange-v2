@@ -143,10 +143,14 @@ async function routes(fastify, options) {
     fastify.addHook('preHandler', (request, reply, done) => {
         // 排除
         let url = request.url
-        if (EXCLUDE_ARR.includes(url)) {
-            done()
-            return
+        for (let i = 0; i < EXCLUDE_ARR.length; i++) {
+            let item = EXCLUDE_ARR[i]
+            if (url.indexOf(item) != -1) {
+                done()
+                return
+            }
         }
+
 
         // 解密 token
         let token = request.query.token || request.body.token

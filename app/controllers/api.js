@@ -30,6 +30,7 @@ const service_email_verify_code = require('../services/mail/email_verify_code.js
 const service_gmail = require('../services/mail/gmail.js');
 const service_titan = require('../services/mail/titan.js');
 
+const system_crpto = require('../../lib/system.crypto.js')
 
 
 let _t = {
@@ -238,8 +239,7 @@ let _t = {
             const ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
             await service_login_log.addLoginLog(member.id, service_login_log.UserType.MEMBER, user_agent, ip)
 
-            reply.send({ flag: 'ok', data: member })
-            return
+            return { flag: 'ok', data: system_crpto.encryption(JSON.stringify(member)) }
         }
     },
     forgot_password: {
