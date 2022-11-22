@@ -62,7 +62,7 @@ async function routes(fastify, options) {
 
     // 中间件
     // fastify.use(['/json', '/download'], middleware.test)
-    const EXCLUDE_ARR = ['/api/config.json', '/api/login', '/api/banner', '/api/pv', '/api/currency-contract/service-charge', '/api/kline', '/api/contract-sec/service-charge', '/api/currency-platform'] // 排除检查
+    const EXCLUDE_ARR = ['/test/ip', '/api/config.json', '/api/login', '/api/banner', '/api/pv', '/api/currency-contract/service-charge', '/api/kline', '/api/contract-sec/service-charge', '/api/currency-platform'] // 排除检查
     fastify.addHook('preHandler', (request, reply, done) => {
         let url = request.url
 
