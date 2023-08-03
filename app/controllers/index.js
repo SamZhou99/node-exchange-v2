@@ -2,6 +2,8 @@ const config = require('../../config/all.js')
 // const service = require('../services/index.js')
 const api = require('./api.js')
 
+const service_kline_history = require('../services/kline_history.js')
+
 function templatePath() {
     return config.web.template_path
 }
@@ -25,6 +27,28 @@ function view(request, reply, file, data) {
 }
 
 let main = {
+    charts: {
+        async page(request, reply) {
+            let symbol_usdt = request.params.SymbolUSDT
+            let kline = []
+            // for (let i = 0; i < 24; i++) {
+            //     kline.push(10 + Math.floor(Math.random() * 90))
+            // }
+
+            let res = await service_kline_history.listBySymbol(symbol_usdt, '60min', 24)
+            // console.log('结果结果结果结果结果结果结果结果结果结果', res)
+            let len = res.length;
+            for (let i = 0; i < len; i++) {
+                kline.push(res[i].close)
+            }
+            return reply.view('default/charts/thumb.html', {
+                data: {
+                    symbol_usdt,
+                    kline
+                }
+            })
+        }
+    },
 
     index: {
         async page(request, reply) {

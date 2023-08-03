@@ -10,6 +10,11 @@ async function routes(fastify, options) {
     // fastify.post('/upload', controlless.main.upload.post)
     // fastify.get('/download', controlless.main.download.page)
     // fastify.get('/test-ip', controlless.main.test_ip.page)
+
+
+    fastify.get('/charts-line/:SymbolUSDT', controlless.main.charts.page)
 }
+
+
 
 module.exports = routes

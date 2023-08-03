@@ -40,7 +40,7 @@ let _t = {
         }
         jsonData = JSON.stringify(arrayData)
         await service_caches.set(key, jsonData)
-        // console.log(key, jsonData.length)
+        console.log('写入缓存数据库', key, jsonData.length)
         if (_t.callback) {
             _t.callback({ key, value: arrayData })
         }
