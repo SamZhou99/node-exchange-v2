@@ -5,25 +5,25 @@ const server = require('./lib/server.setup.js')
 const fastify = server.SerType('http')
 
 // 静态文件目录
-fastify.register(require('fastify-static'), server.Static())
+fastify.register(require('@fastify/static'), server.Static())
 
 // 模板引擎
 fastify.register(require('point-of-view'), server.Template())
 
 // cookie
-fastify.register(require('fastify-cookie'), { secret: "8hF0qH8vLLHzVgmATE9oVpfkiZI2X5no" })
+fastify.register(require('@fastify/cookie'), { secret: "8hF0qH8vLLHzVgmATE9oVpfkiZI2X5no" })
 
 // session
 fastify.register(require('@fastify/session'), { secret: 'Z1rdwh8BsFDqXzK3OHFjUO4kKsrnci6j', cookie: { secure: false, } })
 
 // form body
-fastify.register(require('fastify-formbody'))
+fastify.register(require('@fastify/formbody'))
 
 // upload
 fastify.register(require('fastify-file-upload'), { limits: { fileSize: 50 * 1024 * 1024 } })
 
 // cors
-fastify.register(require('fastify-cors'), server.Cors)
+fastify.register(require('@fastify/cors'), server.Cors)
 
 
 
@@ -55,14 +55,13 @@ fastify.register(require('./routes/index.js'))
 
 
 // 启动服务
-const start = async () => {
-    try {
-        await fastify.listen(config.web.port)
-    } catch (err) {
+fastify.listen({ port: config.web.port, host: '192.168.31.219' }, (err, address) => {
+    if (err) {
         fastify.log.error(err)
         process.exit(1)
     }
-}
-start()
+    console.log(`http://localhost:${config.web.port}`)
+    console.log(address)
+})
 
-console.log(`http://localhost:${config.web.port}`)
+console.log(`http://192.168.31.219:${config.web.port}`)
