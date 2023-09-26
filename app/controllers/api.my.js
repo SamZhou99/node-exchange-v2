@@ -127,22 +127,29 @@ let _t = {
             const coinRes = await service_wallet.listByType(user_id, coin_type)
 
             // 1 获取btc,eth,usdt钱包地址 // 2 请求链上钱包交易数据 // 3 添加交易记录金额 和 更新钱包金额
-            let btcAddLogUpdateBanlanceRes, ethAddLogUpdateBanlanceRes, usdtAddLogUpdateBanlanceRes
+            let btcAddLogUpdateBanlanceRes
             const btcWallet = getWalletByType(coinRes, config.common.coin.type.BTC)
             if (btcWallet.address != '') {
                 const btcTradeArr = await service_blockchain.btc(btcWallet.address)
                 btcAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.BTC, btcTradeArr)
             }
+            console.log(user_id, "btcAddLogUpdateBanlanceRes", btcAddLogUpdateBanlanceRes)
+
+            let ethAddLogUpdateBanlanceRes
             const ethWallet = getWalletByType(coinRes, config.common.coin.type.ETH)
             if (ethWallet.address != '') {
                 const ethTradeArr = await service_blockchain.eth(ethWallet.address)
                 ethAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.ETH, ethTradeArr)
             }
+            console.log(user_id, "ethAddLogUpdateBanlanceRes", ethAddLogUpdateBanlanceRes)
+
+            let usdtAddLogUpdateBanlanceRes
             const usdtWallet = getWalletByType(coinRes, config.common.coin.type.USDT)
             if (usdtWallet.address != '') {
                 const usdtTradeArr = await service_blockchain.usdt(usdtWallet.address)
                 usdtAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.USDT, usdtTradeArr)
             }
+            console.log(user_id, "usdtAddLogUpdateBanlanceRes", usdtAddLogUpdateBanlanceRes)
 
             return {
                 flag: 'ok', data: {
