@@ -38,15 +38,68 @@ const chain_so_api = {
             return []
         }
         let resArr = []
-        const a = data.data.txs
-        for (let i = 0; i < a.length; i++) {
-            const item = a[i]
-            resArr.push({
-                address: address,
-                hash: item.txid,
-                ts: item.time,
-                value: Number(item.value),
-            })
+        if (data.data && data.data.txs) {
+            const a = data.data.txs
+            for (let i = 0; i < a.length; i++) {
+                const item = a[i]
+                resArr.push({
+                    address: address,
+                    hash: item.txid,
+                    ts: item.time,
+                    value: Number(item.value),
+                })
+            }
+        }
+        return resArr
+    },
+}
+
+
+
+// 更新时间：2023/09/26 防火墙Cloudflare
+// blockchain.info
+const blockchain_api = {
+    async get(address) {
+        const URL = `https://blockchain.info/rawaddr/${address}`
+        console.log(URL)
+        let httpRes = await utils99.request.axios
+            .get({ url: URL, headers: utils99.request.HEADERS.pc })
+            .catch(err => { console.log('请求异常', URL, err) })
+
+        if (!httpRes) {
+            console.error(httpRes)
+            return null
+        }
+
+        if (httpRes.statusText != 'OK') {
+            console.error(httpRes)
+            return null
+        }
+        return blockchain_api.formatData(httpRes.data, address)
+    },
+
+    formatData(data, address) {
+        if (data.address != address) {
+            return null
+        }
+
+        let resArr = []
+        if (data.txs) {
+            const a = data.txs
+            for (let i = 0; i < a.length; i++) {
+                const listItem = a[i]
+                for (let j = 0; j < listItem.out.length; j++) {
+                    const outItem = listItem.out[j]
+                    if (outItem.addr == address) {
+                        resArr.push({
+                            address: outItem.addr,
+                            hash: outItem.script,
+                            ts: listItem.time,
+                            value: roundValue(outItem.value / 100000000), // BTC单位
+                        })
+                    }
+                }
+            }
         }
         return resArr
     },
@@ -87,74 +140,27 @@ const btc_com_api = {
         }
 
         let resArr = []
-        const a = data.data.list
-        for (let i = 0; i < a.length; i++) {
-            const listItem = a[i]
-            for (let j = 0; j < listItem.outputs.length; j++) {
-                const outItem = listItem.outputs[j]
-                let value = outItem.value
-                let hash = outItem.spent_by_tx
-                let currAddress
-                for (let k = 0; k < outItem.addresses.length; k++) {
-                    const addressItem = outItem.addresses[k]
-                    if (addressItem == address) {
-                        currAddress = addressItem
-                        resArr.push({
-                            address: currAddress,
-                            hash: hash,
-                            ts: listItem.block_time,
-                            value: roundValue(value / 100000000), // BTC单位
-                        })
+        if (data.data && data.data.list) {
+            const a = data.data.list
+            for (let i = 0; i < a.length; i++) {
+                const listItem = a[i]
+                for (let j = 0; j < listItem.outputs.length; j++) {
+                    const outItem = listItem.outputs[j]
+                    let value = outItem.value
+                    let hash = outItem.spent_by_tx
+                    let currAddress
+                    for (let k = 0; k < outItem.addresses.length; k++) {
+                        const addressItem = outItem.addresses[k]
+                        if (addressItem == address) {
+                            currAddress = addressItem
+                            resArr.push({
+                                address: currAddress,
+                                hash: hash,
+                                ts: listItem.block_time,
+                                value: roundValue(value / 100000000), // BTC单位
+                            })
+                        }
                     }
-                }
-            }
-        }
-        return resArr
-    },
-}
-
-
-
-// 更新时间：2023/09/26 暂时稳定的接口
-// blockchain.info
-const blockchain_api = {
-    async get(address) {
-        const URL = `https://blockchain.info/rawaddr/${address}`
-        console.log(URL)
-        let httpRes = await utils99.request.axios
-            .get({ url: URL, headers: utils99.request.HEADERS.pc })
-            .catch(err => { console.log('请求异常', URL, err) })
-
-        if (!httpRes) {
-            console.error(httpRes)
-            return null
-        }
-
-        if (httpRes.statusText != 'OK') {
-            console.error(httpRes)
-            return null
-        }
-        return blockchain_api.formatData(httpRes.data, address)
-    },
-
-    formatData(data, address) {
-        if (data.address != address) {
-            return null
-        }
-
-        let resArr = []
-        const a = data.txs
-        for (let i = 0; i < a.length; i++) {
-            const listItem = a[i]
-            for (let j = 0; j < listItem.out.length; j++) {
-                const outItem = listItem.out[j]
-                if (outItem.addr == address) {
-                    resArr.push({
-                        address: outItem.addr,
-                        hash: outItem.script,
-                        ts: listItem.time,
-                        value: roundValue(outItem.value / 100000000), // BTC单位
-                    })
                 }
             }
         }
@@ -197,16 +203,18 @@ const blockcypher_com_api = {
         }
 
         let resArr = []
-        const a = data.txrefs
-        for (let i = 0; i < a.length; i++) {
-            const listItem = a[i]
-            if (!listItem.spent) {
-                resArr.push({
-                    address: address,
-                    hash: listItem.tx_hash,
-                    ts: new Date(listItem.confirmed).getTime() / 1000,
-                    value: roundValue(listItem.value / 100000000), // BTC单位
-                })
+        if (data.txrefs) {
+            const a = data.txrefs
+            for (let i = 0; i < a.length; i++) {
+                const listItem = a[i]
+                if (!listItem.spent) {
+                    resArr.push({
+                        address: address,
+                        hash: listItem.tx_hash,
+                        ts: new Date(listItem.confirmed).getTime() / 1000,
+                        value: roundValue(listItem.value / 100000000), // BTC单位
+                    })
+                }
             }
         }
         return resArr
@@ -215,4 +223,16 @@ const blockcypher_com_api = {
 
 
 
-module.exports = { get: blockchain_api.get, roundValue }
+module.exports = {
+    get: async (address) => {
+        let api = [btc_com_api, blockcypher_com_api]
+        for (let i = 0; i < api.length; i++) {
+            let rsp = await api[i].get(address)
+            if (rsp != null) {
+                return rsp
+            }
+        }
+        return null
+    },
+    roundValue
+}
