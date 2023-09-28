@@ -17,6 +17,52 @@ const service_system_wallet_address = require('../services/system_wallet_address
 const service_gmail = require('../services/mail/gmail.js');
 const service_titan = require('../services/mail/titan.js');
 
+const system_crpto = require('../../lib/system.crypto.js')
+
+// 验证请求
+const RequestAuth = {
+    Check(request, reply) {
+        const token = request.headers.token
+        if (!token) {
+            console.log('token--------------------------------------------------------------', token)
+            return false
+        }
+        const aseDec = system_crpto.decryption(token)
+        const json = JSON.parse(aseDec)
+        // 检查时间
+        const ts = Math.floor(new Date().getTime() / 1000)
+        if (json.login_ts + (60 * 60 * 24) < ts) {
+            console.log('ts--------------------------------------------------------------', json.login_ts, ts, json.login_ts + (60 * 60 * 24) < ts)
+            return false
+        }
+        // 检查IP
+        const ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
+        if (json.login_ip != ip) {
+            console.log('ip--------------------------------------------------------------', json.login_ip, ip)
+            return false
+        }
+        // 检查设备
+        const user_agent = request.headers['user-agent']
+        if (json.login_ua != user_agent) {
+            console.log('user_agent--------------------------------------------------------------', json.login_ua, user_agent)
+            return false
+        }
+        // 检查ID
+        const user_id = request.query.user_id || request.body.user_id
+        if (json.id != user_id) {
+            console.log('user_id--------------------------------------------------------------', json.id, user_id)
+            return false
+        }
+        return true
+    },
+    ResultJson() {
+        return {
+            code: 110,
+            flag: 'Request exception'
+        }
+    }
+}
+
 // 获取一类钱包数据
 function getWalletByType(arr, type) {
     for (let i = 0; i < arr.length; i++) {
@@ -68,11 +114,13 @@ let _t = {
     assets: {
         get_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
             }
         },
         async get(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const user_id = query.user_id
             const walletList = await service_wallet.list(user_id)
@@ -90,6 +138,7 @@ let _t = {
 
         getList_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().minLength(99).required()),
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('page', S.integer())
@@ -97,6 +146,7 @@ let _t = {
             }
         },
         async getList(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const page = query.page || 1
             const size = query.size || 10
@@ -115,11 +165,13 @@ let _t = {
 
         getWalletAmount_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
             }
         },
         async getWalletAmount(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const user_id = query.user_id
             const coin_type = 0
@@ -131,6 +183,7 @@ let _t = {
             const btcWallet = getWalletByType(coinRes, config.common.coin.type.BTC)
             if (btcWallet.address != '') {
                 const btcTradeArr = await service_blockchain.btc(btcWallet.address)
+                if (!btcTradeArr) return console.log("?????????? btcTradeArr 异常")
                 btcAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.BTC, btcTradeArr)
             }
             console.log(user_id, "btcAddLogUpdateBanlanceRes", btcAddLogUpdateBanlanceRes)
@@ -139,6 +192,7 @@ let _t = {
             const ethWallet = getWalletByType(coinRes, config.common.coin.type.ETH)
             if (ethWallet.address != '') {
                 const ethTradeArr = await service_blockchain.eth(ethWallet.address)
+                if (!ethTradeArr) return console.log("?????????? ethTradeArr 异常")
                 ethAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.ETH, ethTradeArr)
             }
             console.log(user_id, "ethAddLogUpdateBanlanceRes", ethAddLogUpdateBanlanceRes)
@@ -147,6 +201,7 @@ let _t = {
             const usdtWallet = getWalletByType(coinRes, config.common.coin.type.USDT)
             if (usdtWallet.address != '') {
                 const usdtTradeArr = await service_blockchain.usdt(usdtWallet.address)
+                if (!usdtTradeArr) return console.log("?????????? usdtTradeArr 异常")
                 usdtAddLogUpdateBanlanceRes = await addWalletLogAndUpdateBalance(user_id, config.common.coin.type.USDT, usdtTradeArr)
             }
             console.log(user_id, "usdtAddLogUpdateBanlanceRes", usdtAddLogUpdateBanlanceRes)
@@ -165,6 +220,7 @@ let _t = {
     login_log: {
         get_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('page', S.integer())
@@ -172,6 +228,7 @@ let _t = {
             }
         },
         async get(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const page = query.page || 1
             const size = query.size || 10
@@ -188,6 +245,7 @@ let _t = {
     trade_log: {
         get_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('page', S.integer())
@@ -195,6 +253,7 @@ let _t = {
             }
         },
         async get(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const page = query.page || 1
             const size = query.size || 10
@@ -223,11 +282,13 @@ let _t = {
     upload_photo: {
         post_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
             }
         },
         async post(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const user_id = query.user_id
             const files = request.raw.files
@@ -259,6 +320,7 @@ let _t = {
     authentication: {
         post_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 body: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('country', S.string().required())
@@ -267,6 +329,7 @@ let _t = {
             }
         },
         async post(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const body = request.body
             const user_id = body.user_id
             const country = body.country
@@ -281,11 +344,12 @@ let _t = {
         },
         get_opts: {
             schema: {
-                querystring: S.object()
-                    .prop('user_id', S.integer().required())
+                headers: S.object().prop('token', S.string().required()),
+                querystring: S.object().prop('user_id', S.integer().required())
             }
         },
         async get(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const user_id = query.user_id
             const auth_res = await service_auth.oneById(user_id)
@@ -302,6 +366,7 @@ let _t = {
     withdraw: {
         get_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('page', S.integer())
@@ -309,6 +374,7 @@ let _t = {
             }
         },
         async get(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const user_id = query.user_id
 
@@ -325,6 +391,7 @@ let _t = {
             })
         },
         async list(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const page = query.page || 1
             const size = query.size || 10
@@ -344,6 +411,7 @@ let _t = {
         },
         post_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 body: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('withdrawAmount', S.number().required())
@@ -352,6 +420,7 @@ let _t = {
             }
         },
         async post(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const body = request.body
             const user_id = body.user_id
             const withdrawAmount = body.withdrawAmount
@@ -391,6 +460,7 @@ let _t = {
     transfer: {
         post_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 body: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('coin_type', S.string().required())
@@ -399,6 +469,7 @@ let _t = {
             }
         },
         async post(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const body = request.body
             const user_id = body.user_id
             const coin_type = body.coin_type
@@ -431,6 +502,7 @@ let _t = {
         },
         get_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 querystring: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('page', S.integer())
@@ -438,6 +510,7 @@ let _t = {
             }
         },
         async get(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const query = request.query
             const page = query.page || 1
             const size = query.size || 10
@@ -454,6 +527,7 @@ let _t = {
     exchang_usdt: {
         put_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 body: S.object()
                     .prop('user_id', S.integer().required())
                     .prop('act', S.string().required())
@@ -464,6 +538,7 @@ let _t = {
             }
         },
         async put(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const body = request.body
             const user_id = body.user_id
             const act = body.act
@@ -488,11 +563,13 @@ let _t = {
     wallet: {
         bind_opts: {
             schema: {
+                headers: S.object().prop('token', S.string().required()),
                 body: S.object()
                     .prop('user_id', S.integer().required())
             }
         },
         async bind_put(request, reply) {
+            if (!RequestAuth.Check(request, reply)) return RequestAuth.ResultJson()
             const body = request.body
             const user_id = body.user_id
             // 检查 是否有绑定的钱包 地址

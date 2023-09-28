@@ -239,6 +239,9 @@ let _t = {
             const ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
             await service_login_log.addLoginLog(member.id, service_login_log.UserType.MEMBER, user_agent, ip)
 
+            member.login_ts = Math.floor(new Date().getTime() / 1000)
+            member.login_ip = ip
+            member.login_ua = user_agent
             return { flag: 'ok', data: system_crpto.encryption(JSON.stringify(member)) }
         }
     },
