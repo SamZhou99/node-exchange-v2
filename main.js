@@ -1,5 +1,6 @@
 const config = require('./config/all.js')
 const server = require('./lib/server.setup.js')
+const RequestAuth = require('./lib/request.auth.js')
 
 // fastify
 const fastify = server.SerType('http')
@@ -41,6 +42,19 @@ fastify.addHook('onRequest', (request, reply, next) => {
     next()
 })
 fastify.addHook('preHandler', (request, reply, next) => {
+    // 常规方法
+    // reply.code(400)
+    // next(new Error('Some error'))
+    // console.log(request.url, request.originalUrl)
+
+    // /api/my 请求安全过滤
+    if (request.url.length > 8 && ['/api/my/'].includes(request.url.substr(0, 8))) {
+        const rc = RequestAuth.Check(request, reply)
+        if (rc > 0) {
+            next(new Error(RequestAuth.ResultStr(rc)))
+            return
+        }
+    }
     next()
 })
 fastify.addHook('onResponse', (request, reply, next) => {
