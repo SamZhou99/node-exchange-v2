@@ -37,7 +37,7 @@
     "nodemailer": "^6.9.5",
     "pako": "^2.1.0",
     "point-of-view": "^6.3.0",
-    "websocket": "^1.0.34",
-    "text-to-image": "^5.2.0"
+    "text-to-image": "^5.2.0",
+    "websocket": "^1.0.34"
   }
 }

@@ -6,6 +6,7 @@ let _t = {
     name: 'HuoBi API',
     callback: null,
     getMarketCoinExists(arr, symbol) {
+        if (!arr) return null
         const a = arr
         for (let i = 0; i < a.length; i++) {
             if (a[i].symbol == symbol) {
@@ -32,8 +33,8 @@ let _t = {
         let jsonData = null
         const a = config.common.coin.need
         for (let i = 0; i < a.length; i++) {
-            let item
-            if (item = _t.getMarketCoinExists(res.data.data, a[i] + 'usdt')) {
+            let item = _t.getMarketCoinExists(res.data.data, a[i] + 'usdt')
+            if (item) {
                 item.name = a[i]
                 arrayData.push(item)
             }

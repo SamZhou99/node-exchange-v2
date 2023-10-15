@@ -2,6 +2,7 @@ const controlless = require('../app/controllers/index.js')
 const controlless_admin = require('../app/controllers/api.admin.js')
 const middleware = require('../app/middleware/index.js')
 const system_crpto = require('../lib/system.crypto.js')
+const ErrMsg = require('../lib/error.msg.js')
 
 async function routes(fastify, options) {
     // @todo remove
@@ -62,7 +63,7 @@ async function routes(fastify, options) {
 
     // 中间件
     // fastify.use(['/json', '/download'], middleware.test)
-    const EXCLUDE_ARR = ['/test/ip', '/api/config.json', '/api/login', '/api/banner', '/api/pv', '/api/currency-contract/service-charge', '/api/kline', '/api/contract-sec/service-charge', '/api/currency-platform'] // 排除检查
+    const EXCLUDE_ARR = ['/test/ip', '/api/config.json', '/api/login', '/api/banner', '/api/pv', '/api/currency-contract/service-charge', '/api/kline', '/api/contract-sec/service-charge', '/api/currency-platform', '/api/forgot-password', '/api/currency-contract/history'] // 排除检查
     fastify.addHook('preHandler', (request, reply, done) => {
         let url = request.url
 
@@ -80,7 +81,7 @@ async function routes(fastify, options) {
 
         if (token == undefined) {
             reply.code(400)
-            done(new Error('OMG 1'))
+            done(new Error(ErrMsg.TOKEN_NOT_FOUND.code))
             return
         }
 
@@ -90,7 +91,7 @@ async function routes(fastify, options) {
             result = system_crpto.decryption(token)
         } catch (err) {
             reply.code(400)
-            done(new Error('OMG 2'))
+            done(new Error(ErrMsg.TOKEN_DECRYPTION_ERROR.code))
             return
         }
 
@@ -102,7 +103,7 @@ async function routes(fastify, options) {
         if (result.status == 0) {
             // 状态不对
             reply.code(400)
-            done(new Error('OMG 3'))
+            done(new Error(ErrMsg.TOKEN_STATUS_ERROR.code))
             return
         }
         if (result.ip) {
@@ -112,10 +113,10 @@ async function routes(fastify, options) {
             // return
         }
         if (new Date().getTime() - result.ts > 86400000) {
-            // 是否有超时
+            // token是否有超时
             // console.log("\n是否有超时", result.ts, new Date().getTime(), new Date().getTime() - result.ts > 86400000)
             reply.code(400)
-            done(new Error('AUTH'))
+            done(new Error(ErrMsg.TOKEN_AUTH_TIMEOUT.code))
             return
         }
         done()

@@ -2,9 +2,10 @@ const controlless = require('../app/controllers/api.admin.js')
 const controlless_article = require('../app/controllers/admin/article.js')
 const controlless_article_category = require('../app/controllers/admin/article.category.js')
 
-
 const middleware = require('../app/middleware/index.js')
 const system_crpto = require('../lib/system.crypto.js')
+
+const ErrMsg = require('../lib/error.msg.js')
 
 async function routes(fastify, options) {
     // 获取验证码
@@ -157,7 +158,7 @@ async function routes(fastify, options) {
 
         if (token == undefined) {
             reply.code(400)
-            done(new Error('OMG'))
+            done(new Error(ErrMsg.TOKEN_NOT_FOUND.code))
             return
         }
 
@@ -167,7 +168,7 @@ async function routes(fastify, options) {
             result = system_crpto.decryption(token)
         } catch (err) {
             reply.code(400)
-            done(new Error('OMG'))
+            done(new Error(ErrMsg.TOKEN_DECRYPTION_ERROR.code))
             return
         }
 
@@ -179,7 +180,7 @@ async function routes(fastify, options) {
         if (result.status == 0) {
             // 状态不对
             reply.code(400)
-            done(new Error('OMG'))
+            done(new Error(ErrMsg.TOKEN_STATUS_ERROR.code))
             return
         }
         if (result.ip) {
@@ -192,7 +193,7 @@ async function routes(fastify, options) {
             // 是否有超时
             // console.log("\n是否有超时", result.ts, new Date().getTime(), new Date().getTime() - result.ts > 86400000)
             reply.code(400)
-            done(new Error('AUTH'))
+            done(new Error(ErrMsg.TOKEN_AUTH_TIMEOUT.code))
             return
         }
         done()
