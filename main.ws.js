@@ -68,7 +68,7 @@ huobiMarketTickers.callback = async function (data) {
         }
         huobiData['huobi-market-tickers'] = JSON.stringify(objectData)
         market_tickers_index++
-        // console.log("广播行情数据...", market_tickers_index)
+        console.log("广播行情数据...", market_tickers_index)
         // 广播给客户端
         broadcastPathSendText('/market.tickers', huobiData['huobi-market-tickers'])
     }
@@ -273,9 +273,13 @@ huobi.callback = async function (data) {
                 // console.log('>>>--->', data.value.tick.close, new Date().toLocaleTimeString())
                 contractClass.trade()
             }
-            broadcastPathSendText('/market.btcusdt.ticker', JSON.stringify(data.value))
+            // broadcastPathSendText('/market.btcusdt.ticker', JSON.stringify(data.value))
             currBtcLastPrice = data.value.tick.close
         }
+
+        // broadcastPathSendText('/' + data.value.ch, JSON.stringify(data.value))
+        broadcastPathSendText('/market.tickers', JSON.stringify(data.value))
+        console.log("广播：", data.value.ch)
     }
 }
 huobi.init()
