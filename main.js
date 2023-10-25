@@ -74,8 +74,6 @@ fastify.listen({ port: config.web.port, host: config.web.host }, (err, address) 
         fastify.log.error(err)
         process.exit(1)
     }
-    console.log(`http://localhost:${config.web.port}`)
+    console.log(`http://${config.web.host} :${config.web.port}`)
     console.log(address)
 })
-
-console.log(`http://${config.web.host} :${config.web.port}`)
