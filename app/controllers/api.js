@@ -105,7 +105,8 @@ let _t = {
                     .prop('Email', S.string().format(S.FORMATS.EMAIL).required())
                     .prop('Password', S.string().minLength(6).required())
                     .prop('ConfirmPassword', S.string().minLength(6).required())
-                    .prop('IsRead', S.mixed([S.TYPES.BOOLEAN, S.TYPES.NUMBER])),
+                    // .prop('IsRead', S.mixed([S.TYPES.BOOLEAN, S.TYPES.NUMBER]))
+                    .prop('IsRead', S.string().required())
             }
         },
         async post(request, reply) {
