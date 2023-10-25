@@ -9,7 +9,7 @@ const fastify = server.SerType('http')
 fastify.register(require('@fastify/static'), server.Static())
 
 // 模板引擎
-fastify.register(require('point-of-view'), server.Template())
+fastify.register(require('@fastify/view'), server.Template())
 
 // cookie
 fastify.register(require('@fastify/cookie'), { secret: "8hF0qH8vLLHzVgmATE9oVpfkiZI2X5no" })
