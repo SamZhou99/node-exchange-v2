@@ -69,7 +69,7 @@ fastify.register(require('./routes/index.js'))
 
 
 // 启动服务
-fastify.listen({ port: config.web.port, host: '192.168.31.219' }, (err, address) => {
+fastify.listen({ port: config.web.port, host: config.web.host }, (err, address) => {
     if (err) {
         fastify.log.error(err)
         process.exit(1)
@@ -78,4 +78,4 @@ fastify.listen({ port: config.web.port, host: '192.168.31.219' }, (err, address)
     console.log(address)
 })
 
-console.log(`http://192.168.31.219:${config.web.port}`)
+console.log(`http://${config.web.host} :${config.web.port}`)
