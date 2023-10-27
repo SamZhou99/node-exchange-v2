@@ -63,64 +63,65 @@ async function routes(fastify, options) {
 
     // 中间件
     // fastify.use(['/json', '/download'], middleware.test)
-    const EXCLUDE_ARR = ['/test/ip', '/api/config.json', '/api/login', '/api/banner', '/api/pv', '/api/currency-contract/service-charge', '/api/kline', '/api/contract-sec/service-charge', '/api/currency-platform', '/api/forgot-password', '/api/currency-contract/history'] // 排除检查
-    fastify.addHook('preHandler', (request, reply, done) => {
-        let url = request.url
 
-        // 排除
-        for (let i = 0; i < EXCLUDE_ARR.length; i++) {
-            let item = EXCLUDE_ARR[i]
-            if (url.indexOf(item) != -1) {
-                done()
-                return
-            }
-        }
+    // const EXCLUDE_ARR = ['/test/ip', '/api/config.json', '/api/login', '/api/register', '/api/banner', '/api/pv', '/api/currency-contract/service-charge', '/api/kline', '/api/contract-sec/service-charge', '/api/currency-platform', '/api/forgot-password', '/api/currency-contract/history'] // 排除检查
+    // fastify.addHook('preHandler', (request, reply, done) => {
+    //     let url = request.url
 
-        // 解密 token
-        let token = request.query.token || request.body.token || request.headers.token
+    //     // 排除
+    //     for (let i = 0; i < EXCLUDE_ARR.length; i++) {
+    //         let item = EXCLUDE_ARR[i]
+    //         if (url.indexOf(item) != -1) {
+    //             done()
+    //             return
+    //         }
+    //     }
 
-        if (token == undefined) {
-            reply.code(400)
-            done(new Error(ErrMsg.TOKEN_NOT_FOUND.code))
-            return
-        }
+    //     // 解密 token
+    //     let token = request.query.token || request.body.token || request.headers.token
 
-        // 解密是否错误
-        let result
-        try {
-            result = system_crpto.decryption(token)
-        } catch (err) {
-            reply.code(400)
-            done(new Error(ErrMsg.TOKEN_DECRYPTION_ERROR.code))
-            return
-        }
+    //     if (token == undefined) {
+    //         reply.code(400)
+    //         done(new Error(ErrMsg.TOKEN_NOT_FOUND.code))
+    //         return
+    //     }
 
-        // console.log("其他代码", request.url, result)
-        result = JSON.parse(result)
-        if (result.id == result.account) {
-            // 检查ID和账号
-        }
-        if (result.status == 0) {
-            // 状态不对
-            reply.code(400)
-            done(new Error(ErrMsg.TOKEN_STATUS_ERROR.code))
-            return
-        }
-        if (result.ip) {
-            // // 安全检查
-            // reply.code(400)
-            // done(new Error('OMG'))
-            // return
-        }
-        if (new Date().getTime() - result.ts > 86400000) {
-            // token是否有超时
-            // console.log("\n是否有超时", result.ts, new Date().getTime(), new Date().getTime() - result.ts > 86400000)
-            reply.code(400)
-            done(new Error(ErrMsg.TOKEN_AUTH_TIMEOUT.code))
-            return
-        }
-        done()
-    })
+    //     // 解密是否错误
+    //     let result
+    //     try {
+    //         result = system_crpto.decryption(token)
+    //     } catch (err) {
+    //         reply.code(400)
+    //         done(new Error(ErrMsg.TOKEN_DECRYPTION_ERROR.code))
+    //         return
+    //     }
+
+    //     // console.log("其他代码", request.url, result)
+    //     result = JSON.parse(result)
+    //     if (result.id == result.account) {
+    //         // 检查ID和账号
+    //     }
+    //     if (result.status == 0) {
+    //         // 状态不对
+    //         reply.code(400)
+    //         done(new Error(ErrMsg.TOKEN_STATUS_ERROR.code))
+    //         return
+    //     }
+    //     if (result.ip) {
+    //         // // 安全检查
+    //         // reply.code(400)
+    //         // done(new Error('OMG'))
+    //         // return
+    //     }
+    //     if (new Date().getTime() - result.ts > 86400000) {
+    //         // token是否有超时
+    //         // console.log("\n是否有超时", result.ts, new Date().getTime(), new Date().getTime() - result.ts > 86400000)
+    //         reply.code(400)
+    //         done(new Error(ErrMsg.TOKEN_AUTH_TIMEOUT.code))
+    //         return
+    //     }
+    //     done()
+    // })
 }
 
 module.exports = routes

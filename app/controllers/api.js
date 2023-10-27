@@ -128,11 +128,13 @@ let _t = {
             }
 
             // 检查邮箱验证
-            const emailVerifyRes = await service_email_verify_code.oneByEmailCode(Email, EmailVerify)
-            if (!emailVerifyRes) {
-                return { flag: config.common.message[10015], code: 10015 }
+            if (config.web.reg_email_captcha) {
+                const emailVerifyRes = await service_email_verify_code.oneByEmailCode(Email, EmailVerify)
+                if (!emailVerifyRes) {
+                    return { flag: config.common.message[10015], code: 10015 }
+                }
+                email_verify = 1
             }
-            email_verify = 1
 
             // 检查邀请码 是否正确
             if (body.ReferralCode) {
@@ -231,7 +233,7 @@ let _t = {
                 return { flag: config.common.message[10050], code: 10050 }
             }
 
-            if (member.email_verify == 0) {
+            if (member.email_verify == 0 && config.web.reg_email_captcha) {
                 return { flag: config.common.message[10010], code: 10010 }
             }
 

@@ -1,6 +1,8 @@
 const config = require('./config/all.js')
 const server = require('./lib/server.setup.js')
 const RequestAuth = require('./lib/request.auth.js')
+const ErrMsg = require('./lib/error.msg.js')
+const SystemCrypto = require('./lib/system.crypto.js')
 
 // fastify
 const fastify = server.SerType('http')
@@ -41,20 +43,98 @@ fastify.addHook('onRequest', (request, reply, next) => {
     // console.log(request.params)
     next()
 })
+
+
+const EXCLUDE_ARR = [
+    '/test/ip',
+    '/api/init.db.web',
+    '/api/init.db.admin',
+    '/api/config.json',
+    '/lang/',
+    '/api/login',
+    '/api/register',
+    '/api/banner',
+    '/api/pv',
+    '/api/currency-contract/service-charge',
+    '/api/kline',
+    '/api/contract-sec/service-charge',
+    '/api/currency-platform',
+    '/api/forgot-password',
+    '/api/currency-contract/history',
+    '/api/admin/VerifyCode',
+    '/api/admin/login',
+] // 排除检查
 fastify.addHook('preHandler', (request, reply, next) => {
+    let url = request.url
+
     // 常规方法
     // reply.code(400)
     // next(new Error('Some error'))
     // console.log(request.url, request.originalUrl)
 
     // /api/my 请求安全过滤
-    if (request.url.length > 8 && ['/api/my/'].includes(request.url.substr(0, 8))) {
+    if (url.length > 8 && ['/api/my/'].includes(url.substr(0, 8))) {
         const rc = RequestAuth.Check(request, reply)
         if (rc > 0) {
             next(new Error(RequestAuth.ResultStr(rc)))
             return
         }
     }
+
+
+    // 排除
+    for (let i = 0; i < EXCLUDE_ARR.length; i++) {
+        let item = EXCLUDE_ARR[i]
+        if (url.indexOf(item) != -1) {
+            next()
+            return
+        }
+    }
+
+    // 解密 token
+    let token = request.query.token || request.body.token || request.headers.token
+
+    if (token == undefined) {
+        reply.code(400)
+        next(new Error(ErrMsg.TOKEN_NOT_FOUND.code))
+        return
+    }
+
+    // 解密是否错误
+    let result
+    try {
+        result = SystemCrypto.decryption(token)
+    } catch (err) {
+        reply.code(400)
+        next(new Error(ErrMsg.TOKEN_DECRYPTION_ERROR.code))
+        return
+    }
+
+    // console.log("其他代码", request.url, result)
+    result = JSON.parse(result)
+    if (result.id == result.account) {
+        // 检查ID和账号
+    }
+    if (result.status == 0) {
+        // 状态不对
+        reply.code(400)
+        next(new Error(ErrMsg.TOKEN_STATUS_ERROR.code))
+        return
+    }
+    if (result.ip) {
+        // // 安全检查
+        // reply.code(400)
+        // done(new Error('OMG'))
+        // return
+    }
+    if (new Date().getTime() - result.ts > 86400000) {
+        // token是否有超时
+        // console.log("\n是否有超时", result.ts, new Date().getTime(), new Date().getTime() - result.ts > 86400000)
+        reply.code(400)
+        next(new Error(ErrMsg.TOKEN_AUTH_TIMEOUT.code))
+        return
+    }
+
     next()
 })
 fastify.addHook('onResponse', (request, reply, next) => {
