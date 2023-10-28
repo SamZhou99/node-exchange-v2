@@ -45,25 +45,7 @@ fastify.addHook('onRequest', (request, reply, next) => {
 })
 
 
-const EXCLUDE_ARR = [
-    '/test/ip',
-    '/api/init.db.web',
-    '/api/init.db.admin',
-    '/api/config.json',
-    '/lang/',
-    '/api/login',
-    '/api/register',
-    '/api/banner',
-    '/api/pv',
-    '/api/currency-contract/service-charge',
-    '/api/kline',
-    '/api/contract-sec/service-charge',
-    '/api/currency-platform',
-    '/api/forgot-password',
-    '/api/currency-contract/history',
-    '/api/admin/VerifyCode',
-    '/api/admin/login',
-] // 排除检查
+const EXCLUDE_ARR = config.safeurl.urls // 排除检查
 fastify.addHook('preHandler', (request, reply, next) => {
     let url = request.url
 
@@ -149,7 +131,7 @@ fastify.register(require('./routes/index.js'))
 
 
 // 启动服务
-fastify.listen({ port: config.web.port, host: config.web.host }, (err, address) => {
+fastify.listen({ port: config.web.port }, (err, address) => {
     if (err) {
         fastify.log.error(err)
         process.exit(1)
