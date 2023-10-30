@@ -523,6 +523,7 @@ let _t = {
         get_opts: {
             schema: {
                 querystring: S.object()
+                    .prop('target_user_id', S.integer())
                     .prop('page', S.integer())
                     .prop('size', S.integer())
             }
@@ -532,7 +533,8 @@ let _t = {
             const page = query.page || 1
             const size = query.size || 10
             const start = (page - 1) * size
-            const res = await service_wallet_log.list(start, size)
+            const target_user_id = query.target_user_id
+            const res = await service_wallet_log.list(target_user_id, start, size)
             for (let i = 0; i < res.list.length; i++) {
                 let item = res.list[i]
                 item.member = await service_member.oneById(item.user_id)

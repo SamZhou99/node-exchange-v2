@@ -9,10 +9,17 @@ let _t = {
         return res.length > 0 ? res[0] : null
     },
 
-    async list(start, length) {
-        let total = await db.Query("SELECT COUNT(0) AS total FROM member_wallet_log", [])
-        total = total[0]['total']
-        const list = await db.Query("SELECT * FROM member_wallet_log ORDER BY id DESC LIMIT ?,?", [start, length])
+    async list(target_user_id, start, length) {
+        let total, list
+        if (target_user_id) {
+            total = await db.Query("SELECT COUNT(0) AS total FROM member_wallet_log WHERE user_id=?", [target_user_id])
+            total = total[0]['total']
+            list = await db.Query("SELECT * FROM member_wallet_log WHERE user_id=? ORDER BY id DESC LIMIT ?,?", [target_user_id, start, length])
+        } else {
+            total = await db.Query("SELECT COUNT(0) AS total FROM member_wallet_log", [])
+            total = total[0]['total']
+            list = await db.Query("SELECT * FROM member_wallet_log ORDER BY id DESC LIMIT ?,?", [start, length])
+        }
         return { total, list }
     },
 
