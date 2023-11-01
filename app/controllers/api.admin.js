@@ -75,9 +75,9 @@ let _t = {
             if (user == null) {
                 return { flag: '账号或密码错误！' }
             }
-            const userAgent = request.headers['user-agent']
-            const IP = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
-            await service_login_log.addLoginLog(user.id, service_login_log.UserType.ADMIN, userAgent, IP)
+            const user_agent = request.headers['user-agent']
+            const ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
+            await service_login_log.addLoginLog(user.id, service_login_log.UserType.ADMIN, user_agent, ip)
 
             const token = systemCrypto.encryption(JSON.stringify({
                 id: user.id,
@@ -85,8 +85,10 @@ let _t = {
                 type: user.type,
                 agent_id: user.agent_id,
                 status: user.status,
-                ip: IP,
-                ts: new Date().getTime()
+                // 打补丁
+                login_ts: Math.floor(new Date().getTime() / 1000),
+                login_ip: ip,
+                login_ua: user_agent,
             }))
 
             return {
