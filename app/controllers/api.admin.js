@@ -32,7 +32,7 @@ const systemCrypto = require('../../lib/system.crypto.js')
 let _t = {
     verifyCode: {
         async get(request, reply) {
-            const ip = request.headers['x-real-ip'] || request.ip
+            const ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
             const code = verifyCode.create(ip)
             const n1 = verifyCode.randomInt(code * 0.5, code * 0.8)
             const n2 = code - n1
