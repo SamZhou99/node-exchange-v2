@@ -93,7 +93,13 @@ let _t = {
         }
         return results
     },
-    async list(start, length) {
+    async list(address, type, start, length) {
+        if (address) {
+            let res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE address=?", address)
+            let total = res[0]['total']
+            let list = await db.Query("SELECT * FROM system_wallet_address WHERE address=? ORDER BY id DESC LIMIT ?,?", [address, start, length])
+            return { total, list }
+        }
         let res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address")
         let total = res[0]['total']
         let list = await db.Query("SELECT * FROM system_wallet_address ORDER BY id DESC LIMIT ?,?", [start, length])
