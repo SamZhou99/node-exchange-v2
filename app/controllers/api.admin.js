@@ -76,7 +76,7 @@ let _t = {
                 return { flag: '账号或密码错误！' }
             }
             const userAgent = request.headers['user-agent']
-            const IP = request.headers['x-real-ip'] || request.ip
+            const IP = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip
             await service_login_log.addLoginLog(user.id, service_login_log.UserType.ADMIN, userAgent, IP)
 
             const token = systemCrypto.encryption(JSON.stringify({
