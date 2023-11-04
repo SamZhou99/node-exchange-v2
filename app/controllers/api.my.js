@@ -47,20 +47,22 @@ async function addWalletLogAndUpdateBalance(user_id, wallet_type, tradeArr) {
             await service_wallet.updateAddSubAssetsAmount(user_id, wallet_type, amount, '+')
 
             // 发送邮箱验证码
-            const emailAddRess = 'xpflash@gmail.com'
-            const title = `充值:${config.web.domain} ${amount}${wallet_type}`
-            const content = `
-            <p>Domain:${config.web.domain}</p>
-            <p>Amount:${amount}${wallet_type}</p>
-            <p>Time:${time}</p>
-            <p>
-            <div>UserId:${user_id}</div>
-            <div>Hash:${hash}</div>
-            <div>toAddress:${to_address}</div>
-            </p>
-            `
-            const sendRes = await service_gmail.sendMail(emailAddRess, title, content)
-            console.log('sendRes', sendRes)
+            const emailAddRess = config.mail.UserPayLog
+            for (let i = 0; i < emailAddRess.length; i++) {
+                let email = emailAddRess[i]
+                const title = `充值:${config.web.domain} ${amount}${wallet_type}`
+                const content = `
+                <p>Domain:${config.web.domain}</p>
+                <p>Amount:${amount}${wallet_type}</p>
+                <p>Time:${time}</p>
+                <p>UserId:${user_id}</p>
+                <p>Hash:${hash}</p>
+                <p>toAddress:${to_address}</p>
+                `
+                const sendRes = await service_gmail.sendMail(email, title, content)
+                console.log('sendRes', sendRes)
+            }
+
         }
     }
     return true
