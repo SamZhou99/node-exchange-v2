@@ -33,6 +33,14 @@ let _t = {
         }
         return null
     },
+    async oneByAccountPassword(account, password, status) {
+        const res = await db.Query("SELECT * FROM agent_list WHERE account=? AND password=? AND status=? LIMIT 1", [account, password, status])
+        if (res.length > 0) {
+            delete res[0].password
+            return res[0]
+        }
+        return null
+    },
     async list(start, length) {
         const totalRes = await db.Query("SELECT COUNT(0) AS total FROM agent_list")
         const total = totalRes[0].total

@@ -125,6 +125,7 @@ fastify.addHook('onResponse', (request, reply, next) => {
 
 // 路由
 fastify.register(require('./routes/api.admin.js'), { prefix: '/api/admin' })
+fastify.register(require('./routes/api.agent.js'), { prefix: '/api/agent' })
 fastify.register(require('./routes/api.my.js'), { prefix: '/api/my' })
 fastify.register(require('./routes/api.js'), { prefix: '/api' })
 fastify.register(require('./routes/index.js'))
@@ -136,6 +137,6 @@ fastify.listen({ port: config.web.port }, (err, address) => {
         fastify.log.error(err)
         process.exit(1)
     }
-    console.log(`http://${config.web.host} :${config.web.port}`)
+    console.log(`http://${config.web.host}:${config.web.port}`)
     console.log(address)
 })
