@@ -646,7 +646,7 @@ let _t = {
         },
         async upload_walletaddress_post(request, reply) {
             const body = request.body
-            const list = body['list[]']
+            const list = body['list[]'] || [body.list]
             const res = await service_system_wallet_address.importWalletAddress(list)
             return { flag: 'ok', data: res }
         },
