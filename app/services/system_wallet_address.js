@@ -110,10 +110,32 @@ let _t = {
         const list = await db.Query("SELECT id,address FROM system_wallet_address WHERE address LIKE ? ORDER BY id DESC LIMIT ?", [`%${address}%`, limit])
         return list
     },
-    // 检查 是否有已绑定的记录
-    async checkBindAddress(user_id) {
-        const res = await db.Query("SELECT id FROM system_wallet_address WHERE bind_user_id=? LIMIT 1", [user_id])
-        return res
+    /**
+     * 是/否? 可以绑定钱包地址?
+     * @param {*} user_id 
+     * @returns true=可以绑定，false=不可以绑定
+     */
+    async isCanBindAddress(user_id) {
+        const BtcRes = await db.Query("SELECT id FROM system_wallet_address WHERE bind_user_id=? AND type=? LIMIT 1", [user_id, 'btc'])
+        if (BtcRes.length > 0) return false
+        const EthRes = await db.Query("SELECT id FROM system_wallet_address WHERE bind_user_id=? AND type=? LIMIT 1", [user_id, 'eth'])
+        if (EthRes.length > 0) return false
+        const UsdtRes = await db.Query("SELECT id FROM system_wallet_address WHERE bind_user_id=? AND type=? LIMIT 1", [user_id, 'usdt'])
+        if (UsdtRes.length > 0) return false
+        return true
+    },
+    /**
+     * 有没有未使用的地址（检查system_wallet_address表）（三个地址为一组：btc,eth,usdt）
+     * @returns true=有剩余地址，flash=没有剩余
+     */
+    async isUnusedAddress() {
+        const BtcRes = await db.Query("SELECT id FROM system_wallet_address WHERE bind_user_id=? AND type=? LIMIT 1", [0, 'btc'])
+        if (BtcRes.length <= 0) return false
+        const EthRes = await db.Query("SELECT id FROM system_wallet_address WHERE bind_user_id=? AND type=? LIMIT 1", [0, 'eth'])
+        if (EthRes.length <= 0) return false
+        const UsdtRes = await db.Query("SELECT id FROM system_wallet_address WHERE bind_user_id=? AND type=? LIMIT 1", [0, 'usdt'])
+        if (UsdtRes.length <= 0) return false
+        return true
     },
     // 未使用的钱包地址 随机取一条 并 绑定给用户
     async bindWalletAddressByUserId(user_id, coin_type) {
@@ -137,6 +159,13 @@ let _t = {
         const total_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=?", [type])
         const total = total_res[0]['total']
         const use_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=? AND bind_user_id>0 ", [type])
+        const use = use_res[0]['total']
+        return { total, use }
+    },
+    async walletUseTotalByAgentId(agent_id, type) {
+        const total_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=? AND bind_user_id IN (SELECT id FROM member_list WHERE agent_id=?)", [type, agent_id])
+        const total = total_res[0]['total']
+        const use_res = await db.Query("SELECT COUNT(0) AS total FROM system_wallet_address WHERE type=? AND bind_user_id>0 AND bind_user_id IN (SELECT id FROM member_list WHERE agent_id=?)", [type, agent_id])
         const use = use_res[0]['total']
         return { total, use }
     },

@@ -503,11 +503,20 @@ let _t = {
         async bind_put(request, reply) {
             const body = request.body
             const user_id = body.user_id
-            // 检查 是否有绑定的钱包 地址
-            const checkRes = await service_system_wallet_address.checkBindAddress(user_id)
-            if (checkRes.length > 0) {
-                return { flag: 'The binding address cannot be repeated' }
+
+            // // 检查 是否可以绑定 钱包地址
+            // const isCanBindAddressResult = await service_system_wallet_address.isCanBindAddress(user_id)
+            // if (!isCanBindAddressResult) {
+            //     return { flag: 'The binding address cannot be repeated' }
+            // }
+
+            // 检查下 有没有未使用的 钱包地址
+            const IsUnusedAddress = await service_system_wallet_address.isUnusedAddress()
+            if (!IsUnusedAddress) {
+                // 没有剩余的地址
+                return { flag: 'Sorry, not enough wallet addresses!' }
             }
+
             const bindBtcRes = await service_system_wallet_address.bindWalletAddressByUserId(user_id, 'btc')
             const bindEthRes = await service_system_wallet_address.bindWalletAddressByUserId(user_id, 'eth')
             const bindUsdtRes = await service_system_wallet_address.bindWalletAddressByUserId(user_id, 'usdt')
