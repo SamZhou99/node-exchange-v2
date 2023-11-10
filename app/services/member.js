@@ -79,13 +79,13 @@ let _t = {
         }
 
         for (let i = 0; i < list.length; i++) {
-            let item = list[i]
-            delete item.password
-            let authPhotoRes = await service_auth.photoList(item.id, 0, 5)
-            item.authPhoto = authPhotoRes.list
-            item.auth = await service_auth.oneById(item.id)
-            item.agent = await service_agent.oneById(item.agent_id)
-            item.walletList = await service_wallet.list(item.id)
+            let user = list[i]
+            delete user.password
+            let authPhotoRes = await service_auth.photoList(user.id, 0, 5)
+            user.authPhoto = authPhotoRes.list
+            user.auth = await service_auth.oneById(user.id)
+            user.agent = await service_agent.oneById(user.agent_id)
+            user.walletList = await service_wallet.list(user.id)
         }
         return { total, list }
     },
