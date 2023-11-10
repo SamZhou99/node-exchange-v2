@@ -117,7 +117,7 @@ let _t = {
             const notes = ''
             const type = 0 // 0普通会员，1营销人员
             const status = 1 // 0禁用，1啟用
-            const ip = request.headers['x-real-ip'] || request.ip // 客戶端IP
+            const ip = request.headers['cf-connecting-ip'] || request.headers['x-real-ip'] || request.ip // 客戶端IP
             let email_verify = 0 // 0未驗證郵箱，1已驗證郵箱
             let agent_id = 0
 
