@@ -89,18 +89,45 @@ let _t = {
         }
         return { total, list }
     },
+    async listDetailByAgentId(agent_id, type, target_user_id, start, length) {
+        let total, list
+        if (target_user_id) {
+            total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE id=?", [target_user_id])
+            total = total[0]['total']
+            list = await db.Query("SELECT * FROM member_list WHERE id=? ORDER BY id DESC LIMIT ?,?", [target_user_id, start, length])
+        } else {
+            total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE deleted=0 AND type=? AND id IN (SELECT id FROM member_list WHERE agent_id=?)", [type, agent_id])
+            total = total[0]['total']
+            list = await db.Query("SELECT * FROM member_list WHERE deleted=0 AND type=? AND id IN (SELECT id FROM member_list WHERE agent_id=?) ORDER BY id DESC LIMIT ?,?", [type, agent_id, start, length])
+        }
+
+        for (let i = 0; i < list.length; i++) {
+            let user = list[i]
+            delete user.password
+            let authPhotoRes = await service_auth.photoList(user.id, 0, 5)
+            user.authPhoto = authPhotoRes.list
+            user.auth = await service_auth.oneById(user.id)
+            user.agent = await service_agent.oneById(user.agent_id)
+            user.walletList = await service_wallet.list(user.id)
+        }
+        return { total, list }
+    },
 
     // 某段时间 注册人数
     async listByDateBetween(startDate, endDate) {
         let list = await db.Query("SELECT * FROM member_list WHERE type=0 AND create_datetime BETWEEN ? AND ? ORDER BY id DESC", [startDate, endDate])
         return list
     },
+    async listByDateBetweenByAgentId(agent_id, startDate, endDate) {
+        let list = await db.Query("SELECT * FROM member_list WHERE type=0 AND create_datetime BETWEEN ? AND ? AND agent_id=? ORDER BY id DESC", [startDate, endDate, agent_id])
+        return list
+    },
 
     // 会员列表 通过 代理ID 查询
-    async listByAgentId(agent_id, start, length) {
+    async listByAgentId(agent_id, length) {
         let total = await db.Query("SELECT COUNT(0) AS total FROM member_list WHERE agent_id=?", [agent_id])
         total = total[0]['total']
-        let list = await db.Query("SELECT * FROM member_list WHERE agent_id=? ORDER BY id DESC LIMIT ?,?", [agent_id, start, length])
+        let list = await db.Query("SELECT * FROM member_list WHERE agent_id=? ORDER BY id DESC LIMIT ?", [agent_id, length])
         for (let i = 0; i < list.length; i++) {
             let item = list[i]
             delete item.password
@@ -116,6 +143,10 @@ let _t = {
     // 自动完成账号名
     async listByAccount(account, limit) {
         const list = await db.Query("SELECT id,account FROM member_list WHERE account LIKE ? ORDER BY id DESC LIMIT ?", [`%${account}%`, limit])
+        return list
+    },
+    async listByAccountByAgentId(agent_id, account, limit) {
+        const list = await db.Query("SELECT id,account FROM member_list WHERE agent_id=? AND account LIKE ? ORDER BY id DESC LIMIT ?", [agent_id, `%${account}%`, limit])
         return list
     },
 

@@ -101,26 +101,28 @@ let _t = {
         get_opts: {
             schema: {
                 querystring: S.object()
+                    .prop('agent_id', S.integer().required())
                 // .prop('size', S.integer())
                 // .prop('type', S.string().minLength(1).required())
             }
         },
         async get(request, reply) {
             const query = request.query
+            const agentId = query.agent_id
 
-            const Users = await service_member.lastMember(5)
-            const Agents = await service_agent.list(0, 5)
-            const Earning = await service_wallet_log.listDashboard(0, 5)
-            const btc = await service_system_wallet_address.walletUseTotal('btc')
-            const eth = await service_system_wallet_address.walletUseTotal('eth')
-            const usdt = await service_system_wallet_address.walletUseTotal('usdt')
+            const Users = await service_member.listByAgentId(agentId, 5)
+            const Agents = [] // await service_agent.list(0, 5)
+            const Earning = await service_wallet_log.listDashboardByAgentId(agentId, 5)
+            const btc = await service_system_wallet_address.walletUseTotalByAgentId(agentId, 'btc')
+            const eth = await service_system_wallet_address.walletUseTotalByAgentId(agentId, 'eth')
+            const usdt = await service_system_wallet_address.walletUseTotalByAgentId(agentId, 'usdt')
 
-            for (let i = 0; i < Users.length; i++) {
-                let item = Users[i]
-                let btc = await service_wallet_log.sumByUserIdCoinName(item.id, 'btc')
-                let eth = await service_wallet_log.sumByUserIdCoinName(item.id, 'eth')
-                let usdt = await service_wallet_log.sumByUserIdCoinName(item.id, 'usdt')
-                item.pay_sum = { btc, eth, usdt }
+            for (let i = 0; i < Users.list.length; i++) {
+                let user = Users.list[i]
+                let btc = await service_wallet_log.sumByUserIdCoinName(user.id, 'btc')
+                let eth = await service_wallet_log.sumByUserIdCoinName(user.id, 'eth')
+                let usdt = await service_wallet_log.sumByUserIdCoinName(user.id, 'usdt')
+                user.pay_sum = { btc, eth, usdt }
             }
 
             for (let i = 0; i < Earning.length; i++) {
@@ -130,7 +132,7 @@ let _t = {
 
             return {
                 flag: 'ok', data: {
-                    Users: Users,
+                    Users: Users.list,
                     Agents: Agents.list,
                     Earning: Earning,
                     Wallet: {
@@ -144,6 +146,7 @@ let _t = {
         earning_get_opts: {
             schema: {
                 querystring: S.object()
+                    .prop('agent_id', S.integer().required())
                     .prop('StartDate', S.string().minLength(1).required())
                     .prop('EndDate', S.string().minLength(1).required())
                     .prop('page', S.integer())
@@ -152,16 +155,17 @@ let _t = {
         },
         async earning_get(request, reply) {
             const query = request.query
+            const agentId = query.agent_id
             const StartDate = query.StartDate
             const EndDate = query.EndDate
             // const page = query.page || 1
             // const size = query.size || 10
             // const start = (page - 1) * size
-            const memberList = await service_member.listByDateBetween(StartDate, EndDate)
+            const memberList = await service_member.listByDateBetweenByAgentId(agentId, StartDate, EndDate)
             const payList = {
-                btc: await service_wallet_log.listByDateBetween('btc', StartDate, EndDate),
-                eth: await service_wallet_log.listByDateBetween('eth', StartDate, EndDate),
-                usdt: await service_wallet_log.listByDateBetween('usdt', StartDate, EndDate),
+                btc: await service_wallet_log.listByDateBetweenByAgentId(agentId, 'btc', StartDate, EndDate),
+                eth: await service_wallet_log.listByDateBetweenByAgentId(agentId, 'eth', StartDate, EndDate),
+                usdt: await service_wallet_log.listByDateBetweenByAgentId(agentId, 'usdt', StartDate, EndDate),
             }
             return {
                 flag: 'ok', data: { memberList, payList }
@@ -252,6 +256,7 @@ let _t = {
         get_opts: {
             schema: {
                 querystring: S.object()
+                    .prop('agent_id', S.integer().required())
                     .prop('page', S.integer())
                     .prop('size', S.integer())
                     .prop('type', S.string().minLength(1).required())
@@ -260,12 +265,13 @@ let _t = {
         },
         async get(request, reply) {
             const query = request.query
+            const agent_id = query.agent_id
             const page = query.page || 1
             const size = query.size || 10
             const start = (page - 1) * size
             const type = query.type
             const target_user_id = query.target_user_id
-            const res = await service_member.listDetail(type, target_user_id, start, size)
+            const res = await service_member.listDetailByAgentId(agent_id, type, target_user_id, start, size)
             const list = res.list
             const total = res.total
             return {
@@ -280,14 +286,16 @@ let _t = {
         auto_complete_opts: {
             schema: {
                 body: S.object()
+                    .prop('agent_id', S.integer().required())
                     .prop('account', S.string().minLength(1).required())
             }
         },
         async auto_complete_post(request, reply) {
             const body = request.body
+            const agentId = request.body.agent_id
             const account = body.account
             const limit = body.limit || 5
-            const list = await service_member.listByAccount(account, limit)
+            const list = await service_member.listByAccountByAgentId(agentId, account, limit)
             return reply.send({ flag: 'ok', data: { list } })
         },
 
@@ -347,22 +355,25 @@ let _t = {
             const notes = "手动上下分"
             // return { flag: 'ok', data: body }
 
+            const BtcTag = config.common.coin.type.BTC
+            const EthTag = config.common.coin.type.ETH
+            const UsdtTag = config.common.coin.type.USDT
+            const CoinArr = [BtcTag, EthTag, UsdtTag]
             // 法币 上下分
-            const coinArr = ['btc', 'eth', 'usdt']
-            for (let i = 0; i < coinArr.length; i++) {
-                let symbol = coinArr[i].toLocaleLowerCase()
-                if (Number(body[symbol]) > 0) {
-                    let amount = Number(body[symbol])
+            for (let i = 0; i < CoinArr.length; i++) {
+                const Symbol = CoinArr[i].toLocaleLowerCase()
+                if (Number(body[Symbol]) > 0) {
+                    let amount = Number(body[Symbol])
                     let hash = ""
                     let to_address = ""
-                    let wallet_type = symbol
+                    let wallet_type = Symbol
                     let time = utils99.Time(config.web.timezone)
                     // console.log(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
                     let walletLogRes = await service_wallet_log.addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
                     if (action == "add") {
-                        let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, symbol, amount, "+")
+                        let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, Symbol, amount, "+")
                     } else if (action == "sub") {
-                        let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, symbol, amount, "-")
+                        let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, Symbol, amount, "-")
                     }
                 }
             }
@@ -372,12 +383,12 @@ let _t = {
             const currencyPlatformRes = await service_currency_platform.list(0, 999)
             const currencyPlatformList = currencyPlatformRes.list
             for (let i = 0; i < currencyPlatformList.length; i++) {
-                let symbol = currencyPlatformList[i].symbol.toLocaleLowerCase()
-                if (Number(body[symbol]) > 0) {
+                const Symbol = currencyPlatformList[i].symbol.toLocaleLowerCase()
+                if (Number(body[Symbol]) > 0) {
                     let coin_amount = ""
                     let coin_type = ""
-                    let platform_coin_amount = Number(body[symbol])
-                    let platform_coin_type = symbol
+                    let platform_coin_amount = Number(body[Symbol])
+                    let platform_coin_type = Symbol
                     await service_currency_platform_trade_log.addLog(user_id, operator_id, coin_amount, coin_type, platform_coin_amount, platform_coin_type, notes, action)
                     if (action == "add") {
                         let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, platform_coin_type, platform_coin_amount, "+")
@@ -525,6 +536,7 @@ let _t = {
         get_opts: {
             schema: {
                 querystring: S.object()
+                    .prop('agent_id', S.integer().required())
                     .prop('target_user_id', S.integer())
                     .prop('page', S.integer())
                     .prop('size', S.integer())
@@ -532,11 +544,12 @@ let _t = {
         },
         async get(request, reply) {
             const query = request.query
+            const agentId = query.agent_id
             const page = query.page || 1
             const size = query.size || 10
             const start = (page - 1) * size
             const target_user_id = query.target_user_id
-            const res = await service_wallet_log.list(target_user_id, start, size)
+            const res = await service_wallet_log.listByAgentId(agentId, target_user_id, start, size)
             for (let i = 0; i < res.list.length; i++) {
                 let item = res.list[i]
                 item.member = await service_member.oneById(item.user_id)

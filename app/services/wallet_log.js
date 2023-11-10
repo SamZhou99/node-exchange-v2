@@ -22,6 +22,19 @@ let _t = {
         }
         return { total, list }
     },
+    async listByAgentId(agent_id, target_user_id, start, length) {
+        let total, list
+        if (target_user_id) {
+            total = await db.Query("SELECT COUNT(0) AS total FROM member_wallet_log WHERE user_id=?", [target_user_id])
+            total = total[0]['total']
+            list = await db.Query("SELECT * FROM member_wallet_log WHERE user_id=? ORDER BY id DESC LIMIT ?,?", [target_user_id, start, length])
+        } else {
+            total = await db.Query("SELECT COUNT(0) AS total FROM member_wallet_log WHERE user_id IN (SELECT id FROM member_list WHERE agent_id=?)", [agent_id])
+            total = total[0]['total']
+            list = await db.Query("SELECT * FROM member_wallet_log WHERE user_id IN (SELECT id FROM member_list WHERE agent_id=?) ORDER BY id DESC LIMIT ?,?", [agent_id, start, length])
+        }
+        return { total, list }
+    },
 
     async listByUserId(user_id, start, length) {
         let total = await db.Query("SELECT COUNT(0) AS total FROM member_wallet_log WHERE user_id=?", [user_id])
@@ -42,14 +55,23 @@ let _t = {
         return sum.length <= 0 ? null : sum[0]['sum']
     },
 
-    async listDashboard() {
-        const res = await db.Query("SELECT * FROM member_wallet_log WHERE `hash`<>'' ORDER BY time DESC LIMIT 5", [])
+    async listDashboard(len) {
+        const res = await db.Query("SELECT * FROM member_wallet_log WHERE `hash`<>'' ORDER BY time DESC LIMIT ?", [len])
+        return res
+    },
+
+    async listDashboardByAgentId(agent_id, len) {
+        const res = await db.Query("SELECT * FROM member_wallet_log WHERE `hash`<>'' AND user_id IN (SELECT id FROM member_list WHERE agent_id=?) ORDER BY time DESC LIMIT ?", [agent_id, len])
         return res
     },
 
     // 某段时间 注册人数
     async listByDateBetween(coinType, startDate, endDate) {
         let list = await db.Query("SELECT * FROM member_wallet_log WHERE wallet_type=? AND `hash`<>'' AND time BETWEEN ? AND ? ORDER BY time DESC", [coinType, startDate, endDate])
+        return list
+    },
+    async listByDateBetweenByAgentId(agent_id, coinType, startDate, endDate) {
+        let list = await db.Query("SELECT * FROM member_wallet_log WHERE wallet_type=? AND `hash`<>'' AND time BETWEEN ? AND ? AND user_id IN (SELECT id FROM member_list WHERE agent_id=?) ORDER BY time DESC", [coinType, startDate, endDate, agent_id])
         return list
     },
 
