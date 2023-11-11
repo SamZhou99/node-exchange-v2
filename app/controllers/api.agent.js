@@ -361,19 +361,19 @@ let _t = {
             const CoinArr = [BtcTag, EthTag, UsdtTag]
             // 法币 上下分
             for (let i = 0; i < CoinArr.length; i++) {
-                const Symbol = CoinArr[i].toLocaleLowerCase()
-                if (Number(body[Symbol]) > 0) {
-                    let amount = Number(body[Symbol])
+                const symbol = CoinArr[i].toLocaleLowerCase()
+                if (Number(body[symbol]) > 0) {
+                    let amount = Number(body[symbol])
                     let hash = ""
                     let to_address = ""
-                    let wallet_type = Symbol
+                    let wallet_type = symbol
                     let time = utils99.Time(config.web.timezone)
                     // console.log(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
                     let walletLogRes = await service_wallet_log.addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
                     if (action == "add") {
-                        let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, Symbol, amount, "+")
+                        let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, symbol, amount, "+")
                     } else if (action == "sub") {
-                        let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, Symbol, amount, "-")
+                        let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, symbol, amount, "-")
                     }
                 }
             }
@@ -383,12 +383,12 @@ let _t = {
             const currencyPlatformRes = await service_currency_platform.list(0, 999)
             const currencyPlatformList = currencyPlatformRes.list
             for (let i = 0; i < currencyPlatformList.length; i++) {
-                const Symbol = currencyPlatformList[i].symbol.toLocaleLowerCase()
-                if (Number(body[Symbol]) > 0) {
+                const symbol = currencyPlatformList[i].symbol.toLocaleLowerCase()
+                if (Number(body[symbol]) > 0) {
                     let coin_amount = ""
                     let coin_type = ""
-                    let platform_coin_amount = Number(body[Symbol])
-                    let platform_coin_type = Symbol
+                    let platform_coin_amount = Number(body[symbol])
+                    let platform_coin_type = symbol
                     await service_currency_platform_trade_log.addLog(user_id, operator_id, coin_amount, coin_type, platform_coin_amount, platform_coin_type, notes, action)
                     if (action == "add") {
                         let walletUpdateRes = await service_wallet.updateAddSubAssetsAmount(user_id, platform_coin_type, platform_coin_amount, "+")
@@ -567,16 +567,18 @@ let _t = {
         get_opts: {
             schema: {
                 querystring: S.object()
+                    .prop('agent_id', S.integer().required())
                     .prop('page', S.integer())
                     .prop('size', S.integer())
             }
         },
         async get(request, reply) {
             const query = request.query
+            const agent_id = query.agent_id
             const page = query.page || 1
             const size = query.size || 10
             const start = (page - 1) * size
-            const res = await service_currency_contract_trade_log.list(start, size)
+            const res = await service_currency_contract_trade_log.listByAgentId(agent_id, start, size)
             const total = res.total
             let list = res.list
             for (let i = 0; i < list.length; i++) {
@@ -593,16 +595,18 @@ let _t = {
         get_opts: {
             schema: {
                 querystring: S.object()
+                    .prop('agent_id', S.integer().required())
                     .prop('page', S.integer())
                     .prop('size', S.integer())
             }
         },
         async get(request, reply) {
             const query = request.query
+            const agent_id = query.agent_id
             const page = query.page || 1
             const size = query.size || 10
             const start = (page - 1) * size
-            const res = await service_currency_contract_sec.list(start, size)
+            const res = await service_currency_contract_sec.listByAgentId(agent_id, start, size)
             const total = res.total
             let list = res.list
             for (let i = 0; i < list.length; i++) {

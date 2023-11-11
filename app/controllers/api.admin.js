@@ -569,6 +569,9 @@ let _t = {
             for (let i = 0; i < list.length; i++) {
                 let item = list[i]
                 item.user = await service_member.oneById(item.user_id)
+                if (item.user.agent_id > 0) {
+                    item.agent = await service_agent.oneById(item.user.agent_id)
+                }
             }
             return {
                 flag: 'ok', data: { list, page: { total, page, size } }
@@ -595,6 +598,9 @@ let _t = {
             for (let i = 0; i < list.length; i++) {
                 let item = list[i]
                 item.user = await service_member.oneById(item.user_id)
+                if (item.user.agent_id > 0) {
+                    item.agent = await service_agent.oneById(item.user.agent_id)
+                }
             }
             return {
                 flag: 'ok', data: { list, page: { total, page, size } }

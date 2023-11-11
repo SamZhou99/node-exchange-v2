@@ -1,6 +1,6 @@
 const utils99 = require('node-utils99')
 const config = require('../../config/all.js');
-const { db } = require('../../lib/db.setup.js')
+const { db } = require('../../lib/db.setup.js');
 
 let _t = {
     // 查询
@@ -13,6 +13,12 @@ let _t = {
         let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_sec")
         total = total[0]['total']
         let list = await db.Query("SELECT * FROM currency_contract_sec ORDER BY id DESC LIMIT ?,?", [start, length])
+        return { total, list }
+    },
+    async listByAgentId(agent_id, start, length) {
+        let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_sec WHERE user_id IN (SELECT id FROM member_list WHERE agent_id=?)", [agent_id])
+        total = total[0]['total']
+        let list = await db.Query("SELECT * FROM currency_contract_sec WHERE user_id IN (SELECT id FROM member_list WHERE agent_id=?) ORDER BY id DESC LIMIT ?,?", [agent_id, start, length])
         return { total, list }
     },
     // 用户 列表

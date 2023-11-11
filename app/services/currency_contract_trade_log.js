@@ -17,6 +17,12 @@ let _t = {
         let list = await db.Query("SELECT * FROM currency_contract_trade_log ORDER BY id DESC LIMIT ?,?", [start, length])
         return { total, list }
     },
+    async listByAgentId(agent_id, start, length) {
+        let total = await db.Query("SELECT COUNT(0) AS total FROM currency_contract_trade_log WHERE user_id IN (SELECT id FROM member_list WHERE agent_id=?)", [agent_id])
+        total = total[0]['total']
+        let list = await db.Query("SELECT * FROM currency_contract_trade_log WHERE user_id IN (SELECT id FROM member_list WHERE agent_id=?) ORDER BY id DESC LIMIT ?,?", [agent_id, start, length])
+        return { total, list }
+    },
 
     // 查询列表 通过 币种类
     async listBySymbol(symbol, start, length) {
