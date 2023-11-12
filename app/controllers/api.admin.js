@@ -110,7 +110,7 @@ let _t = {
 
             const Users = await service_member.lastMember(5)
             const Agents = await service_agent.list(0, 5)
-            const Earning = await service_wallet_log.listDashboard(0, 5)
+            const Earning = await service_wallet_log.listDashboard(5)
             const btc = await service_system_wallet_address.walletUseTotal('btc')
             const eth = await service_system_wallet_address.walletUseTotal('eth')
             const usdt = await service_system_wallet_address.walletUseTotal('usdt')
