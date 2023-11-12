@@ -706,16 +706,18 @@ let _t = {
         get_opts: {
             schema: {
                 querystring: S.object()
+                    .prop('agent_id', S.integer().required())
                     .prop('page', S.integer())
                     .prop('size', S.integer())
             }
         },
         async get(request, reply) {
             const query = request.query
+            const agent_id = query.agent_id
             const page = query.page || 1
             const size = query.size || 10
             const start = (page - 1) * size
-            const res = await service_withdraw.list(start, size)
+            const res = await service_withdraw.listByAgentId(agent_id, start, size)
             const total = res.total
             let list = res.list
             for (let i = 0; i < list.length; i++) {
@@ -1098,7 +1100,7 @@ let _t = {
         put_opts: {
             schema: {
                 body: S.object()
-                    .prop('id', S.integer().required())
+                    .prop('agent_id', S.integer().required())
                     .prop('old_password', S.string().minLength(1).required())
                     .prop('new_password', S.string().minLength(1).required())
                     .prop('rep_new_password', S.string().minLength(1).required())
@@ -1106,7 +1108,7 @@ let _t = {
         },
         async put(request, reply) {
             const body = request.body
-            const id = body.id
+            const agent_id = body.agent_id
             const old_password = utils99.MD5(body.old_password)
             const new_password = body.new_password
             const rep_new_password = body.rep_new_password
@@ -1114,11 +1116,11 @@ let _t = {
             if (new_password != rep_new_password) {
                 return { flag: '新密码两次输入不一致！' }
             }
-            const res = await service_admin.oneByIdPassword(id, old_password, status)
+            const res = await service_agent.oneByIdPassword(agent_id, old_password, status)
             if (res == null) {
                 return { flag: '旧密码不正确！' }
             }
-            const updateRes = await service_admin.updatePassword(id, utils99.MD5(new_password))
+            const updateRes = await service_agent.updatePassword(agent_id, utils99.MD5(new_password))
             return { flag: 'ok', data: updateRes }
         },
     },

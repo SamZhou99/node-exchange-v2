@@ -41,6 +41,24 @@ let _t = {
         }
         return null
     },
+
+    // 通过ID&密码 查询一条记录
+    async oneByIdPassword(id, password, status) {
+        const res = await db.Query("SELECT * FROM agent_list WHERE id=? AND password=? AND status=? LIMIT 1", [id, password, status])
+        if (res.length > 0) {
+            let member = res[0]
+            delete member.password
+            return member
+        }
+        return null
+    },
+    // 修改密码
+    async updatePassword(id, password) {
+        const update_datetime = utils99.Time(config.web.timezone)
+        const res = await db.Query(`UPDATE agent_list SET password=?, update_datetime=? WHERE id=? LIMIT 1`, [password, update_datetime, id])
+        return res
+    },
+
     async list(start, length) {
         const totalRes = await db.Query("SELECT COUNT(0) AS total FROM agent_list")
         const total = totalRes[0].total

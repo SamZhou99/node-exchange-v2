@@ -9,6 +9,12 @@ let _t = {
         const list = await db.Query("SELECT * FROM member_withdraw_log ORDER BY id DESC LIMIT ?,?", [start, length])
         return { total, list }
     },
+    async listByAgentId(agent_id, start, length) {
+        let total = await db.Query("SELECT COUNT(0) AS total FROM member_withdraw_log WHERE user_id IN (SELECT id FROM member_list WHERE agent_id=?)", [agent_id])
+        total = total[0]['total']
+        const list = await db.Query("SELECT * FROM member_withdraw_log WHERE user_id IN (SELECT id FROM member_list WHERE agent_id=?) ORDER BY id DESC LIMIT ?,?", [agent_id, start, length])
+        return { total, list }
+    },
 
     async listByUserId(user_id, start, length) {
         let total = await db.Query("SELECT COUNT(0) AS total FROM member_withdraw_log WHERE user_id=? ", [user_id])
