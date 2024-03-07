@@ -25,7 +25,14 @@ function getWalletType(wallet_address) {
         return config.common.coin.type.USDT
     }
     // BTC
-    if (wallet_address.substr(0, 1) == "1" || wallet_address.substr(0, 1) == "3") {
+    if (
+        // 普通地址
+        wallet_address.substr(0, 1) == "1"
+        // 隔离验证(兼容)
+        || wallet_address.substr(0, 1) == "3"
+        // 隔离验证(原生) Taproot地址
+        || wallet_address.substr(0, 3) == "bc1"
+    ) {
         return config.common.coin.type.BTC
     }
     return null
