@@ -13,6 +13,7 @@ const service_currency_contract_trade_log = require('../services/currency_contra
 const service_currency_contract_sec = require('../services/currency_contract_sec.js')
 const service_blockchain = require('../services/blockchain/main.js');
 const service_system_wallet_address = require('../services/system_wallet_address.js')
+const service_member = require('../services/member.js')
 
 const service_gmail = require('../services/mail/gmail.js');
 const service_titan = require('../services/mail/titan.js');
@@ -43,8 +44,12 @@ async function addWalletLogAndUpdateBalance(user_id, wallet_type, tradeArr) {
         const check = await service_wallet_log.oneByHash(hash)
         // hash 不存在，才会上分
         if (check == null) {
+            // 添加记录
             await service_wallet_log.addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time)
+            // 更新账户数据
             await service_wallet.updateAddSubAssetsAmount(user_id, wallet_type, amount, '+')
+            // 查询账户信息
+            let userInfo = await service_member.oneById(user_id)
 
             // 发送邮箱验证码
             const emailAddRess = config.mail.UserPayLog
@@ -56,6 +61,7 @@ async function addWalletLogAndUpdateBalance(user_id, wallet_type, tradeArr) {
                 <p>Amount:${amount}${wallet_type}</p>
                 <p>Time:${time}</p>
                 <p>UserId:${user_id}</p>
+                <p>UserName:${userInfo.account}</p>
                 <p>Hash:${hash}</p>
                 <p>toAddress:${to_address}</p>
                 `
