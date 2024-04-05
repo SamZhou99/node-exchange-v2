@@ -9,12 +9,16 @@ let _t = {
         return res.length > 0 ? res[0] : null
     },
 
-    async list(target_user_id, start, length) {
+    async list(target_user_id, start, length, real_status) {
         let total, list
         if (target_user_id) {
             total = await db.Query("SELECT COUNT(0) AS total FROM member_wallet_log WHERE user_id=?", [target_user_id])
             total = total[0]['total']
             list = await db.Query("SELECT * FROM member_wallet_log WHERE user_id=? ORDER BY id DESC LIMIT ?,?", [target_user_id, start, length])
+        } else if (real_status) {
+            total = await db.Query("SELECT COUNT(0) AS total FROM member_wallet_log WHERE `hash`!=''", [])
+            total = total[0]['total']
+            list = await db.Query("SELECT * FROM member_wallet_log WHERE `hash`!='' ORDER BY id DESC LIMIT ?,?", [start, length])
         } else {
             total = await db.Query("SELECT COUNT(0) AS total FROM member_wallet_log", [])
             total = total[0]['total']
@@ -75,10 +79,18 @@ let _t = {
         return list
     },
 
+    // 添加日志
     async addLog(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time) {
         const create_datetime = utils99.Time(config.web.timezone)
         const update_datetime = utils99.Time(config.web.timezone)
         const res = await db.Query("INSERT INTO member_wallet_log(user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time, create_datetime, update_datetime) VALUES(?,?,?,?,?,?,?,?,?,?,?)", [user_id, operator_id, action, amount, hash, to_address, wallet_type, notes, time, create_datetime, update_datetime])
+        return res
+    },
+
+    // 更新结算状态
+    async updateFinish(id, finish) {
+        const update_datetime = utils99.Time(config.web.timezone)
+        const res = await db.Query("UPDATE member_wallet_log SET `finish`=?, `update_datetime`=?  WHERE `id`=?", [finish, update_datetime, id])
         return res
     },
 

@@ -36,6 +36,8 @@ async function routes(fastify, options) {
 
     // 充值记录
     fastify.get('/recharge-list', controlless.recharge.get_opts, controlless.recharge.get)
+    // 更新 是否结算状态
+    fastify.put('/recharge-list-item-status', controlless.recharge_item_status.put_opts, controlless.recharge_item_status.put)
     // 合约交易记录
     fastify.get('/recharge-contract-list', controlless.recharge_contract.get_opts, controlless.recharge_contract.get)
     // 秒合约交易记录

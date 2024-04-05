@@ -536,7 +536,8 @@ let _t = {
             const size = query.size || 10
             const start = (page - 1) * size
             const target_user_id = query.target_user_id
-            const res = await service_wallet_log.list(target_user_id, start, size)
+            const real_status = query.real_status
+            const res = await service_wallet_log.list(target_user_id, start, size, real_status)
             for (let i = 0; i < res.list.length; i++) {
                 let item = res.list[i]
                 item.member = await service_member.oneById(item.user_id)
@@ -547,6 +548,23 @@ let _t = {
             return {
                 flag: 'ok', data: { list, page: { total, page, size } }
             }
+        },
+    },
+
+    recharge_item_status: {
+        put_opts: {
+            schema: {
+                body: S.object()
+                    .prop('id', S.integer().required())
+                    .prop('finish', S.string().required())
+            }
+        },
+        async put(request, reply) {
+            const body = request.body
+            const id = body.id
+            const finish = body.finish
+            const res = await service_wallet_log.updateFinish(id, finish)
+            return { flag: 'ok', res }
         },
     },
 
