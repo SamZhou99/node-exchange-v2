@@ -131,12 +131,24 @@ fastify.register(require('./routes/api.js'), { prefix: '/api' })
 fastify.register(require('./routes/index.js'))
 
 
+// // 启动服务
+// fastify.listen({ port: config.web.port }, (err, address) => {
+//     if (err) {
+//         fastify.log.error(err)
+//         process.exit(1)
+//     }
+//     console.log(`http://${config.web.host}:${config.web.port}`)
+//     console.log(address)
+// })
+
+
 // 启动服务
-fastify.listen({ port: config.web.port }, (err, address) => {
-    if (err) {
-        fastify.log.error(err)
-        process.exit(1)
-    }
-    console.log(`http://${config.web.host}:${config.web.port}`)
-    console.log(address)
-})
+fastify.listen(
+    { port: config.web.port, host: config.networks.LocalNewworkIP() },
+    (err, address) => {
+        if (err) {
+            fastify.log.error(err)
+            process.exit(1)
+        }
+        console.log(address)
+    })
