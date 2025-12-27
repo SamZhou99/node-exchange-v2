@@ -35,7 +35,7 @@ async function routes(fastify, options) {
 
     // 平台币  1：两个接口 首发项目使用。
     fastify.get('/currency-platform', controlless.api.currency_platform.opts, controlless.api.currency_platform.get)
-    fastify.get('/:coin_name/currency-platform', controlless.api.currency_platform.opts, controlless.api.currency_platform.getItem)
+    fastify.get('/currency-platform/item/:coin_name', controlless.api.currency_platform.opts, controlless.api.currency_platform.getItem)
     // 用户 参与平台币
     fastify.post('/participation-currency-platform', controlless.api.currency_platform.post_opts, controlless.api.currency_platform.post)
     // 合约币列表 合约兑换历史 买卖 止盈 止损 撤回 平仓
