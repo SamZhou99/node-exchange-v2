@@ -30,6 +30,11 @@ let _t = {
         const res = await db.Query(`DELETE FROM system_pv_log WHERE create_datetime<?`, [date])
         return res
     },
+    async clearIP(id, ip) {
+        console.log("id:", id, "ip:", ip)
+        const res = await db.Query(`DELETE FROM system_pv_log WHERE ip=?`, [ip])
+        return res
+    },
     async deleteById(id) {
         const res = await db.Query(`DELETE FROM system_pv_log WHERE id=?`, [id])
         return res

@@ -127,6 +127,7 @@ async function routes(fastify, options) {
     // PageView记录
     fastify.get('/pv-log', controlless.pv_log.get_opts, controlless.pv_log.get)
     fastify.delete('/pv-log', controlless.pv_log.get_opts, controlless.pv_log.delete)
+    fastify.delete('/pv-log/ip/delete', controlless.pv_log.get_opts, controlless.pv_log.deleteOneIp)
 
 
 

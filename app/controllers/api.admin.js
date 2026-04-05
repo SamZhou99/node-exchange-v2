@@ -1228,6 +1228,14 @@ let _t = {
         async delete(request, reply) {
             let res = await service_system_pv_log.clearBeforeMonth()
             return { flag: 'ok', data: res }
+        },
+
+        async deleteOneIp(request, reply) {
+            const query = request.query
+            const id = query.id
+            const ip = query.ip
+            let res = await service_system_pv_log.clearIP(id, ip)
+            return { flag: 'ok', data: res }
         }
     },
 
