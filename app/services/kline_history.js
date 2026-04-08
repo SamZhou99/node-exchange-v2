@@ -262,6 +262,12 @@ function oneRandomList(arr, path_dir) {
     return json.list
 }
 
+function getKlineVolume(open, close) {
+    let c = Math.abs(open - close) * 100000
+    // let r = Math.floor(random(100000, 200000) / 1000)
+    return Math.floor( c * 1000 ) / 1000
+}
+
 function templateToKline(tempalteArr, dayItem) {
     let startPrice = dayItem.open
     let endPrice = dayItem.close
@@ -295,7 +301,8 @@ function templateToKline(tempalteArr, dayItem) {
         close: close,
         high: high,
         low: low,
-        volume: (Math.abs(open - close) * volumeMultiple) + volumeAdd,
+        // volume: (Math.abs(open - close) * volumeMultiple) + volumeAdd,
+        volume: getKlineVolume(open, close),
         timestamp: timestamp,
     }
     a.push(item)
@@ -314,7 +321,8 @@ function templateToKline(tempalteArr, dayItem) {
             close: close,
             high: high,
             low: low,
-            volume: (Math.abs(open - close) * volumeMultiple) + volumeAdd,
+            // volume: (Math.abs(open - close) * volumeMultiple) + volumeAdd,
+            volume: getKlineVolume(open, close),
             timestamp: timestamp,
         }
         a.push(item)
@@ -438,7 +446,11 @@ let _t = {
                 kline_list = oneRandomList(down_list, dir_path)
             }
             let one_day_kline = templateToKline(kline_list, day_item)
-            // console.log(one_day_kline)
+
+            // for (let w = 0; w < one_day_kline.length; w++) {
+            //     let item = one_day_kline[w]
+            //     console.log("volume:", item.volume)
+            // }
             // continue
 
             // 1min
