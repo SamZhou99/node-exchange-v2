@@ -389,7 +389,7 @@ let _t = {
             let name = utils99.moment().format('YYYYMMDD_HHmmss')
             let file_name = __dirname + `/../../public/kline-template/${type}_${name}.json`
             utils99.fsTools.text.Save(content, file_name, () => {
-                reply.send({ flag: 'ok' })
+                return { flag: 'ok' }
             })
         },
 
